@@ -1,0 +1,191 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Supplier {
+  id              Int               @id @default(autoincrement())
+  name            String
+  phone           String?
+  email           String?
+  address         String?
+  homePage        String?
+  supplierContact SupplierContact[]
+  expense         Expense[]
+
+  @@map("suppliers")
+}
+
+model SupplierContact {
+  id            Int      @id @default(autoincrement())
+  name          String
+  jobTitle      String?
+  phone         String?
+  email         String?
+  accountNumber String?
+  accountBank   String?
+  supplier      Supplier @relation(fields: [supplierId], references: [id])
+  supplierId    Int
+
+  @@map("supplier_contacts")
+}
+
+model Employee {
+  id                    Int     @id @default(autoincrement())
+  photo                 String?
+  name                  String
+  jobTitle              String
+  phone                 String?
+  email                 String?
+  address               String?
+  orders                Order[]
+  haveProductAccess     Boolean @default(false)
+  haveTransactionAccess Boolean @default(false)
+  haveStatisticAccess   Boolean @default(false)
+  haveCompanyInfoAcess  Boolean @default(false)
+
+  @@map("employees")
+}
+
+model Customer {
+  id      String  @id @default(cuid())
+  name    String
+  phone   String?
+  email   String?
+  address String?
+  order   Order[]
+
+  @@map("customers")
+}
+
+model ProductCategory {
+  id      Int       @id @default(autoincrement())
+  name    String
+  product Product[]
+
+  @@map("product-categories")
+}
+
+model Product {
+  id                 Int                @id @default(autoincrement()) //possible string
+  name               String
+  photo              String?
+  description        String?
+  suggestedUnitPrice Int
+  buyUnitPrice       Int
+  inStock            Int
+  onOrder            Int                @default(0)
+  reorderLevel       Int                @default(0)
+  orderLine          OrderLine[]
+  productCategory    ProductCategory?   @relation(fields: [productCategoryId], references: [id])
+  productCategoryId  Int?
+  expenseOrderLine   ExpenseOrderLine[]
+  // Promotion (Future Development)
+
+  @@map("products")
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  customer     Customer?   @relation(fields: [customerId], references: [id])
+  customerId   String?
+  employee     Employee    @relation(fields: [employeeId], references: [id])
+  employeeId   Int
+  orderLine    OrderLine[]
+  orderedDate  DateTime    @default(now())
+  requiredDate DateTime    @default(now())
+  shipmentDate DateTime    @default(now())
+  discount     Int         @default(0)
+  rounding     Int         @default(0)
+  payment      Payment[]
+
+  @@map("orders")
+}
+
+model OrderLine {
+  order         Order   @relation(fields: [orderId], references: [id])
+  orderId       Int
+  product       Product @relation(fields: [productId], references: [id])
+  productId     Int
+  buyUnitPrice  Int
+  sellUnitPrice Int
+  quantity      Int
+
+  @@id([orderId, productId])
+  @@map("order_lines")
+}
+
+model PaymentType {
+  id             Int              @id @default(autoincrement())
+  name           String
+  payment        Payment[]
+  ExpensePayment ExpensePayment[]
+
+  @@map("payment_types")
+}
+
+model Payment {
+  id            Int         @id @default(autoincrement())
+  order         Order       @relation(fields: [orderId], references: [id])
+  orderId       Int
+  paymentDate   DateTime
+  paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
+  paymentTypeId Int
+  amount        Int
+
+  @@map("payments")
+}
+
+model ExpenseType {
+  id      Int       @id @default(autoincrement())
+  name    String
+  expense Expense[]
+
+  @@map("expense_types")
+}
+
+model Expense {
+  id               Int                @id @default(autoincrement())
+  date             DateTime           @default(now())
+  expenseType      ExpenseType        @relation(fields: [expenseTypeId], references: [id])
+  expenseTypeId    Int
+  description      String
+  amount           Int
+  supplier         Supplier?          @relation(fields: [supplierId], references: [id])
+  supplierId       Int?
+  expenseOrderLine ExpenseOrderLine[]
+  expensePayment   ExpensePayment[]
+
+  @@map("expenses")
+}
+
+model ExpenseOrderLine {
+  expense   Expense @relation(fields: [expenseId], references: [id])
+  expenseId Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  unitPrice Decimal
+  quantity  Int
+
+  @@id([expenseId, productId])
+  @@map("expense_order_lines")
+}
+
+model ExpensePayment {
+  id            Int         @id @default(autoincrement())
+  expense       Expense     @relation(fields: [expenseId], references: [id])
+  expenseId     Int
+  paymentDate   DateTime
+  paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
+  paymentTypeId Int
+  amount        Int
+
+  @@map("expense_payments")
+}
