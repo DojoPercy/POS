@@ -1,6 +1,13 @@
+type Statistic = {
+    date: string,
+    revenue: number,
+    income: number,
+    paymentsIn: number,
+}
+
 export function generateEmptyStatisticsByDate(startDate: Date, endDate: Date) {
     var currentDate = new Date(startDate.toISOString());
-    var groupedArray = []
+    var groupedArray: Statistic[] = []
     while(currentDate <= endDate) {
         var localDateOnly = currentDate.toLocaleDateString("id");
 
@@ -16,7 +23,7 @@ export function generateEmptyStatisticsByDate(startDate: Date, endDate: Date) {
     return groupedArray;
 }
 
-export async function getStatisticsByDate(startDate: Date, endDate: Date, offset: number) {
+export async function getStatisticsByDate(startDate: Date, endDate: Date) {
     const utcStartDate = startDate;
     const utcEndDate = endDate;
 
@@ -46,9 +53,15 @@ export async function getStatisticsByDate(startDate: Date, endDate: Date, offset
 
     console.log(paymentResponse);
 
-    var groupedRevenue = {};
-    var groupedIncome = {};
-    var groupedPaymentIn = {};
+    var groupedRevenue: {
+        [key: string]: number
+    } = {};
+    var groupedIncome: {
+        [key: string]: number
+    } = {};
+    var groupedPaymentIn: {
+        [key: string]: number
+    } = {};
 
     for (var i = 0; i < orderResponse.length; i++) {
         if (orderResponse[i].orderedDate in groupedRevenue) {
@@ -76,7 +89,7 @@ export async function getStatisticsByDate(startDate: Date, endDate: Date, offset
     }
 
     var currentDate = new Date(startDate.toISOString());
-    var groupedArray = []
+    var groupedArray: Statistic[] = []
     while(currentDate <= endDate) {
         var localDateOnly = currentDate.toLocaleDateString("id");
 
@@ -93,4 +106,53 @@ export async function getStatisticsByDate(startDate: Date, endDate: Date, offset
 
 
     return groupedArray;
+}
+
+export async function getProductStatisticByDate(startDate: Date, endDate: Date) {
+    const utcStartDate = startDate;
+    const utcEndDate = endDate;
+
+    const query = {
+        queryType: "read",
+        startDate: utcStartDate,
+        endDate: utcEndDate
+    }
+    const orderResponse = await fetch(`api/orders`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(query),
+        cache: 'no-store'
+    }).then((orderResponse) => orderResponse.json());
+
+    const productResponse = await fetch(`api/products`, {
+    }).then((productResponse) => productResponse.json());
+
+    var productData: {
+        [key: string]: {
+            [key:string]: number,
+        }
+    } = {};
+
+    for (var i = 0; i < productResponse.length; i++) {
+        productData[productResponse[i].name] = {
+            revenue: 0,
+            income: 0,
+            sold: 0,
+            orders: 0,
+        }
+    }
+
+    for (var i = 0; i < orderResponse.length; i++) {
+        for (var j = 0; j < orderResponse[i].orderLine.length; j++) {
+            var orderLine = orderResponse[i].orderLine[j];
+            productData[orderLine.product.name].revenue += orderLine.sellUnitPrice * orderLine.quantity;
+            productData[orderLine.product.name].income += (orderLine.sellUnitPrice - orderLine.buyUnitPrice) * orderLine.quantity;
+            productData[orderLine.product.name].sold += orderLine.quantity;
+            productData[orderLine.product.name].orders += 1;
+        }
+    }
+
+    return productData;
 }
