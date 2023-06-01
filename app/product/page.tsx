@@ -6,6 +6,7 @@ import { RefreshCw, Download, Plus } from "lucide-react";
 import { getProducts } from "@/lib/product";
 
 import { ProductList, columns } from "@/app/product/columns";
+
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/dataTable";
 

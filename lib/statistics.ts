@@ -1,9 +1,12 @@
-type Statistic = {
+export type Statistic = {
     date: string,
     revenue: number,
     income: number,
     paymentsIn: number,
 }
+
+import { orderOperations } from "./order"
+import { paymentOperations } from "./payment";
 
 export function generateEmptyStatisticsByDate(startDate: Date, endDate: Date) {
     var currentDate = new Date(startDate.toISOString());
@@ -28,11 +31,10 @@ export async function getStatisticsByDate(startDate: Date, endDate: Date) {
     const utcEndDate = endDate;
 
     const query = {
-        queryType: "read",
-        startDate: utcStartDate,
-        endDate: utcEndDate
+        queryType: orderOperations.getOrdersByDateRange,
+        from: utcStartDate,
+        to: utcEndDate
     }
-
     const orderResponse = await fetch(`api/orders`, {
         method: 'POST',
         headers: {
@@ -42,12 +44,18 @@ export async function getStatisticsByDate(startDate: Date, endDate: Date) {
         cache: 'no-store'
     }).then((orderResponse) => orderResponse.json());
 
+    const paymentQuery = {
+        queryType: paymentOperations.getPaymentSumByDateRange,
+        from: utcStartDate,
+        to: utcEndDate
+    }
+
     const paymentResponse = await fetch(`api/payments`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(query),
+        body: JSON.stringify(paymentQuery),
         cache: 'no-store'
     }).then((paymentResponse) => paymentResponse.json());
 
@@ -113,7 +121,7 @@ export async function getProductStatisticByDate(startDate: Date, endDate: Date) 
     const utcEndDate = endDate;
 
     const query = {
-        queryType: "read",
+        queryType: orderOperations.getOrdersByDateRange,
         startDate: utcStartDate,
         endDate: utcEndDate
     }
@@ -154,5 +162,16 @@ export async function getProductStatisticByDate(startDate: Date, endDate: Date) 
         }
     }
 
-    return productData;
+    var productArray: RevenueIncomeList[] = []
+    for (var name in productData) {
+        productArray.push({
+            name: name,
+            revenue: productData[name].revenue,
+            income: productData[name].income,
+            sold: productData[name].sold,
+            orders: productData[name].orders,
+        })
+    }
+
+    return productArray;
 }

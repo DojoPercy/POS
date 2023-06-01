@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-import { paymentOperations } from "@/lib/payment";
+import { expenseOperations } from "@/lib/expense";
 
 export async function POST(request: Request) {
     const body = await request.json();
 
-    if (body.queryType === paymentOperations.getPaymentSumByDateRange) {
-        const response = await prisma.payment.aggregate({
+    if (body.queryType === expenseOperations.getExpenseSumByDateRange) {
+        const response = await prisma.expense.aggregate({
             _sum: {
                 amount: true,
             },

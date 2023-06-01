@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+import { orderOperations } from "@/lib/order";
+
 export async function GET(request: Request) {
-    const orders = await prisma.order.findMany({
+    const response = await prisma.order.findMany({
         include: {
             employee: {
                 select: {
@@ -22,35 +24,124 @@ export async function GET(request: Request) {
         }
     });
 
-    for (let order of orders) {
+    for (let order of response) {
         let orderTotal = 0;
+        let paymentTotal = 0;
         for (let line of order.orderLine){
             orderTotal += line.quantity * line.sellUnitPrice;
         }
-        ;(order as any).orderTotal = orderTotal;
-
-        let paymentTotal = 0;
         for (let payment of order.payment) {
             paymentTotal += payment.amount;
         }
-        ;(order as any).paymentTotal = paymentTotal;
 
-        ;(order as any).paid = (orderTotal - order.discount + order.rounding === paymentTotal ? "Full" : (paymentTotal === 0 ? "None" : "Partial"));
-
-        const orderedDate = new Date(order.orderedDate);
-        ;(order as any).orderedDate = orderedDate.toLocaleString("id").replaceAll(".", ":");
-
-        const requiredDate = new Date(order.requiredDate);
-        ;(order as any).requiredDate = requiredDate.toLocaleString("id").replaceAll(".", ":");
+        ;(order as any).orderTotal = orderTotal;
+        ;(order as any).paymentStatus = (orderTotal - order.discount + order.rounding === paymentTotal ? "Full" : (paymentTotal === 0 ? "None" : "Partial"));
     }
 
-    return NextResponse.json(orders);
+    return NextResponse.json(response);
 }
 
 export async function POST(request: Request) {
     const body = await request.json();
 
-    if (body.queryType === "read" && "orderId" in body) {
+    if (body.queryType === orderOperations.getOrderCountByDateRange) {
+        const orderCount = await prisma.order.count({
+            where: {
+                orderedDate: {
+                    gte: body.from,
+                    lte: body.to,
+                }
+            },
+        })
+
+        return NextResponse.json(orderCount)
+    }
+    if (body.queryType === orderOperations.getOrderRevenueByDateRange) {
+        const response = await prisma.order.findMany({
+            select: {
+                discount: true,
+                rounding: true,
+                orderLine: {
+                    select: {
+                        quantity: true,
+                        sellUnitPrice: true,
+                    },
+                },
+            },
+            where: {
+                orderedDate: {
+                    gte: body.from,
+                    lte: body.to,
+                }
+            },
+        })
+
+        let orderRevenue = 0
+        for (let order of response) {
+            for (let orderLine of order.orderLine) {
+                orderRevenue += orderLine.sellUnitPrice * orderLine.quantity
+            }
+            orderRevenue += (order.rounding - order.discount)
+        }
+
+        return NextResponse.json(orderRevenue)
+    }
+    if (body.queryType === orderOperations.getOrderIncomeByDateRange) {
+        const response = await prisma.order.findMany({
+            select: {
+                discount: true,
+                rounding: true,
+                orderLine: {
+                    select: {
+                        quantity: true,
+                        buyUnitPrice: true,
+                        sellUnitPrice: true,
+                    },
+                },
+            },
+            where: {
+                orderedDate: {
+                    gte: body.from,
+                    lte: body.to,
+                }
+            },
+        })
+
+        let orderIncome = 0
+        for (let order of response) {
+            for (let orderLine of order.orderLine) {
+                orderIncome += (orderLine.sellUnitPrice - orderLine.buyUnitPrice) * orderLine.quantity
+            }
+            orderIncome += (order.rounding - order.discount)
+        }
+
+        return NextResponse.json(orderIncome)
+    }
+    if (body.queryType === orderOperations.getOrderSummaryByDateRange) {
+        const response = await prisma.order.findMany({
+            select: {
+                orderedDate: true,
+                discount: true,
+                rounding: true,
+                orderLine: {
+                    select: {
+                        quantity: true,
+                        buyUnitPrice: true,
+                        sellUnitPrice: true,
+                    },
+                },
+            },
+            where: {
+                orderedDate: {
+                    gte: body.from,
+                    lte: body.to,
+                }
+            },
+        })
+
+        return NextResponse.json(response)
+    }
+    if (body.queryType === orderOperations.getOrderById) {
         const order = await prisma.order.findUnique({
             where: {
                 id: body.orderId,
@@ -116,22 +207,27 @@ export async function POST(request: Request) {
         return NextResponse.json(order);
     }
 
-    if (body.queryType === "read" && "startDate" in body && "endDate" in body) {
+    if (body.queryType === orderOperations.getOrdersByDateRange) {
         const orders = await prisma.order.findMany({
             where: {
                 orderedDate: {
-                    gte: body.startDate,
-                    lte: body.endDate,
+                    gte: body.from,
+                    lte: body.to,
                 }
             },
             include: {
-                orderLine: true,
+                orderLine: {
+                    include: {
+                        product: {
+                            select: {
+                                name: true,
+                            }
+                        }
+                    }
+                },
                 payment: true,
             },
         });
-
-        console.log(new Date(body.startDate));
-        console.log(new Date(body.endDate));
 
         for (let order of orders) {
             let orderTotal = 0;
@@ -150,7 +246,7 @@ export async function POST(request: Request) {
     }
 
 
-    if (body.queryType === "update") {
+    if (body.queryType === orderOperations.updateOrderById) {
         const update = await prisma.order.update({
             where: {
                 id: body.order.id,
