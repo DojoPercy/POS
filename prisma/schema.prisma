@@ -104,6 +104,7 @@ model Order {
   shipmentDate DateTime    @default(now())
   discount     Int         @default(0)
   rounding     Int         @default(0)
+  // status?
   payment      Payment[]
 
   @@map("orders")
@@ -135,7 +136,7 @@ model Payment {
   id            Int         @id @default(autoincrement())
   order         Order       @relation(fields: [orderId], references: [id])
   orderId       Int
-  paymentDate   DateTime
+  date          DateTime    @default(now())
   paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
   paymentTypeId Int
   amount        Int
