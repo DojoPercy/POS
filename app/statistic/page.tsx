@@ -1,16 +1,17 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { generateEmptyStatisticsByDate, getProductStatisticByDate, getStatisticsByDate } from "@/lib/statistics";
+"use client"
 
-import { RefreshCw, Download } from "lucide-react";
+import React, { useState, useEffect } from "react"
+
+import { RefreshCw, Download } from "lucide-react"
 
 import { addDays } from "date-fns"
 
-import { StatisticHeader } from "./headers";
-import { columnsRevenueIncome } from "./columns";
-import { RevenueIncomeList, ExpensesList, PaymentsInList } from './columns'
+import { StatisticHeaderDef, StatisticHeaders, StatisticFns } from "./headers"
+import { columnsRevenueIncome } from "./columns"
+import { orderProductsSummary } from "@/lib/product"
+import { ExpensesList, PaymentsInList } from './columns'
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
     Card,
     CardContent,
@@ -19,11 +20,19 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { DatePickerWithRange } from "@/components/ui/datePickerWithRange";
-import { DataTable } from "@/components/ui/dataTable";
-import { DateRange } from "react-day-picker";
-import { ResponsiveLineChart } from "@/components/ui/responsiveLineChart";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DatePickerWithRange } from "@/components/ui/datePickerWithRange"
+import { DataTable } from "@/components/ui/dataTable"
+import { DateRange } from "react-day-picker"
+import { ResponsiveLineChart } from "@/components/ui/responsiveLineChart"
+import { Skeleton } from "@/components/ui/skeleton"
+import { getProductOrderSummaryByDateRange } from "@/lib/product"
+
+type graphDataDef = {
+    [key: number]: {
+        date: string
+        [key: string]: string | number
+    }[]
+}
 
 export default function Transaction() {
     const [refresh, setRefresh] = useState(true)
@@ -32,37 +41,51 @@ export default function Transaction() {
         to: new Date(),
     })
 
+    const [selectedHeader, setSelectedHeader] = useState<StatisticHeaderDef>(StatisticHeaders[0])
+
     const [headerData, setHeaderData] = useState<number[]>([])
-    const [graphData, setGraphData] = useState([])
-    const [tableData, setTabledata] = useState<RevenueIncomeList[] | ExpensesList[] | PaymentsInList[]>([])
-    const [detailedData, setDetailedData] = useState([])
-    const [value, setValue] = useState("revenue")
+    const [graphData, setGraphData] = useState<graphDataDef>({})
+    const [tableData, setTabledata] = useState<orderProductsSummary[] | ExpensesList[] | PaymentsInList[]>([])
 
     useEffect(() => {
         if (!refresh) {
-            return;
+            return
         }
 
-        setHeaderData([]);
-        setGraphData(generateEmptyStatisticsByDate(date.from, date.to));
-        setTabledata([]);
-        (async () => {
-            const headerContent = []
-            for (let header of StatisticHeader) {
-                const headerValue = await header.fn(date.from, date.to)
-                headerContent.push(headerValue)
+        setHeaderData([])
+        setGraphData({})
+        setTabledata([])
+
+        const updatePage = async () => {
+            const headerContent: number[] = []
+            for (let header of StatisticHeaders) {
+                if (date !== undefined && date.from !== undefined && date.to !== undefined) {
+                    const headerValue = await header.call(date.from, date.to)
+                    headerContent.push(headerValue)
+                }
             }
 
+            const graphContent: graphDataDef = {}
+            for (let fn of StatisticFns) {
+                if (date !== undefined && date.from !== undefined && date.to !== undefined) {
+                    graphContent[fn.index] = await fn.call(date.from, date.to)
+                }
+            }
 
-            const data = await getStatisticsByDate(date.from, date.to);
-            const tmp = await getProductStatisticByDate(date.from, date.to);
+            // const tmp = await getProductStatisticByDate(date.from, date.to)
+            let tableValue: (orderProductsSummary[] | ExpensesList[] | PaymentsInList[]) = []
+            if (date !== undefined && date.from !== undefined && date.to !== undefined) {
+                tableValue = await getProductOrderSummaryByDateRange(date.from, date.to)
+            }
 
             setHeaderData(headerContent)
-            setGraphData(data);
-            setTabledata(tmp);
-            setRefresh(false);
-        })()
-    }, [refresh]);
+            setGraphData(graphContent)
+            setTabledata(tableValue)
+            setRefresh(false)
+        }
+        updatePage()
+
+    }, [refresh])
 
     useEffect(() => {
         setRefresh(true)
@@ -90,8 +113,11 @@ export default function Transaction() {
             </div>
 
             <div className="mt-10 pb-2.5 flex flex-row w-full gap-5 overflow-auto">
-                {StatisticHeader.map((header, i) => (
-                    <Card className="w-48 h-28 hover:bg-accent hover:text-accent-foreground">
+                {StatisticHeaders.map((header, i) => (
+                    <Card
+                    className={"w-48 h-28 " + (header.name === selectedHeader.name ? "bg-accent text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground")}
+                    onClick={() => setSelectedHeader(header)}
+                    >
                         <CardHeader>
                             <CardTitle className="flex flex-row">
                                 <span>{header.name}</span>
@@ -99,7 +125,7 @@ export default function Transaction() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p>{i < headerData.length ? headerData[i] ?? "0" : <Skeleton className="w-full h-[20px] rounded-full" />}</p>
+                            {i < headerData.length ? <p>{headerData[i] ?? "0"}</p> : <Skeleton className="w-full h-[20px] rounded-full" />}
                         </CardContent>
                     </Card>
                 ))}
@@ -107,7 +133,7 @@ export default function Transaction() {
             <div className="mt-5">
                 <Card>
                     <CardContent className="py-10">
-                        <ResponsiveLineChart data={graphData} value={value} />
+                        <ResponsiveLineChart data={graphData[selectedHeader.graphIndex]} value={selectedHeader.accessorKey} />
                     </CardContent>
                 </Card>
             </div>

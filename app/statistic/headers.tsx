@@ -11,10 +11,12 @@ import {
 import {
     getOrderCountByDateRange,
     getOrderRevenueByDateRange,
-    getOrderIncomeByDateRange
+    getOrderIncomeByDateRange,
+    getOrderSummaryByDateRange,
+    orderSummaryByDate
 } from "@/lib/order"
-import { getExpenseSumByDateRange } from "@/lib/expense"
-import { getPaymentSumByDateRange } from "@/lib/payment"
+import { expenseSummaryByDate, getExpenseSumByDateRange, getExpenseSummaryByDateRange } from "@/lib/expense"
+import { getPaymentSumByDateRange, getPaymentSummaryByDateRange, paymentSummaryByDate } from "@/lib/payment"
 
 enum StatisticGraph {
     ordersGraph,
@@ -22,42 +24,68 @@ enum StatisticGraph {
     paymentsGraph,
 }
 
-type StatisticHeader = {
+export type StatisticHeaderDef = {
     name: string
     icon: JSX.Element
-    fn: (from: Date, to: Date) => Promise<number>
+    call: (from: Date, to: Date) => Promise<number>
     graphIndex: number
+    accessorKey: string
 }
 
-export const StatisticHeader: StatisticHeader[] = [
+type StatisticFnDef<TValue> = {
+    index: number,
+    call: (from: Date, to: Date) => Promise<TValue>
+} 
+
+export const StatisticHeaders: StatisticHeaderDef[] = [
     {
         name: "Sales",
         icon: <Boxes className="w-4 h-4" />,
-        fn: getOrderCountByDateRange,
+        call: getOrderCountByDateRange,
         graphIndex: StatisticGraph.ordersGraph,
+        accessorKey: "sales",
     },
     {
         name: "Revenue",
         icon: <Banknote className="w-4 h-4" />,
-        fn: getOrderRevenueByDateRange,
+        call: getOrderRevenueByDateRange,
         graphIndex: StatisticGraph.ordersGraph,
+        accessorKey: "revenue",
     },
     {
         name: "Income",
         icon: <Coins className="w-4 h-4" />,
-        fn: getOrderIncomeByDateRange,
+        call: getOrderIncomeByDateRange,
         graphIndex: StatisticGraph.ordersGraph,
+        accessorKey: "income",
     },
     {
         name: "Expenses",
         icon: <Receipt className="w-4 h-4" />,
-        fn: getExpenseSumByDateRange,
+        call: getExpenseSumByDateRange,
         graphIndex: StatisticGraph.expensesGraph,
+        accessorKey: "expenses",
     },
     {
         name: "Payments In",
         icon: <Wallet className="w-4 h-4" />,
-        fn: getPaymentSumByDateRange,
+        call: getPaymentSumByDateRange,
         graphIndex: StatisticGraph.paymentsGraph,
+        accessorKey: "paymentsIn",
     }
+]
+
+export const StatisticFns: StatisticFnDef<orderSummaryByDate[] | expenseSummaryByDate[] | paymentSummaryByDate[]>[] = [
+    {
+        index: StatisticGraph.ordersGraph,
+        call: getOrderSummaryByDateRange,
+    },
+    {
+        index: StatisticGraph.expensesGraph,
+        call: getExpenseSummaryByDateRange,
+    },
+    {
+        index: StatisticGraph.paymentsGraph,
+        call: getPaymentSummaryByDateRange,
+    },
 ]

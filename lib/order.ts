@@ -1,29 +1,39 @@
+import { Order } from "@prisma/client"
+
 export enum orderOperations{
     getOrderById,
     getOrderCountByDateRange,
     getOrderRevenueByDateRange,
     getOrderIncomeByDateRange,
     getOrderSummaryByDateRange,
+    getOrderProductsByDateRange,
     getOrdersByDateRange,
     updateOrderById,
 }
 
-type orderSummary = {
-    orderedDate: Date
+type orderSummaryResponse = {
+    orderedDate: string
     discount: number
     rounding: number
     orderLine: {
         quantity: number
         buyUnitPrice: number
         sellUnitPrice: number
-    }
+    }[]
+}
+
+export type orderSummaryByDate = {
+    date: string
+    sales: number
+    revenue: number
+    income: number
 }
 
 export async function getOrders() {
     const res = await fetch(`api/orders`, {
         cache: 'no-store'
-    }).then((res) => res.json());
-    return res;
+    }).then((res) => res.json())
+    return res
 }
 
 export async function getOrderById(orderId: string) {
@@ -38,8 +48,8 @@ export async function getOrderById(orderId: string) {
         },
         body: JSON.stringify(query),
         cache: 'no-store'
-    }).then((res) => res.json());
-    return res;
+    }).then((res) => res.json())
+    return res
 }
 
 export async function getOrderCountByDateRange(from: Date, to: Date) {
@@ -56,8 +66,8 @@ export async function getOrderCountByDateRange(from: Date, to: Date) {
         },
         body: JSON.stringify(query),
         cache: 'no-store'
-    }).then((res) => res.json());
-    return res;
+    }).then((res) => res.json())
+    return res
 }
 
 export async function getOrderRevenueByDateRange(from: Date, to: Date) {
@@ -73,8 +83,8 @@ export async function getOrderRevenueByDateRange(from: Date, to: Date) {
         },
         body: JSON.stringify(query),
         cache: 'no-store'
-    }).then((res) => res.json());
-    return res;
+    }).then((res) => res.json())
+    return res
 }
 
 export async function getOrderIncomeByDateRange(from: Date, to: Date) {
@@ -90,8 +100,8 @@ export async function getOrderIncomeByDateRange(from: Date, to: Date) {
         },
         body: JSON.stringify(query),
         cache: 'no-store'
-    }).then((res) => res.json());
-    return res;
+    }).then((res) => res.json())
+    return res
 }
 
 export async function getOrderSummaryByDateRange(from: Date, to: Date) {
@@ -100,18 +110,54 @@ export async function getOrderSummaryByDateRange(from: Date, to: Date) {
         from: from,
         to: to,
     }
-    const res: orderSummary = await fetch(`api/orders`, {
+    const res: orderSummaryResponse[] = await fetch(`api/orders`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(query),
         cache: 'no-store'
-    }).then((res) => res.json());
+    }).then((res) => res.json())
 
-    
+    const orderSummary: orderSummaryByDate[] = []
+    const currentDate = new Date(from)
+    let i = 0
 
-    return res;
+    while (currentDate <= to) {
+        const currentDateString = currentDate.toLocaleDateString("id")
+        orderSummary.push({
+            date: currentDateString,
+            sales: 0,
+            revenue: 0,
+            income: 0,
+        })
+
+        while (i < res.length) {
+            const orderDateString = new Date(res[i].orderedDate).toLocaleDateString("id")
+            if (orderDateString === currentDateString) {
+                let revenue = res[i].rounding - res[i].discount 
+                let income = res[i].rounding - res[i].discount
+                for (let orderLine of res[i].orderLine) {
+                    revenue += orderLine.sellUnitPrice * orderLine.quantity
+                    income += (orderLine.sellUnitPrice - orderLine.buyUnitPrice) * orderLine.quantity
+                }
+
+                orderSummary[orderSummary.length - 1].sales += 1
+                orderSummary[orderSummary.length - 1].revenue += revenue
+                orderSummary[orderSummary.length - 1].income += income
+
+                i += 1
+            }
+            else {
+                break
+            }
+        }
+
+
+        currentDate.setDate(currentDate.getDate() + 1)
+    }
+
+    return orderSummary
 }
 
 export async function getOrdersByDateRange(from: Date, to: Date) {
@@ -127,9 +173,9 @@ export async function getOrdersByDateRange(from: Date, to: Date) {
         },
         body: JSON.stringify(query),
         cache: 'no-store'
-    }).then((res) => res.json());
+    }).then((res) => res.json())
     console.log(res)
-    return res;
+    return res
 }
 
 export async function updateOrderById(order: Order) {
@@ -149,6 +195,6 @@ export async function updateOrderById(order: Order) {
         },
         body: JSON.stringify(query),
         cache: 'no-store'
-    }).then((res) => res.json());
-    return res;
+    }).then((res) => res.json())
+    return res
 }

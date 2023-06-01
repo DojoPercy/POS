@@ -4,13 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 
 import { DataTableColumnHeader } from "@/components/ui/dataTableColumnHeader"
 
-export type RevenueIncomeList = {
-    name: string,
-    revenue: number,
-    income: number,
-    sold: number,
-    orders: number,
-}
+import { orderProductsSummary } from "@/lib/product"
 
 export type ExpensesList = {
 
@@ -20,7 +14,7 @@ export type PaymentsInList = {
 
 }
 
-export const columnsRevenueIncome: ColumnDef<RevenueIncomeList | ExpensesList | PaymentsInList>[] = [
+export const columnsRevenueIncome: ColumnDef<orderProductsSummary | ExpensesList | PaymentsInList>[] = [
     {
         accessorKey: "name",
         header: ({ column }) => (
