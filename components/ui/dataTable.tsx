@@ -61,7 +61,7 @@ export function DataTable<TData, TValue>({
 
     return (
         <div>
-            <div className="flex relative text-zinc-400 focus-within:text-zinc-900 gap-5">
+            <div className="flex relative gap-5">
                 <Search className="absolute left-3 h-full flex items-center pointer-events-none transition-colors duration-300 ease-linear ml-2 w-4" />
                 <Input type="text" className="max-full rounded-full bg-zinc-200 text-sm font-medium py-3 pl-12 text-zinc-900 placeholder-zinc-400 focus:bg-zinc-300 focus:outline-none transition-colors duration-300 ease-linear" placeholder="Search"
                 value={(table.getColumn("paymentStatus")?.getFilterValue() as string) ?? ""}

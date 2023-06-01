@@ -16,9 +16,15 @@ import {
   PopoverClose,
 } from "@/components/ui/popover"
 
+interface DatePickerWithRangeProps {
+    className?: string,
+    setParentDate: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
+}
+
 export function DatePickerWithRange({
   className,
-}: React.HTMLAttributes<HTMLDivElement>) {
+  setParentDate,
+}: DatePickerWithRangeProps) {
     const [date, setDate] = useState<DateRange | undefined>({
         from: addDays(new Date(), -7),
         to: new Date(),
@@ -33,7 +39,15 @@ export function DatePickerWithRange({
             return
         }
 
-        
+        if (date.to === undefined) {
+            setParentDate({
+                from: date.from,
+                to: date.from
+            })
+        }
+        else {
+            setParentDate(date)
+        }
 
     }, [date])
 
