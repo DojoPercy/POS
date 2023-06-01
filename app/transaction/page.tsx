@@ -5,7 +5,11 @@ import { RefreshCw, Download, Plus } from "lucide-react";
 import { getOrders } from "@/lib/order";
 import { getOrderById } from "@/lib/order";
 
+import { DateRange } from "react-day-picker";
+import { addDays } from "date-fns";
+
 import { TransactionList, columns } from "@/app/transaction/columns";
+
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/dataTable";
 import { DatePickerWithRange } from "@/components/ui/datePickerWithRange";
@@ -13,6 +17,10 @@ import { DatePickerWithRange } from "@/components/ui/datePickerWithRange";
 export default function Transaction() {
     const [refresh, setRefresh] = useState(true);
     const [data, setData] = useState<TransactionList[]>([]);
+    const [date, setDate] = useState<DateRange | undefined>({
+        from: addDays(new Date(), -7),
+        to: new Date(),
+    })
     const [editOrderId, setEditOrderId] = useState("");
     const [editOrder, setEditOrder] = useState();
     const [editLoading, setEditLoading] = useState(true);
@@ -62,7 +70,7 @@ export default function Transaction() {
                     </div>
                 </div>
                 <div className="ml-auto flex justify-end gap-5">
-                    <DatePickerWithRange />
+                    <DatePickerWithRange setParentDate={setDate} />
                     <Button variant="outline" className="my-auto">
                         <Plus className="w-4 h-4 mr-2" /> New transaction
                     </Button>
