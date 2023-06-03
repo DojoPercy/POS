@@ -211,27 +211,29 @@ export async function POST(request: Request) {
             }
         })
 
-        let orderTotal = 0
-        for (let line of order.orderLine) {
-            orderTotal += line.quantity * line.sellUnitPrice
-        }
-        ;(order as any).orderTotal = orderTotal
+        if (order) {
+            let orderTotal = 0
+            for (let line of order.orderLine) {
+                orderTotal += line.quantity * line.sellUnitPrice
+            }
+            ;(order as any).orderTotal = orderTotal
 
-        let paymentTotal = 0
-        for (let payment of order.payment) {
-            paymentTotal += payment.amount
-        }
-        ;(order as any).paymentTotal = paymentTotal
+            let paymentTotal = 0
+            for (let payment of order.payment) {
+                paymentTotal += payment.amount
+            }
+            ;(order as any).paymentTotal = paymentTotal
 
-        const orderedDate = new Date(order.orderedDate)
-        ;(order as any).orderedDate = orderedDate.toLocaleString("id").replaceAll(".", ":")
+            const orderedDate = new Date(order.orderedDate)
+            ;(order as any).orderedDate = orderedDate.toLocaleString("id").replaceAll(".", ":")
 
-        const requiredDate = new Date(order.requiredDate)
-        ;(order as any).requiredDate = requiredDate.toLocaleString("id").replaceAll(".", ":")
+            const requiredDate = new Date(order.requiredDate)
+            ;(order as any).requiredDate = requiredDate.toLocaleString("id").replaceAll(".", ":")
 
-        for (let payment of order.payment) {
-            const date = new Date(payment.paymentDate)
-            ;(payment as any).paymentDate = date.toLocaleString("id").replaceAll(".", ":")
+            for (let payment of order.payment) {
+                const date = new Date(payment.date)
+                ;(payment as any).paymentDate = date.toLocaleString("id").replaceAll(".", ":")
+            }
         }
     
         return NextResponse.json(order)
