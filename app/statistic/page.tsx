@@ -85,6 +85,7 @@ export default function Transaction() {
         }
         updatePage()
 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refresh])
 
     useEffect(() => {
@@ -116,6 +117,7 @@ export default function Transaction() {
                 {StatisticHeaders.map((header, i) => (
                     <Card
                     className={"w-48 h-28 " + (header.name === selectedHeader.name ? "bg-accent text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground")}
+                    key={i}
                     onClick={() => setSelectedHeader(header)}
                     >
                         <CardHeader>
