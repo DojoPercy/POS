@@ -8,8 +8,8 @@ export default function SideBarFieldPayment({ data, label, columnName, iconName,
                 <span className="my-auto font-semibold">{label}</span>
             </div>
             {
-                (!loading && Object.keys(data).length !== 0) && data[columnName ? columnName : label].map((row: any) => (
-                    <div className="flex px-3.5 py-1.5 min-h-[32px] text-zinc-900 border-b-2 border-b-zinc-300 w-full">
+                (!loading && Object.keys(data).length !== 0) && data[columnName ? columnName : label].map((row: any, i: number) => (
+                    <div className="flex px-3.5 py-1.5 min-h-[32px] text-zinc-900 border-b-2 border-b-zinc-300 w-full" key={i}>
                         <div className="mr-auto my-auto justify-start flex w-1/3">
                             {row.paymentDate.split(", ")[0]}
                         </div>

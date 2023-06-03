@@ -29,8 +29,8 @@ export default function Picker({ columnName, data, loading, handlePickerClick, h
 
                 <div className="flex flex-col text-zinc-900 py-3 px-8">
                     {
-                        !loading && data.map((data:any) => (
-                            <div className="flex border h-12 border-zinc-200 px-3.5 py-1.5 w-full text-sm">
+                        !loading && data.map((data:any, i: number) => (
+                            <div className="flex border h-12 border-zinc-200 px-3.5 py-1.5 w-full text-sm" key={i}>
                                 <div className="flex h-full w-[4%] border-r-2 border-r-zinc-200">
                                     <input type="radio" name={columnName} className="my-auto" onClick={() => handleRadio(data)} checked={(Object.keys(pickedData).length === 0 ? false : pickedData.id === data.id)} />
                                 </div>
