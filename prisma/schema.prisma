@@ -6,12 +6,90 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  email       String   @unique
+  fullname    String?             
+  password    String                      
+  role        String                      // User roles: "owner", "manager", "waiter", "kitchen"
+  phone       String?                     
+  branchId    String?   @db.ObjectId       // Foreign key linking the user to a branch
+  status      String?    @default("active") 
+  createdAt   DateTime? @default(now())     // Timestamp for account creation
+  updatedAt   DateTime? @updatedAt          // Timestamp for the last update
+
+
+}
+
+
+model Branch {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   // Name of the branch
+  location    String   // Full address of the branch
+  city        String   // City where the branch is located
+  state       String?  // State or province (optional)
+  country     String   // Country where the branch is located
+  openingHours String?  // Operating hours (e.g., "9:00 AM - 10:00 PM")
+  status      String   @default("active") // Status of the branch: active or inactive
+  managerId   String?  @db.ObjectId       // Reference to the assigned branch manager's ID @unique
+  createdBy   String?   @db.ObjectId       // Reference to the owner's ID who created the branch
+  createdAt   DateTime? @default(now())    // Timestamp when the branch was created
+  updatedAt   DateTime? @updatedAt         // Timestamp for the last update
+
+
+}
+model Menu {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  price       Float
+  imageBase64 String
+  category    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  waiterId        String      @db.ObjectId
+  branchId        String      @db.ObjectId
+  orderLines      OrderLine[] // One-to-many relationship with OrderLine
+  totalPrice      Float       @default(0.0)
+  discount        Float       @default(0.0)
+  rounding        Float       @default(0.0)
+  finalPrice      Float       @default(0.0) // totalPrice - discount + rounding
+  payment         Payment[]   // Payment details linked to the order
+  isCompleted     Boolean     @default(false) // Tracks if the order is finalized
+  isCheckedOut    Boolean     @default(false) // Tracks if payment has been made
+  orderedDate     DateTime    @default(now()) // When the order was placed
+  requiredDate    DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+model OrderLine {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId     String   @db.ObjectId
+  order       Order    @relation(fields: [orderId], references: [id]) // Foreign key relationship
+  menuItemId  String   @db.ObjectId
+  quantity    Int      @default(1) // Quantity of the menu item
+  price       Float    @default(0.0) // Unit price at the time of order
+  totalPrice  Float    @default(0.0) // Calculated: quantity * price
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("order_lines")
+}
+
 model Supplier {
-  id              Int               @id @default(autoincrement())
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   phone           String?
   email           String?
@@ -24,7 +102,7 @@ model Supplier {
 }
 
 model SupplierContact {
-  id            Int      @id @default(autoincrement())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   jobTitle      String?
   phone         String?
@@ -32,99 +110,24 @@ model SupplierContact {
   accountNumber String?
   accountBank   String?
   supplier      Supplier @relation(fields: [supplierId], references: [id])
-  supplierId    Int
+  supplierId    String   @db.ObjectId
 
   @@map("supplier_contacts")
 }
 
-model Employee {
-  id                    Int     @id @default(autoincrement())
-  photo                 String?
-  name                  String
-  jobTitle              String
-  phone                 String?
-  email                 String?
-  address               String?
-  orders                Order[]
-  haveProductAccess     Boolean @default(false)
-  haveTransactionAccess Boolean @default(false)
-  haveStatisticAccess   Boolean @default(false)
-  haveCompanyInfoAcess  Boolean @default(false)
 
-  @@map("employees")
-}
 
-model Customer {
-  id      String  @id @default(cuid())
-  name    String
-  phone   String?
-  email   String?
-  address String?
-  order   Order[]
 
-  @@map("customers")
-}
 
-model ProductCategory {
-  id      Int       @id @default(autoincrement())
-  name    String
-  product Product[]
 
-  @@map("product-categories")
-}
 
-model Product {
-  id                 Int                @id @default(autoincrement()) //possible string
-  name               String
-  photo              String?
-  description        String?
-  suggestedUnitPrice Int
-  buyUnitPrice       Int
-  inStock            Int
-  onOrder            Int                @default(0)
-  reorderLevel       Int                @default(0)
-  orderLine          OrderLine[]
-  productCategory    ProductCategory?   @relation(fields: [productCategoryId], references: [id])
-  productCategoryId  Int?
-  expenseOrderLine   ExpenseOrderLine[]
-  // Promotion (Future Development)
 
-  @@map("products")
-}
 
-model Order {
-  id           Int         @id @default(autoincrement())
-  customer     Customer?   @relation(fields: [customerId], references: [id])
-  customerId   String?
-  employee     Employee    @relation(fields: [employeeId], references: [id])
-  employeeId   Int
-  orderLine    OrderLine[]
-  orderedDate  DateTime    @default(now())
-  requiredDate DateTime    @default(now())
-  shipmentDate DateTime    @default(now())
-  discount     Int         @default(0)
-  rounding     Int         @default(0)
-  // status?
-  payment      Payment[]
 
-  @@map("orders")
-}
 
-model OrderLine {
-  order         Order   @relation(fields: [orderId], references: [id])
-  orderId       Int
-  product       Product @relation(fields: [productId], references: [id])
-  productId     Int
-  buyUnitPrice  Int
-  sellUnitPrice Int
-  quantity      Int
-
-  @@id([orderId, productId])
-  @@map("order_lines")
-}
 
 model PaymentType {
-  id             Int              @id @default(autoincrement())
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
   name           String
   payment        Payment[]
   ExpensePayment ExpensePayment[]
@@ -133,19 +136,19 @@ model PaymentType {
 }
 
 model Payment {
-  id            Int         @id @default(autoincrement())
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
   order         Order       @relation(fields: [orderId], references: [id])
-  orderId       Int
+  orderId       String      @db.ObjectId
   date          DateTime    @default(now())
   paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
-  paymentTypeId Int
+  paymentTypeId String      @db.ObjectId
   amount        Int
 
   @@map("payments")
 }
 
 model ExpenseType {
-  id      Int       @id @default(autoincrement())
+  id      String    @id @default(auto()) @map("_id") @db.ObjectId
   name    String
   expense Expense[]
 
@@ -153,39 +156,29 @@ model ExpenseType {
 }
 
 model Expense {
-  id               Int                @id @default(autoincrement())
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
   date             DateTime           @default(now())
   expenseType      ExpenseType        @relation(fields: [expenseTypeId], references: [id])
-  expenseTypeId    Int
+  expenseTypeId    String             @db.ObjectId
   description      String
   amount           Int
   supplier         Supplier?          @relation(fields: [supplierId], references: [id])
-  supplierId       Int?
-  expenseOrderLine ExpenseOrderLine[]
+  supplierId       String?            @db.ObjectId
+ 
   expensePayment   ExpensePayment[]
 
   @@map("expenses")
 }
 
-model ExpenseOrderLine {
-  expense   Expense @relation(fields: [expenseId], references: [id])
-  expenseId Int
-  product   Product @relation(fields: [productId], references: [id])
-  productId Int
-  unitPrice Decimal
-  quantity  Int
 
-  @@id([expenseId, productId])
-  @@map("expense_order_lines")
-}
 
 model ExpensePayment {
-  id            Int         @id @default(autoincrement())
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
   expense       Expense     @relation(fields: [expenseId], references: [id])
-  expenseId     Int
+  expenseId     String      @db.ObjectId
   paymentDate   DateTime
   paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
-  paymentTypeId Int
+  paymentTypeId String      @db.ObjectId
   amount        Int
 
   @@map("expense_payments")
