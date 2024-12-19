@@ -24,43 +24,7 @@ export async function GET(req: any, { params }: any) {
   }
 }
 
-export async function PUT(req: { json: () => PromiseLike<{ waiterId: any; branchId: any; orderLines: any; totalPrice: any; discount: any; rounding: any; finalPrice: any; isCompleted: any; isCheckedOut: any; requiredDate: any; }> | { waiterId: any; branchId: any; orderLines: any; totalPrice: any; discount: any; rounding: any; finalPrice: any; isCompleted: any; isCheckedOut: any; requiredDate: any; }; }, { params }: any) {
-  const { id } = params;
-  try {
-    const { waiterId, branchId, orderLines, totalPrice, discount, rounding, finalPrice, isCompleted, isCheckedOut, requiredDate } = await req.json();
 
-    const updatedOrder = await prisma.order.update({
-      where: { id },
-      data: {
-        waiterId,
-        branchId,
-        totalPrice,
-        discount,
-        rounding,
-        finalPrice,
-        isCompleted,
-        isCheckedOut,
-        requiredDate,
-        orderLines: {
-          deleteMany: {}, // Clear old lines
-          create: orderLines.map((line: { menuItemId: any; quantity: any; price: any; totalPrice: any; }) => ({
-            menuItemId: line.menuItemId,
-            quantity: line.quantity,
-            price: line.price,
-            totalPrice: line.totalPrice,
-          })),
-        },
-      },
-      include: {
-        orderLines: true,
-      },
-    });
-
-    return NextResponse.json(updatedOrder, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
 
 export async function DELETE(req: NextRequest, { params }: any) {
 
