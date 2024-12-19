@@ -64,10 +64,10 @@ export default function Orders() {
     if (!showCompleted) {
       filtered = filtered.filter(order => !order.isCompleted)
     }
-    if (dateRange.from && dateRange.to) {
+    if (dateRange?.from && dateRange?.to) {
       filtered = filtered.filter(order => {
         const orderDate = new Date(order.createdAt)
-        return orderDate >= dateRange.from && orderDate <= dateRange.to
+        return orderDate >= dateRange.from! && orderDate <= dateRange.to!
       })
     }
     setFilteredData(filtered)

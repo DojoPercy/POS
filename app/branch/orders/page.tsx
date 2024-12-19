@@ -25,7 +25,7 @@ interface DatePickerWithRangeProps {
     [key: string]: any;
   }
 
-export default function Orders({branchId}: string) {
+export default function Orders() {
   const [refresh, setRefresh] = useState(true)
   const [data, setData] = useState<Order[]>([])
   const [filteredData, setFilteredData] = useState<Order[]>([])
@@ -65,10 +65,10 @@ export default function Orders({branchId}: string) {
     if (!showCompleted) {
       filtered = filtered.filter(order => !order.isCompleted)
     }
-    if (dateRange.from && dateRange.to) {
+    if (dateRange?.from && dateRange?.to) {
       filtered = filtered.filter(order => {
         const orderDate = new Date(order.createdAt)
-        return orderDate >= dateRange.from && orderDate <= dateRange.to
+        return orderDate >= dateRange.from! && orderDate <= dateRange.to!
       })
     }
     setFilteredData(filtered)
