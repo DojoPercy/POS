@@ -76,6 +76,14 @@ export async function getOrderById(orderId: string) {
   return res.json();
 }
 
+export async function fetchIncompleteOrders(branchId: string) {
+  const response = await fetch(`/api/orders?branchId=${branchId}&isCompleted=false`)
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch orders')
+  }
+  return response.json()
+}
   
 
 export async function getOrderCountByDateRange(from: Date, to: Date, branchId?: string) {

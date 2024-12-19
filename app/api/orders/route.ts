@@ -2,16 +2,26 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
 
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const branchId = searchParams.get('branchId');
+  const isCompletedParam = searchParams.get('isCompleted');
 
   try {
+    
+    const isCompleted =
+      isCompletedParam === 'true' ? true : isCompletedParam === 'false' ? false : undefined;
+
+    
     const orders = await prisma.order.findMany({
-      where: branchId ? { branchId } : undefined,
+      where: {
+        ...(branchId && { branchId }),
+        ...(isCompleted !== undefined && { isCompleted }),
+      },
       include: {
         orderLines: true,
-        payment: true,   
+        payment: true,
       },
     });
 
@@ -20,6 +30,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+
+
 
 export async function POST(req: NextRequest) {
   try {

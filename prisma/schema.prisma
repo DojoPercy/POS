@@ -51,13 +51,32 @@ model Menu {
   category    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  
+
+  OrderLine OrderLine[]
+}
+model OrderLine {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId     String   @db.ObjectId
+  order       Order    @relation(fields: [orderId], references: [id]) 
+  menuItemId  String   @db.ObjectId
+  menuItem    Menu     @relation(fields: [menuItemId], references: [id]) 
+  quantity    Int      @default(1)
+  price       Float    @default(0.0)
+  totalPrice  Float    @default(0.0) 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("order_lines")
 }
 
 model Order {
   id              String      @id @default(auto()) @map("_id") @db.ObjectId
   waiterId        String      @db.ObjectId
   branchId        String      @db.ObjectId
-  orderLines      OrderLine[] // One-to-many relationship with OrderLine
+  orderLines      OrderLine[] 
   totalPrice      Float       @default(0.0)
   discount        Float       @default(0.0)
   rounding        Float       @default(0.0)
@@ -73,20 +92,7 @@ model Order {
   @@map("orders")
 }
 
-model OrderLine {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  orderId     String   @db.ObjectId
-  order       Order    @relation(fields: [orderId], references: [id]) // Foreign key relationship
-  menuItemId  String   @db.ObjectId
-  quantity    Int      @default(1) // Quantity of the menu item
-  price       Float    @default(0.0) // Unit price at the time of order
-  totalPrice  Float    @default(0.0) // Calculated: quantity * price
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("order_lines")
-}
 
 model Supplier {
   id              String           @id @default(auto()) @map("_id") @db.ObjectId
