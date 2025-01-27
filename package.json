@@ -26,6 +26,7 @@
     "@radix-ui/react-select": "^1.2.2",
     "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-toast": "^1.2.5",
     "@tanstack/react-table": "^8.9.1",
     "@types/react": "18.2.6",
     "@types/react-datepicker": "^4.11.2",
