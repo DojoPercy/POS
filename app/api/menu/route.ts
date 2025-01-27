@@ -1,20 +1,34 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { jwtDecode } from 'jwt-decode';
 
 const prisma = new PrismaClient();
-
+interface DecodedToken {
+  role: string
+  userId?: string
+  branchId?: string
+  companyId?: string
+  [key: string]: any
+}
 export async function POST(req: NextRequest) {
     try {
+      const token = req.cookies.get("token")?.value
+              if (!token) {
+                return NextResponse.redirect(new URL("/login", req.url))
+              }
+              const decodedToken: DecodedToken = jwtDecode(token)
       const { name, description, price, category, imageBase64 } = await req.json();
-  
+              console.log('company:', decodedToken);
       const newMenuItem = await prisma.menu.create({
         data: {
-          name,
+          name: name,
           description,
-          price,
-          imageBase64,
-          category,
+          
+          price: price,
+          imageBase64: imageBase64,
+          company: {connect: {id: decodedToken.companyId}},
+          category: category,
         },
       });
   
@@ -28,15 +42,21 @@ export async function POST(req: NextRequest) {
     try{
        const { searchParams } = new URL(req.url);
           const id = searchParams.get('id');
+          const companyId = searchParams.get('companyId') || "";
       
           if (id) {
-            const branch = await prisma.branch.findUnique({
+            const menu = await prisma.menu.findMany({
               where: { id },
             });
-            if (!branch) {
+            if (!menu) {
               return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
             }
-            return NextResponse.json(branch, { status: 200 });
+            return NextResponse.json(menu, { status: 200 });
+          } else if(companyId){
+            const menus = await prisma.menu.findMany({
+              where: { companyId },
+            });
+            return NextResponse.json(menus, { status: 200 });
           }
       const menuItems = await prisma.menu.findMany();
       return NextResponse.json(menuItems, { status: 200 });
@@ -48,12 +68,13 @@ export async function POST(req: NextRequest) {
 
   export async function PUT(req: NextRequest){
     try{
-      const { id, name, description, price, category, imageBase64 } = await req.json();
+      const { id, name, description, price, category, imageBase64, companyId } = await req.json();
       const updatedMenuItem = await prisma.menu.update({
         where: { id },
         data: {
           name,
           description,
+          companyId: companyId || "",
           price,
           imageBase64,
           category,

@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import axios from 'axios'
 import { ClipLoader } from 'react-spinners'
+import { jwtDecode } from 'jwt-decode'
+import { set } from 'date-fns'
 
 interface Branch {
   id: string;
@@ -17,6 +19,14 @@ interface Branch {
   address: string;
   city: string;
   status: "active" | "inactive";
+}
+
+interface DecodedToken {
+  role: string
+  userId?: string
+  branchId?: string
+  companyId?: string
+  [key: string]: any
 }
 
 const mockBranches: Branch[] = [
@@ -27,17 +37,26 @@ export default function BranchList() {
   const [branches, setBranches] = useState<Branch[]>(mockBranches)
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(false);
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null)
   const router = useRouter()
 
   useEffect(() => {
+     const token = localStorage.getItem("token");
+            if (!token) {
+              console.error("Token not found");
+              return;
+            }
+            const decodedToken: DecodedToken = jwtDecode(token);
+            setDecodedToken(decodedToken);
 
     const fetchBranches = async () => {
       setLoading(true);
       try {
-
-        const response = await axios.get("/api/branches");
+        console.log('decodedTokenCm:', decodedToken.branchId);
+        const response = await axios.get(`/api/branches?companyId=${decodedToken.companyId}`);
         setLoading(false);
         setBranches(response.data);
+        console.log('Branches:', response.data);
       } catch (err: any) {
         console.error(
           "Failed to fetch branches:",

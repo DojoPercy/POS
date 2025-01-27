@@ -29,6 +29,8 @@ import { ClipLoader } from "react-spinners";
 import Alert from "@mui/material/Alert/Alert";
 import { AlertDescription } from "./ui/alert";
 import { RestaurantReceipt } from "./receipt";
+import { jwtDecode } from 'jwt-decode'
+import de from "date-fns/esm/locale/de";
 
 
 interface MenuItem {
@@ -90,8 +92,9 @@ export function OrderForm() {
     setLoadingMenu(true);
     (async () => {
       try {
-        const menuItems = await getMenuItems();
         const decodedToken = await fetchUsers();
+        const menuItems = await getMenuItems(decodedToken!.companyId || "");
+        
         setDecodedToken(decodedToken);
         setLoadingMenu(false);
         setMenuItems(menuItems);

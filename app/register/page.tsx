@@ -39,6 +39,7 @@ interface DecodedToken {
   role: string;
   userId?: string;
   branchId?: string;
+  companyId?: string;
   [key: string]: any;
 }
 
@@ -72,7 +73,7 @@ export default function Register() {
         const decodedToken: DecodedToken = jwtDecode(token);
         setDecodedToken(decodedToken);
 
-        const branches = await getBranches();
+        const branches = await getBranches(decodedToken.companyId || "");
         setLoadingBranches(false);
 
         if (decodedToken.role === "owner") {

@@ -5,12 +5,13 @@ import bcrypt from 'bcryptjs';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 
-export const generateToken = async (user: { id: string; role: string; branchId: string }) => {
+export const generateToken = async (user: { id: string; role: string; branchId: string ; companyId: string}) => {
   const secretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY || 'your_secret_key');
   return await new SignJWT({
     userId: user.id,
     role: user.role,
     branchId: user.branchId,
+    companyId: user.companyId,
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()

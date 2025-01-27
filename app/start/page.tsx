@@ -1,11 +1,75 @@
+"use client"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CreditCard, Utensils, BarChart, Users, CheckCircle, ArrowRight } from "lucide-react"
+import { useRef, useState } from "react"
+import axios from "axios"
+import { useRouter } from "next/navigation"
+import { ClipLoader } from "react-spinners"
 
+
+interface FormData {
+  email: string;
+  fullname: string;
+  password: string;
+  role: string;
+  phone?: string;
+  branchId?: string;
+  status: string;
+}
 export default function LandingPage() {
+  const [loading, setLoading]= useState<boolean>(false)
+  const [error, setError]= useState<string | null>(null)
+  const [successMessage, setSuccessMessage]= useState<string | null>(null)
+  const signUpRef = useRef<HTMLDivElement>(null)
+   const router = useRouter();
+   const [formData, setFormData] = useState<FormData>({
+      email: "",
+      fullname: "",
+      password: "",
+      role: "owner",
+      phone: "",
+      branchId: "",
+      status: "active",
+    });
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.post("/api/users", formData);
+        setLoading(false);
+        setSuccessMessage("Registration successful! Redirecting...");
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
+      } catch (err: any) {
+        setLoading(false);
+        setError(
+          err.response?.data?.message || "Registration failed. Please try again."
+        );
+      }
+    };
+  const scrollToSignUp = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    signUpRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+  const handleChange = (name: string, value: string, isSelect?: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (isSelect && name === "branchId") {
+      setFormData((prev) => ({
+        ...prev,
+        branchId: value,
+      }));
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
@@ -36,7 +100,9 @@ export default function LandingPage() {
             >
               Contact
             </Link>
-            <Button variant="outline">Log In</Button>
+           <Link href="/login" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary-light transition-colors">
+           <Button variant="outline">Log In</Button>
+            </Link>
           </div>
         </nav>
       </header>
@@ -49,9 +115,12 @@ export default function LandingPage() {
         <p className="text-xl mb-10 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
           Empower your business with our cutting-edge point of sale system, tailored for modern restaurants.
         </p>
-        <Button size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all">
-          Start Free Trial <ArrowRight className="ml-2" />
-        </Button>
+        
+        <Link href="#sign-up" onClick={scrollToSignUp}>
+          <Button size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all">
+            Start Free Trial <ArrowRight className="ml-2" />
+          </Button>
+        </Link>
       </section>
 
       {/* Features Section */}
@@ -92,7 +161,7 @@ export default function LandingPage() {
       </section>
 
       {/* Create Account Section */}
-      <section id="create-account" className="bg-gradient-to-r from-primary to-purple-600 text-white py-20">
+      <section id="create-account" ref={signUpRef} className="bg-gradient-to-r from-primary to-purple-600 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
             <h2 className="text-4xl font-bold mb-8 text-center">Join RestaurantPOS Today</h2>
@@ -102,7 +171,7 @@ export default function LandingPage() {
                 <CardDescription className="text-gray-200">Start your 14-day free trial now</CardDescription>
               </CardHeader>
               <CardContent>
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-200">
                       Full Name
@@ -111,6 +180,8 @@ export default function LandingPage() {
                       id="name"
                       placeholder="John Doe"
                       required
+                      value={formData.fullname}
+                      onChange={(e) => handleChange("fullname", e.target.value)}
                       className="bg-white/20 border-white/30 text-white placeholder-gray-300"
                     />
                   </div>
@@ -121,6 +192,8 @@ export default function LandingPage() {
                     <Input
                       id="email"
                       type="email"
+                      value={formData.email}
+                      onChange={(e) => handleChange("email", e.target.value)}
                       placeholder="john@example.com"
                       required
                       className="bg-white/20 border-white/30 text-white placeholder-gray-300"
@@ -130,13 +203,23 @@ export default function LandingPage() {
                     <label htmlFor="password" className="block text-sm font-medium text-gray-200">
                       Password
                     </label>
-                    <Input id="password" type="password" required className="bg-white/20 border-white/30 text-white" />
+                    <Input id="password" type="password" required className="bg-white/20 border-white/30 text-white" 
+                    onChange={(e) => handleChange("password", e.target.value)}
+                    value={formData.password} />
                   </div>
+                  <Button className="w-full bg-white text-primary hover:bg-gray-100" type="submit"> {loading ? (
+                <ClipLoader
+                  color={"#fff"}
+                  loading={loading}
+                  size={20}
+                  aria-label="Loading Spinner"
+                />
+              ) : (
+                "Create Account"
+              )}</Button>
                 </form>
               </CardContent>
-              <CardFooter>
-                <Button className="w-full bg-white text-primary hover:bg-gray-100">Create Account</Button>
-              </CardFooter>
+            
             </Card>
           </div>
         </div>

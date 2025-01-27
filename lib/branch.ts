@@ -15,9 +15,9 @@ export async function getBranchById(id: string){
     }
 }
 
-export async function getBranches(){
+export async function getBranches(companyId: String){
     try{
-        const response = await fetch(`/api/branches`, {
+        const response = await fetch(`/api/branches?companyId=${companyId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

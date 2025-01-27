@@ -42,14 +42,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-   
+   console.log(user.companyId);
     const token = await generateToken({
       id: user.id,
       role: user.role,
       branchId: user.branchId || '',
+      companyId: user.companyId || '',
     });
 
     // Serialize the cookie and set it in the response headers
+    
     const cookie = serialize('token', token, {
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production', 

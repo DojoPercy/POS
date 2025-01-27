@@ -36,11 +36,13 @@ export async function createMenuItem(data: Omit<MenuItem, 'id'>) {
     return response;
 }
 
-export async function getMenuItems() {
+export async function getMenuItems(companyId: String) {
+
     const query = {
         queryType: menuOperations.getMenu,
     };
-    const response = await fetch(`/api/menu`, {
+    console.log('company:', companyId);
+    const response = await fetch(`/api/menu?companyId=${companyId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

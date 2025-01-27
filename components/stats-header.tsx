@@ -3,6 +3,7 @@
 import { Utensils, DollarSign, TrendingUp, Users, Clock } from 'lucide-react'
 
 import {
+    getHighestOrderInBranch,
     getOrderCountByDateRange,
     getOrderRevenueByDateRange,
     
@@ -18,14 +19,14 @@ enum StatisticGraph {
 export type StatisticHeaderDef = {
     name: string
     icon: JSX.Element
-    call: (from: Date, to: Date, branchId?: string) => Promise<number>
+    call: (from: Date, to: Date, branchId?: string, companyId?: string) => Promise<number>
     graphIndex: number
     accessorKey: string
 }
 
 type StatisticFnDef<TValue> = {
     index: number,
-    call: (from: Date, to: Date, branchId?: string) => Promise<TValue>
+    call: (from: Date, to: Date, branchId?: string, companyId?: string) => Promise<TValue>
 } 
 
 export const StatisticHeaders: StatisticHeaderDef[] = [
@@ -43,6 +44,7 @@ export const StatisticHeaders: StatisticHeaderDef[] = [
         graphIndex: StatisticGraph.ordersGraph,
         accessorKey: "revenue",
     },
+  
 ]
 
 export const StatisticFns: StatisticFnDef<any[]>[] = [

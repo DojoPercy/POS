@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -42,7 +42,24 @@ function SideBarIcon({
   );
 }
 
+
+
 function SideBarOwner() {
+  const [hasCompanies, setHasCompanies] = useState(false)
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch("/api/company")
+        const companies = await response.json()
+        setHasCompanies(companies.length > 0)
+      } catch (error) {
+        console.error("Error fetching companies:", error)
+      }
+    }
+
+    fetchCompanies()
+  }, [])
   return (
     <React.Fragment>
       <button
@@ -74,42 +91,43 @@ function SideBarOwner() {
       >
         <div className="h-full px-2 bg-white text-white flex flex-col border-r-2">
           {/* logo here */}
-          <ul className="space-y-5 font-medium">
-            <li>
-              <SideBarIcon icon={<Home className="w-5 h-5" />} text="Home" />
-            </li>
-          </ul>
-          <ul className="pt-2 mt-2 space-y-5 font-medium border-t-2">
-            <li>
-              <SideBarIcon icon={<Menu className="w-5 h-5" />} text="Menu" />
-            </li>
-            <li>
-              <SideBarIcon
-                icon={<Building2 className="w-5 h-5" />}
-                text="Branches"
-              />
-            </li>
-            <li>
-              <SideBarIcon
-                icon={<ClipboardList className="w-5 h-5" />}
-                text="Orders"
-              />
-            </li>
-            <li>
-              <SideBarIcon icon={<Users className="w-5 h-5" />} text="Staffs" />
-            </li>
-            <li>
-                                        <SideBarIcon icon={<User className="w-5 h-5" />} text="Profile" />
-                                    </li>
-          </ul>
-          <ul className="pt-2 mt-auto font-medium border-t-2">
-            <li>
-              <SideBarIcon
-                icon={<Settings className="w-5 h-5" />}
-                text="Settings"
-              />
-            </li>
-          </ul>
+          {hasCompanies ? (
+  <>
+    <ul className="space-y-5 font-medium">
+      <li>
+        <SideBarIcon icon={<Home className="w-5 h-5" />} text="Home" />
+      </li>
+    </ul>
+    <ul className="pt-2 mt-2 space-y-5 font-medium border-t-2">
+      <li>
+        <SideBarIcon icon={<Menu className="w-5 h-5" />} text="Menu" />
+      </li>
+      <li>
+        <SideBarIcon
+          icon={<Building2 className="w-5 h-5" />}
+          text="Branches"
+        />
+      </li>
+      <li>
+        <SideBarIcon
+          icon={<ClipboardList className="w-5 h-5" />}
+          text="Orders"
+        />
+      </li>
+      <li>
+        <SideBarIcon icon={<Users className="w-5 h-5" />} text="Staffs" />
+      </li>
+      <li>
+        <SideBarIcon icon={<User className="w-5 h-5" />} text="Profile" />
+      </li>
+    </ul>
+  </>) : (
+    <ul>
+      <li>
+        <SideBarIcon icon={<User className="w-5 h-5" />} text="Profile" />
+      </li>
+    </ul>
+  )}
         </div>
       </aside>
     </React.Fragment>

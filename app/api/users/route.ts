@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/utils/auth';
 
+import { jwtDecode } from 'jwt-decode';
+
+
+interface DecodedToken {
+  role: string
+  userId?: string
+  branchId?: string
+  companyId?: string
+  [key: string]: any
+}
 type UserRole = 'owner' | 'admin' | 'user';
 
 interface CreateUserRequestBody {
@@ -11,6 +21,7 @@ interface CreateUserRequestBody {
   password: string;
   role: UserRole;
   branchId?: string | null;
+  companyId?: string | null;
 }
 
 
@@ -19,6 +30,7 @@ export async function GET(req: NextRequest) {
   try{
      const { searchParams } = new URL(req.url);
               const id = searchParams.get('id');
+              const companyId = searchParams.get('companyId');
           
               if (id) {
                 const branch = await prisma.user.findUnique({
@@ -28,7 +40,14 @@ export async function GET(req: NextRequest) {
                   return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
                 }
                 return NextResponse.json(branch, { status: 200 });
+              }else if(companyId){
+                const branches = await prisma.user.findMany({
+                  where: { companyId },
+                });
+                console.log('branches:', branches);
+                return NextResponse.json(branches, { status: 200 });
               }
+
     const user = await prisma.user.findMany({
 
     });
@@ -40,11 +59,16 @@ export async function GET(req: NextRequest) {
 
 
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+      const token = req.cookies.get("token")?.value
+            if (!token) {
+              return NextResponse.redirect(new URL("/login", req.url))
+            }
+            const decodedToken: DecodedToken = jwtDecode(token)
     const body: CreateUserRequestBody = await req.json();
 
-    const { email, password, role, branchId, fullname, status } = body;
+    const { email, password, role, branchId, fullname, status, companyId } = body;
 
     // Validate input
     if (!email || !password || !role) {
@@ -66,6 +90,7 @@ export async function POST(req: Request) {
         password: hashedPassword,
         role,
         branchId: branchId || null,
+        companyId: decodedToken.companyId || null,
       },
     });
 
@@ -79,6 +104,7 @@ export async function POST(req: Request) {
           email: user.email,
           role: user.role,
           branchId: user.branchId,
+          companyId: user.companyId,
         },
       },
       { status: 201 }

@@ -1,16 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { jwtDecode } from 'jwt-decode';
 
+
+
+interface DecodedToken {
+  role: string
+  userId?: string
+  branchId?: string
+  companyId?: string
+  [key: string]: any
+}
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   try {
+      const token = req.cookies.get("token")?.value
+        if (!token) {
+          return NextResponse.redirect(new URL("/login", req.url))
+        }
+        const decodedToken: DecodedToken = jwtDecode(token)
+        console.log('decodedToken:', decodedToken);
     const body = await req.json();
-    console.log('Request Body:', body); // Log the incoming request data
+    console.log('Request Body:', body); 
+    const companyId: string | undefined = decodedToken.companyId;
+// Log the incoming request data
     const newBranch = await prisma.branch.create({
       data: {
         name: body.name,
         location: body.location,
+        company: {
+          connect: { id: companyId }, 
+        },
         city: body.city,
         state: body.state || null,
         country: body.country,
@@ -32,6 +53,7 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
+    const companyId = searchParams.get('companyId');
 
     if (id) {
       const branch = await prisma.branch.findUnique({
@@ -41,6 +63,12 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
       }
       return NextResponse.json(branch, { status: 200 });
+    }
+    if (companyId) {
+      const branches = await prisma.branch.findMany({
+        where: { companyId },
+      });
+      return NextResponse.json(branches, { status: 200 });
     }
 
     const branches = await prisma.branch.findMany();

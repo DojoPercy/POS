@@ -26,6 +26,7 @@ export type Order = {
   isCheckedOut: boolean
   requiredDate: string
   createdAt: string
+  branchName?: string
 }
 
 export const columns: ColumnDef<Order>[] = [
@@ -59,9 +60,9 @@ export const columns: ColumnDef<Order>[] = [
     ),
   },
   {
-    accessorKey: "branchId",
+    accessorKey: "branchName",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Branch ID" />
+      <DataTableColumnHeader column={column} title="Branch" />
     ),
   },
   {

@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This is your updated Prisma schema file,
+// reflecting the new changes regarding the company.
 
 generator client {
   provider = "prisma-client-js"
@@ -10,6 +10,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Company {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   
+  location    String 
+  logo        String?  
+  city        String   // City
+  state       String?  // State or province (optional)
+  country     String   // Country
+  ownerId     String   @unique @db.ObjectId        // Reference to the owner's User ID
+  owner       User     @relation("CompanyOwner", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdAt   DateTime @default(now())     // Timestamp for creation
+  updatedAt   DateTime @updatedAt          // Timestamp for updates
+
+  branches    Branch[]  // Relation to branches
+  users       User[]    @relation("CompanyUsers")
+  menus       Menu[]    
+
+  Order Order[]
+}
+
 model User {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   email       String   @unique
@@ -18,11 +38,13 @@ model User {
   role        String                      // User roles: "owner", "manager", "waiter", "kitchen"
   phone       String?                     
   branchId    String?   @db.ObjectId       // Foreign key linking the user to a branch
+  companyId   String?   @db.ObjectId       // Foreign key linking the user to a company
   status      String?    @default("active") 
   createdAt   DateTime? @default(now())     // Timestamp for account creation
   updatedAt   DateTime? @updatedAt          // Timestamp for the last update
-
-
+  
+  company     Company?  @relation("CompanyUsers", fields: [companyId], references: [id])
+  managedCompany Company? @relation("CompanyOwner")
 }
 
 
@@ -36,26 +58,31 @@ model Branch {
   openingHours String?  // Operating hours (e.g., "9:00 AM - 10:00 PM")
   status      String   @default("active") // Status of the branch: active or inactive
   managerId   String?  @db.ObjectId       // Reference to the assigned branch manager's ID @unique
-  createdBy   String?   @db.ObjectId       // Reference to the owner's ID who created the branch
+  createdBy   String?  @db.ObjectId       // Reference to the owner's ID who created the branch
+  companyId   String   @db.ObjectId       // Foreign key linking the branch to a company
   createdAt   DateTime? @default(now())    // Timestamp when the branch was created
   updatedAt   DateTime? @updatedAt         // Timestamp for the last update
 
+  company     Company  @relation(fields: [companyId], references: [id])
 
+  Order Order[]
 }
+
 model Menu {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
   price       Float
+  companyId   String  @db.ObjectId
   imageBase64 String
   category    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  
-
-  OrderLine OrderLine[]
+  OrderLine   OrderLine[]
+  company     Company  @relation(fields: [companyId], references: [id])
 }
+
 model OrderLine {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   orderId     String   @db.ObjectId
@@ -77,6 +104,7 @@ model Order {
   waiterId        String      @db.ObjectId
   branchId        String      @db.ObjectId
   orderLines      OrderLine[] 
+  companyId       String      @db.ObjectId
   totalPrice      Float       @default(0.0)
   discount        Float       @default(0.0)
   rounding        Float       @default(0.0)
@@ -89,10 +117,11 @@ model Order {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
+   branch          Branch      @relation(fields: [branchId], references: [id])
+  company         Company     @relation(fields: [companyId], references: [id])
+
   @@map("orders")
 }
-
-
 
 model Supplier {
   id              String           @id @default(auto()) @map("_id") @db.ObjectId
@@ -120,17 +149,6 @@ model SupplierContact {
 
   @@map("supplier_contacts")
 }
-
-
-
-
-
-
-
-
-
-
-
 
 model PaymentType {
   id             String           @id @default(auto()) @map("_id") @db.ObjectId
@@ -175,8 +193,6 @@ model Expense {
 
   @@map("expenses")
 }
-
-
 
 model ExpensePayment {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId

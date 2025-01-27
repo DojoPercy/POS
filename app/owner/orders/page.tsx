@@ -21,6 +21,8 @@ interface DatePickerWithRangeProps {
   interface DecodedToken {
     role: string; 
     userId?: string; 
+    branchId?: string;
+    companyId?: string;
     [key: string]: any;
   }
 
@@ -46,9 +48,14 @@ export default function Orders() {
                   return;
                 }
                 const decodedToken: DecodedToken = jwtDecode(token);
-        const orders = await getOrders()
-        
-        setData(orders)
+        const orders = await getOrders(decodedToken.companyId ?? "")
+        const updatedOrders = orders.map((order: any) => ({
+          ...order,
+          branchName: order.branch?.name || "Unknown Branch",
+        })).reverse();
+
+      
+        setData(updatedOrders)
         setFilteredData(orders)
       } catch (error) {
         console.error("Failed to fetch orders:", error)

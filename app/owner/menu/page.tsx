@@ -8,7 +8,12 @@ import { getMenuItems } from "@/lib/menu";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/dataTable";
 import { columns, MenuItem } from "@/components/menu-columns";
+import { jwtDecode } from 'jwt-decode'
 
+
+interface DecodedToken {
+  companyId: string;
+}
 export default function MenuItems() {
   const [refresh, setRefresh] = useState(true);
   const [data, setData] = useState<MenuItem[]>([]);
@@ -19,7 +24,13 @@ export default function MenuItems() {
     setData([]);
     (async () => {
       try {
-        const menuItems = await getMenuItems();
+         const token = localStorage.getItem("token");
+                    if (!token) {
+                      console.error("Token not found");
+                      return;
+                    }
+                    const decodedToken: DecodedToken = jwtDecode(token);
+        const menuItems = await getMenuItems(decodedToken.companyId);
         setData(menuItems);
       } catch (error) {
         console.error("Failed to fetch menu items:", error);
