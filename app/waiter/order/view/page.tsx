@@ -21,6 +21,7 @@ interface DatePickerWithRangeProps {
   interface DecodedToken {
     role: string; 
     userId?: string; 
+    branchId?: string;
     [key: string]: any;
   }
 
@@ -46,7 +47,7 @@ export default function Orders() {
                   return;
                 }
                 const decodedToken: DecodedToken = jwtDecode(token);
-        const orders = await getOrders()
+        const orders = await getOrders(undefined, decodedToken.branchId ?? "",);
         const filteredOrders = orders.filter((order: { waiterId: any }) => order.waiterId === decodedToken.userId)
         setData(filteredOrders)
         setFilteredData(orders)

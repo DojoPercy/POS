@@ -32,7 +32,8 @@ export type orderSummaryByDate = {
   income: number;
 };
 
-export async function getOrders(companyId: string, branchId?: string) {
+export async function getOrders(companyId: string | undefined, branchId: string | undefined)
+{
   if(branchId){
     const res = await fetch(`/api/orders?branchId=${branchId}`, { cache: "no-store" });
     return res.json();
@@ -45,7 +46,7 @@ export async function getOrders(companyId: string, branchId?: string) {
 
 export async function getHighestOrderInBranch(companyId: string, branchId?: string) {
   
-  const orders = await getOrders(companyId);
+  const orders = await getOrders(companyId, undefined);
 
   const branchOrderCount = orders.reduce((acc: any, order: any) => {
     if (!acc[order.branchId]) {

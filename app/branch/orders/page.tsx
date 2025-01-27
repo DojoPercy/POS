@@ -47,7 +47,8 @@ export default function Orders() {
                   return;
                 }
                 const decodedToken: DecodedToken = jwtDecode(token);
-        const orders = await getOrders()
+                const orders = await getOrders(undefined, decodedToken.branchId ?? "",);
+
         const filteredOrders = orders.filter((order: { branchId: any }) => order.branchId === decodedToken.branchId)
         setData(filteredOrders)
         setFilteredData(orders)

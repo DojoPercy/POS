@@ -48,7 +48,7 @@ export default function Orders() {
                   return;
                 }
                 const decodedToken: DecodedToken = jwtDecode(token);
-        const orders = await getOrders(decodedToken.companyId ?? "")
+        const orders = await getOrders(decodedToken.companyId ?? "", undefined)
         const updatedOrders = orders.map((order: any) => ({
           ...order,
           branchName: order.branch?.name || "Unknown Branch",
