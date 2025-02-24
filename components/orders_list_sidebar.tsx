@@ -92,8 +92,8 @@ export function OrderList() {
   
     // 🌐 Dynamic SSE URL (works for both local & production)
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL && process.env.NODE_ENV === "production"
-        ? `https://${process.env.NEXT_PUBLIC_BASE_URL}`
+      process.env.NEXT_PUBLIC_VERCEL_URLL && process.env.NODE_ENV === "production"
+        ? `https://restaurantpos.vercel.app`
         : window.location.origin;
   
     const eventSourceUrl = new URL("/api/orders/stream", baseUrl);
