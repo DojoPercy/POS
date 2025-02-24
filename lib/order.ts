@@ -1,4 +1,5 @@
-import { Order, OrderLine } from "@prisma/client";
+import { Order } from "@/components/order-columns";
+
 
 
 export enum orderOperations {
@@ -34,14 +35,47 @@ export type orderSummaryByDate = {
 
 export async function getOrders(companyId: string | undefined, branchId: string | undefined)
 {
+  let url: string;
+
+  if (typeof window !== "undefined") {
+   
+    url = `/api/orders`;
+  } else {
+    
+    url = new URL("/api/orders", process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000").toString();
+  }
+  
   if(branchId){
-    const res = await fetch(`/api/orders?branchId=${branchId}`, { cache: "no-store" });
+    const res = await fetch(`${url}?branchId=${branchId}`, { cache: "no-store" });
+   
     return res.json();
   }else{
-    const res = await fetch(`/api/orders?companyId=${companyId}`, { cache: "no-store" });
+    const res = await fetch(`${url}?companyId=${companyId}`, { cache: "no-store" });
     return res.json();
   }
   
+}
+
+export async function getOrderCounter( branchId: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const counterResponse = await fetch(`/api/ordercounter`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ branchId: branchId , date: today }),
+  })
+  
+
+  if (!counterResponse.ok) {
+    throw new Error("Failed to fetch order counter");
+  }
+
+  const counterData = await counterResponse.json();
+  const orderNumber = `ORDER-${String(counterData.lastNumber).padStart(3, "0")}`;
+  return orderNumber;
 }
 
 export async function getHighestOrderInBranch(companyId: string, branchId?: string) {
@@ -158,7 +192,7 @@ export async function getOrderCountByDateRange(
 
     // Ensure data is valid and an array
     if (Array.isArray(data)) {
-      console.log(data.length);
+      
       return data.length;
     } else {
       console.error("Unexpected response format:", data);
@@ -186,8 +220,7 @@ export async function getOrderRevenueByDateRange(from: Date, to: Date, branchId?
     cache: "no-store",
   }).then((res) => res.json());
   const totalRevenue = res.reduce((acc: number, order: any) => acc + order.finalPrice, 0);
-  console.log(`/api/orders?${branchId !== undefined ? `branchId=${branchId}` : `companyId=${companyId}`}
-`);
+  
   return totalRevenue;
 }
 
@@ -203,7 +236,7 @@ export async function getOrderIncomeByDateRange(from: Date, to: Date) {
     body: JSON.stringify(query),
     cache: "no-store",
   }).then((res) => res.formData);
-  console.log(res);
+ 
   return res;
 }
 
@@ -225,7 +258,7 @@ export async function getOrderSummaryByDateRange(from: Date, to: Date, branchId?
     cache: "no-store",
   }).then((response) => response.json());
 
-  console.log(res);
+  
   const summary: Record<string, { sales: number; revenue: number; income: number }> = {};
 
   // Iterate through the fetched data to build the summary
@@ -270,7 +303,7 @@ export async function getOrderSummaryByDateRangeOwner(from: Date, to: Date, comp
     cache: "no-store",
   }).then((response) => response.json());
 
-  console.log(res[0]);
+  
   const summary: Record<string, { sales: number; revenue: number; income: number }> = {};
 
   // Iterate through the fetched data to build the summary
@@ -373,21 +406,54 @@ export async function getOrdersByDateRange(from: Date, to: Date) {
   });
   return res.json();
 }
+type OrderType = {
+  id: string
+  waiterId: string
+  branchId: string
+  orderLines: OrderLine[]
+  companyId: string
+  totalPrice: number
+  discount: number
+  rounding: number
+  finalPrice: number
+  payment: any[] // You might want to create a separate Payment type
+  isCompleted: boolean
+  isCheckedOut: boolean
+  orderedDate: string
+  requiredDate?: string
+  createdAt: string
+  updatedAt: string
+  orderNumber: string
+}
+type OrderLine = {
+  id: string
+  orderId: string
+  menuItemId: string
+  quantity: number
+  price: number
+  totalPrice: number
+  createdAt: string
+  updatedAt: string
+}
 
-export async function updateOrderById(order: Order) {
-  const query = {
-    queryType: orderOperations.updateOrderById,
-    order: {
-      id: order.id,
-     
-      requiredDate: order.requiredDate,
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"
+
+export async function updateOrderById(order: Order): Promise<OrderType> {
+  const response = await fetch(`${API_BASE_URL}/orders/${order.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      // Include authorization header if required
+      // 'Authorization': `Bearer ${getToken()}`,
     },
-  };
-  const res = await fetch(`/api/orders`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(query),
-    cache: "no-store",
-  });
-  return res.json();
+    body: JSON.stringify(order),
+  })
+  
+
+  if (!response.ok) {
+    throw new Error("Failed to update order")
+  }
+
+  return response.json()
 }

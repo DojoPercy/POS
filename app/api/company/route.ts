@@ -18,7 +18,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/login", req.url))
     }
     const decodedToken: DecodedToken = jwtDecode(token)
-
+    const { searchParams } = new URL(req.url);
+    const companyId = searchParams.get('companyId');
+    if (companyId) {
+      const company = await prisma.company.findUnique({
+        where: {
+          id: companyId,
+        },
+      })
+      return NextResponse.json(company, { status: 200 })
+    }
     const companies = await prisma.company.findMany({
       where: {
         ownerId: decodedToken.userId,

@@ -116,13 +116,21 @@ model Order {
   requiredDate    DateTime?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-
+  orderNumber    String
    branch          Branch      @relation(fields: [branchId], references: [id])
   company         Company     @relation(fields: [companyId], references: [id])
 
   @@map("orders")
 }
 
+model OrderCounter {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId 
+  branchId  String  
+  date      DateTime
+  lastNumber Int
+
+   @@unique([branchId, date], name: "branchId_date")
+}
 model Supplier {
   id              String           @id @default(auto()) @map("_id") @db.ObjectId
   name            String

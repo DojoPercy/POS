@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
+import format from 'date-fns/format/index.js';
+import { ObjectId } from 'mongodb';
 
 interface DecodedToken {
   role: string
@@ -15,19 +17,18 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const branchId = searchParams.get('branchId');
   const companyId = searchParams.get('companyId');
-  const isCompletedParam = searchParams.get('isCompleted');
 
   try {
-    
-    const isCompleted =
-      isCompletedParam === 'true' ? true : isCompletedParam === 'false' ? false : undefined;
+    console.log({ branchId, companyId });
 
-    
-   if(branchId){
+    if (!branchId && !companyId) {
+      return NextResponse.json({ error: 'branchId or companyId is required' }, { status: 400 });
+    }
+
     const orders = await prisma.order.findMany({
       where: {
-        ...(branchId && { branchId }),
-        ...(isCompleted !== undefined && { isCompleted }),
+        branchId: branchId || undefined,
+        companyId: companyId || undefined,
       },
       include: {
         branch: true,
@@ -35,24 +36,12 @@ export async function GET(req: NextRequest) {
         payment: true,
       },
     });
-    return NextResponse.json(orders, { status: 200 });
-   } else if(companyId){
-    const orders = await prisma.order.findMany({
-      where: {
-        ...(companyId && { companyId }),
-        ...(isCompleted !== undefined && { isCompleted }),
-      },
-      include: {
-        branch: true,
-        orderLines: true,
-        payment: true,
-      },
-    });
-    return NextResponse.json(orders, { status: 200 });
-   }
 
     
+    return NextResponse.json(orders, { status: 200 });
+
   } catch (error: any) {
+    console.error('Error fetching orders:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -62,27 +51,50 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-      const token = req.cookies.get("token")?.value
-            if (!token) {
-              return NextResponse.redirect(new URL("/login", req.url))
-            }
-            const decodedToken: DecodedToken = jwtDecode(token)
-    const { waiterId, branchId, orderLines, totalPrice, discount, rounding, finalPrice, isCompleted, isCheckedOut, requiredDate } = await req.json();
+    // Check for authentication token
+    const token = req.cookies.get("token")?.value;
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
 
+    // Decode token
+    const decodedToken: DecodedToken = jwtDecode(token);
+
+    // Parse request body
+    const {
+      waiterId,
+      branchId,
+      orderLines,
+      totalPrice,
+      discount,
+      rounding,
+      finalPrice,
+      isCompleted,
+      isCheckedOut,
+      requiredDate,
+      orderNumber
+    } = await req.json();
+
+    // Normalize today's date to midnight
+  
+
+    // Create order in the database
     const newOrder = await prisma.order.create({
       data: {
+       
         waiterId,
-        branchId,
+        branchId: branchId,
+        companyId: decodedToken.companyId || "",
         totalPrice,
         discount,
-        companyId: decodedToken.companyId || "",
         rounding,
         finalPrice,
         isCompleted,
         isCheckedOut,
         requiredDate,
+        orderNumber: orderNumber,
         orderLines: {
-          create: orderLines.map((line: { menuItemId: any; quantity: any; price: any; totalPrice: any; }) => ({
+          create: orderLines.map((line: { menuItemId: string; quantity: number; price: number; totalPrice: number }) => ({
             menuItemId: line.menuItemId,
             quantity: line.quantity,
             price: line.price,
@@ -90,9 +102,7 @@ export async function POST(req: NextRequest) {
           })),
         },
       },
-      include: {
-        orderLines: true,
-      },
+      include: { orderLines: true }, // Include order lines in response
     });
 
     return NextResponse.json(newOrder, { status: 201 });
