@@ -440,7 +440,7 @@ type OrderLine = {
 const baseUrl =
 process.env.NEXT_PUBLIC_VERCEL_URLL && process.env.NODE_ENV === "production"
   ? `https://restaurantpos.vercel.app`
-  : window.location.origin;
+  : `http://localhost:3000`;
 
 export async function updateOrderById(order: Order): Promise<OrderType> {
   const response = await fetch(`${baseUrl}/orders/${order.id}`, {
