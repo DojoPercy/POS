@@ -92,7 +92,7 @@ export function OrderList() {
   
     // 🌐 Dynamic SSE URL (works for both local & production)
     const baseUrl =
-      process.env.NEXT_PUBLIC_VERCEL_URLL && process.env.NODE_ENV === "production"
+      process.env.NEXT_PUBLIC_VERCEL_URL && process.env.NODE_ENV === "production"
         ? `https://restaurantpos.vercel.app`
         : window.location.origin;
   
