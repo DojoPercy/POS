@@ -1,4 +1,4 @@
-import { Order } from "@/components/order-columns";
+
 
 
 
@@ -408,21 +408,21 @@ export async function getOrdersByDateRange(from: Date, to: Date) {
 }
 type OrderType = {
   id: string
-  waiterId: string
-  branchId: string
+  waiterId?: string
+  branchId?: string
   orderLines: OrderLine[]
-  companyId: string
+  companyId?: string
   totalPrice: number
   discount: number
   rounding: number
   finalPrice: number
-  payment: any[] // You might want to create a separate Payment type
+  payment?: any[] // You might want to create a separate Payment type
   isCompleted: boolean
   isCheckedOut: boolean
-  orderedDate: string
+  orderedDate?: string
   requiredDate?: string
   createdAt: string
-  updatedAt: string
+  updatedAt?: string
   orderNumber: string
 }
 type OrderLine = {
