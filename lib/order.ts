@@ -34,7 +34,7 @@ export type orderSummaryByDate = {
   income: number;
 };
 
-export async function getOrders(companyId: string | undefined, branchId: string | undefined)
+export async function getOrders(companyId: string | undefined, branchId: string | undefined, waiterId?: string) 
 {
   let url: string;
 
@@ -50,7 +50,11 @@ export async function getOrders(companyId: string | undefined, branchId: string 
     const res = await fetch(`${url}?branchId=${branchId}`, { cache: "no-store" });
    
     return res.json();
-  }else{
+  } else if(waiterId){
+    const res = await fetch(`${url}?waiterId=${waiterId}`, { cache: "no-store" });
+    return res.json();
+  }
+  else{
     const res = await fetch(`${url}?companyId=${companyId}`, { cache: "no-store" });
     return res.json();
   }

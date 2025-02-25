@@ -20,6 +20,7 @@ interface DecodedToken {
   }
 
   export type OrderType = {
+    branchName?: String
     id: string
     waiterId?: string
     branchId?: string

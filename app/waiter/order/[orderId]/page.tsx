@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useState, useEffect, useRef, JSXElementConstructor, Key, PromiseLikeOfReactNode, ReactElement, ReactFragment, ReactPortal } from "react"
 import { ClipLoader } from "react-spinners"
 import { toast } from "@/components/ui/use-toast"
@@ -20,6 +20,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { RestaurantReceipt } from "@/components/receipt"
 import { getCompany } from "@/lib/company"
 import { OrderType } from "@/lib/types/types"
+import { useDispatch, useSelector } from "react-redux"
+import { selectOrderById, updateOrder } from "@/redux/orderSlice"
+import { RootState } from "@reduxjs/toolkit"
+
 
 
 interface DecodedToken {
@@ -50,19 +54,28 @@ export default function ViewOrderPage() {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false) // Added state for checkout modal
   const receiptRef = useRef<HTMLDivElement | null>(null)
   const [company, setCompany] = useState<any>(null) // Added state for company details
+  const [receivedAmount, setReceivedAmount] = useState<number>(0);
+  const [paymentType, setPaymentType] = useState<string>("Cash");
 
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const orderRedux = useSelector((state: RootState) => selectOrderById(state, params.orderId as string));
+  
   useEffect(() => {
     const fetchOrderAndMenuItems = async () => {
       try {
         setLoading(true)
         setLoadingMenu(true)
         const decodedToken = await fetchUsers()
-        const orderData = await getOrderById(params.orderId as string)
-        setOrder(orderData)
+        
         const companyData = await getCompany(decodedToken!.companyId ?? "")
         setCompany(companyData) // Assuming company details are in the first element
         const menuItemsData = await getMenuItems(decodedToken!.companyId ?? "")
         setMenuItems(menuItemsData)
+        if (orderRedux?.payment[0]) {
+          setPaymentType(orderRedux.payment[0].type);
+          setReceivedAmount(orderRedux.payment[0].amount);
+        }
       } catch (error) {
         console.error("Failed to fetch order or menu items:", error)
         toast({
@@ -94,7 +107,7 @@ export default function ViewOrderPage() {
       }
 
       const updatedOrder = {
-        ...order,
+        ...orderRedux,
         totalPrice: order.totalPrice + newOrderLine.totalPrice,
         finalPrice: order.finalPrice + newOrderLine.totalPrice,
         orderLines: [...order.orderLines, newOrderLine], // Directly add the line
@@ -129,16 +142,16 @@ export default function ViewOrderPage() {
     if (!order) return
 
     try {
-      const removedItem = order.orderLines[index]
-      const updatedOrderLines = order.orderLines.filter((_: any, i: number) => i !== index)
+      const removedItem = orderRedux.orderLines[index]
+      const updatedOrderLines = orderRedux.orderLines.filter((_: any, i: number) => i !== index)
       const updatedOrder: Order = {
-        ...order,
+        ...orderRedux,
         orderLines: updatedOrderLines,
         totalPrice: order.totalPrice - removedItem.totalPrice,
         finalPrice: order.finalPrice - removedItem.totalPrice,
       }
 
-      await updateOrderById(updatedOrder as OrderType)
+      await updateOrderById(updatedOrder as unknown as OrderType)
       setOrder(updatedOrder)
       toast({
         title: "Success",
@@ -155,23 +168,25 @@ export default function ViewOrderPage() {
   }
 
   const handleUpdateOrder = async () => {
-    if (!order) return
+    if (!orderRedux) return
 
     try {
       setLoading(true)
       const completedOrder : Order =  {
-        ...order,
+        ...orderRedux,
         isCompleted: true,
         isCheckedOut: true,
       }
       console.log(completedOrder)
-      await updateOrderById(completedOrder as OrderType)
+      await updateOrderById(completedOrder as unknown as OrderType)
       setSuccessMessage("Order updated successfully.")
       setShowCheckoutModal(false)
       setShowReceipt(true)
       setTimeout(() => {
         setSuccessMessage(null)
       }, 2000)
+     await  dispatch(updateOrder(completedOrder as unknown as OrderType )); 
+      
     } catch (error) {
       console.error("Failed to update order:", error)
       setError("Failed to update order. Please try again.")
@@ -184,7 +199,7 @@ export default function ViewOrderPage() {
   }
 
   const handlePrint = () => {
-    if (receiptRef.current && order) {
+    if (receiptRef.current && orderRedux) {
       const printWindow = window.open("", "", "width=600,height=600")
       if (printWindow) {
         printWindow.document.write(`
@@ -207,10 +222,12 @@ export default function ViewOrderPage() {
         printWindow.print()
         printWindow.close()
       }
+      router.push("/waiter/order/new")
     } else {
       console.error("Receipt is not ready for printing.")
     }
   }
+  const balance = (receivedAmount - (orderRedux?.finalPrice ?? 0)).toFixed(2);
 
   if (loading) {
     return (
@@ -220,7 +237,7 @@ export default function ViewOrderPage() {
     )
   }
 
-  if (!order) {
+  if (!orderRedux) {
     return <div>Order not found</div>
   }
 
@@ -230,7 +247,7 @@ export default function ViewOrderPage() {
         <div className="md:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Order #{order.orderNumber}</CardTitle>
+              <CardTitle>Order #{orderRedux.orderNumber}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -286,7 +303,7 @@ export default function ViewOrderPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {order.orderLines.map((line: { menuItemId: string; quantity: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | PromiseLikeOfReactNode | null | undefined; price: number; totalPrice: number }, index: Key | null | undefined) => (
+                  {orderRedux.orderLines.map((line: { menuItemId: string; quantity: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | PromiseLikeOfReactNode | null | undefined; price: number; totalPrice: number }, index: Key | null | undefined) => (
                     <TableRow key={index}>
                       <TableCell>{menuItems.find((item) => item.id === line.menuItemId)?.name || "Unknown"}</TableCell>
                       <TableCell>{line.quantity}</TableCell>
@@ -314,19 +331,19 @@ export default function ViewOrderPage() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Total Price:</span>
-                  <span>${order.totalPrice.toFixed(2)}</span>
+                  <span>${orderRedux.totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Discount:</span>
-                  <span>${order.discount.toFixed(2)}</span>
+                  <span>${orderRedux.discount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Rounding:</span>
-                  <span>${order.rounding.toFixed(2)}</span>
+                  <span>${orderRedux.rounding.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold">
                   <span>Final Price:</span>
-                  <span>${order.finalPrice.toFixed(2)}</span>
+                  <span>${orderRedux.finalPrice.toFixed(2)}</span>
                 </div>
               </div>
               <Button onClick={() => setShowCheckoutModal(true)} className="w-full mt-4">
@@ -349,8 +366,8 @@ export default function ViewOrderPage() {
                 id="discount"
                 type="number"
                 min="0"
-                value={order.discount}
-                onChange={(e) => setOrder({ ...order, discount: Number.parseFloat(e.target.value) || 0 })}
+                value={orderRedux.discount}
+                onChange={(e) => setOrder({ ...orderRedux, discount: Number.parseFloat(e.target.value) || 0 })}
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -358,19 +375,16 @@ export default function ViewOrderPage() {
               <Input
                 id="rounding"
                 type="number"
-                value={order.rounding}
-                onChange={(e) => setOrder({ ...order, rounding: Number.parseFloat(e.target.value) || 0 })}
+                value={orderRedux.rounding}
+                onChange={(e) => setOrder({ ...orderRedux, rounding: Number.parseFloat(e.target.value) || 0 })}
               />
             </div>
             <div>
               <Label>Payment Type:</Label>
               <RadioGroup
-                value={order.payment[0]?.type || "Cash"}
+                value={paymentType}
                 onValueChange={(value) =>
-                  setOrder({
-                    ...order,
-                    payment: [{ ...order.payment[0], type: value }],
-                  })
+                  setPaymentType(value === "Cash and Mobile Money" ? "Cash" : value)
                 }
               >
                 <div className="flex items-center space-x-2">
@@ -393,20 +407,16 @@ export default function ViewOrderPage() {
                 id="received-amount"
                 type="number"
                 min="0"
-                value={order.payment[0]?.amount || 0}
-                onChange={(e) =>
-                  setOrder({
-                    ...order,
-                    payment: [{ ...order.payment[0], amount: Number.parseFloat(e.target.value) || 0 }],
-                  })
+                value={receivedAmount}
+                onChange={(e) => setReceivedAmount(Number.parseFloat(e.target.value) || 0)
                 }
               />
             </div>
             <div className="flex justify-between font-bold">
               <span>Balance:</span>
-              <span>${((order.payment[0]?.amount || 0) - order.finalPrice).toFixed(2)}</span>
+              <span>${balance}</span>
             </div>
-            <Button onClick={handleUpdateOrder} className="w-full" disabled={order.isCompleted && order.isCheckedOut || loading}>
+            <Button onClick={handleUpdateOrder} className="w-full" disabled={orderRedux.isCompleted && orderRedux.isCheckedOut || loading}>
               {loading ? <ClipLoader color={"#fff"} loading={loading} size={20} /> : "Complete Order"}
             </Button>
           </div>
@@ -423,14 +433,14 @@ export default function ViewOrderPage() {
               <div ref={receiptRef}>
                 <RestaurantReceipt
                   order={{
-                    orderLines: order.orderLines,
-                    totalPrice: order.totalPrice,
-                    discount: order.discount,
-                    rounding: order.rounding,
-                    finalPrice: order.finalPrice,
-                    paymentType: order.payment[0]?.type || "Not set",
-                    receivedAmount: order.payment[0]?.amount || 0,
-                    balance: (order.payment[0]?.amount || 0) - order.finalPrice,
+                    orderLines: orderRedux.orderLines,
+                    totalPrice: orderRedux.totalPrice,
+                    discount: orderRedux.discount,
+                    rounding: orderRedux.rounding,
+                    finalPrice: orderRedux.finalPrice,
+                    paymentType: orderRedux.payment[0]?.type || "Not set",
+                    receivedAmount: orderRedux.payment[0]?.amount || 0,
+                    balance: (orderRedux.payment[0]?.amount || 0) - orderRedux.finalPrice,
                   }}
                   company={company}
                 />

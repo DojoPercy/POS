@@ -17,11 +17,12 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const branchId = searchParams.get('branchId');
   const companyId = searchParams.get('companyId');
+  const waiterId = searchParams.get('waiterId');
 
   try {
-    console.log({ branchId, companyId });
+    
 
-    if (!branchId && !companyId) {
+    if (!branchId && !companyId && !waiterId) {
       return NextResponse.json({ error: 'branchId or companyId is required' }, { status: 400 });
     }
 
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest) {
       where: {
         branchId: branchId || undefined,
         companyId: companyId || undefined,
+        waiterId: waiterId || undefined,
       },
       include: {
         branch: true,

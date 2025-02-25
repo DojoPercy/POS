@@ -18,6 +18,8 @@ import { AlertDescription } from "./ui/alert"
 import { RestaurantReceipt } from "./receipt"
 import { getCompany } from "@/lib/company"
 import { Company } from "@/lib/types/types"
+import { useDispatch } from "react-redux"
+import { addOrderLocally, updateOrderLocally } from "@/redux/orderSlice"
 
 interface MenuItem {
   id: string
@@ -74,7 +76,7 @@ export function OrderForm() {
   const [showReceipt, setShowReceipt] = useState<boolean>(false)
   const receiptRef = useRef<HTMLDivElement | null>(null)
   const [company, setCompany] = useState<Company | null>(null)
-
+  const dispatch = useDispatch();
   useEffect(() => {
     setLoadingMenu(true)
     ;(async () => {
@@ -203,6 +205,7 @@ export function OrderForm() {
         setTimeout(() => {
           setSuccessMessage(null)
         }, 2000)
+        dispatch(addOrderLocally(result));
         setLoading(false)
         setFinalPrice(0)
       } else {
