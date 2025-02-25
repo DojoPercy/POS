@@ -427,6 +427,7 @@ const BASE_URL =
     : `http://localhost:3000`;
 
 export async function updateOrderById(order: OrderType): Promise<OrderType> {
+  console.log(order);
   const response = await fetch(`${BASE_URL}/api/orders/${order.id}`, {
     method: "PUT",
     headers: {
