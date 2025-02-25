@@ -97,7 +97,7 @@ export default function Statistics() {
         }
         updatePage()
 
-    }, [refresh, date])
+    }, [refresh, date, branchId])
 
     useEffect(() => {
         setRefresh(true)

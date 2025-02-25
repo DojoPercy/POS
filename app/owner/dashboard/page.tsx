@@ -15,6 +15,7 @@ import { ResponsiveLineChart } from "@/components/responsive-line-chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getOrderSummaryByDateRange, getOrderSummaryByDateRangeOwner } from "@/lib/order"
 import { CompanySwitcher } from "../../../components/company_switcher"
+import Image from "next/image"
 
 type graphDataDef = {
   [key: number]: {
@@ -127,7 +128,7 @@ export default function Statistics() {
           {selectedCompany && (
             <div className="flex items-center">
               {selectedCompany.logo && (
-                <img
+                <Image
                   src={selectedCompany.logo || "/placeholder.svg"}
                   alt={selectedCompany.name}
                   className="w-8 h-8 rounded-full mr-2"
