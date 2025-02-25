@@ -1,9 +1,7 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getOrders } from "@/lib/order";
 
-export const config = {
-  runtime: "edge", // Enable Edge runtime for better streaming support on Vercel
-};
+export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -11,15 +9,15 @@ export async function GET(req: NextRequest) {
   const waiterId = searchParams.get("waiterId");
 
   if (!branchId || !waiterId) {
-    return new Response("Missing branchId or waiterId", { status: 400 });
+    return new NextResponse("Missing branchId or waiterId", { status: 400 });
   }
 
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
 
-      try {
-        while (true) {
+      while (true) {
+        try {
           const orders = await getOrders(undefined, branchId);
           const filteredOrders = orders.filter(
             (order: { waiterId: string }) => order.waiterId === waiterId
@@ -31,22 +29,20 @@ export async function GET(req: NextRequest) {
             );
           });
 
-          // Keep the connection alive every 5s
-          await new Promise((resolve) => setTimeout(resolve, 5000));
+          await new Promise((resolve) => setTimeout(resolve, 5000)); // Poll every 5 seconds
+        } catch (error) {
+          console.error("Error fetching orders:", error);
+          controller.error(error);
         }
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-        controller.close(); // Close stream on error
       }
     },
   });
 
-  return new Response(stream, {
+  return new NextResponse(stream, {
     headers: {
       "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache, no-transform",
+      "Cache-Control": "no-cache",
       Connection: "keep-alive",
-      "Access-Control-Allow-Origin": "*", // Ensure CORS issues are handled
     },
   });
 }
