@@ -65,75 +65,57 @@ export function OrderList() {
   const [showCompleted, setShowCompleted] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
     if (!token) {
-      console.error("Token not found");
-      return;
+      console.error("Token not found")
+      return
     }
-    const decodedToken: DecodedToken = jwtDecode(token);
-  
+    const decodedToken: DecodedToken = jwtDecode(token)
+
     const fetchInitialOrders = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const orders = await getOrders(undefined, decodedToken.branchId ?? "");
-        const filteredOrders = orders.filter(
-          (order: Order) => order.waiterId === decodedToken.userId
-        );
-        setData(filteredOrders);
-        setFilteredData(filteredOrders);
+        const orders = await getOrders(undefined, decodedToken.branchId ?? "")
+        const filteredOrders = orders.filter((order: Order) => order.waiterId === decodedToken.userId)
+        setData(filteredOrders)
+        setFilteredData(filteredOrders)
       } catch (error) {
-        console.error("Failed to fetch initial orders:", error);
+        console.error("Failed to fetch initial orders:", error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
-  
-    fetchInitialOrders();
-  
-    // 🌐 Dynamic SSE URL (works for both local & production)
-    const baseUrl =
-      process.env.NEXT_PUBLIC_VERCEL_URL && process.env.NODE_ENV === "production"
-        ? `https://restaurantpos.vercel.app`
-        : window.location.origin;
-  
-    const eventSourceUrl = new URL("/api/orders/stream", baseUrl);
-    eventSourceUrl.searchParams.append("branchId", decodedToken.branchId ?? "");
-    eventSourceUrl.searchParams.append("waiterId", decodedToken.userId ?? "");
-  
-    let eventSource: EventSource | null = null;
-  
-    const connectToSSE = () => {
-      eventSource = new EventSource(eventSourceUrl.toString());
-  
-      eventSource.onmessage = (event) => {
-        const newOrder: Order = JSON.parse(event.data);
-        setData((prevData) => {
-          const updatedData = prevData.some((order) => order.id === newOrder.id)
-            ? prevData.map((order) => (order.id === newOrder.id ? newOrder : order))
-            : [...prevData, newOrder];
-          return sortOrders(updatedData);
-        });
-      };
-  
-      eventSource.onerror = (error) => {
-        console.error("SSE error:", error);
-        if (eventSource) {
-          eventSource.close();
+    }
+
+    fetchInitialOrders()
+
+    // Set up SSE connection
+    const eventSourceUrl = new URL("/api/orders/stream", window.location.origin)
+    eventSourceUrl.searchParams.append("branchId", decodedToken.branchId ?? "")
+    eventSourceUrl.searchParams.append("waiterId", decodedToken.userId ?? "")
+
+    const eventSource = new EventSource(eventSourceUrl.toString())
+
+    eventSource.onmessage = (event) => {
+      const newOrder: Order = JSON.parse(event.data)
+      setData((prevData) => {
+        const updatedData = prevData.map((order) => (order.id === newOrder.id ? newOrder : order))
+        if (!updatedData.some((order) => order.id === newOrder.id)) {
+          updatedData.push(newOrder)
         }
-        // ♻️ Reconnect after 5 seconds if SSE drops
-        setTimeout(connectToSSE, 5000);
-      };
-    };
-  
-    connectToSSE();
-  
+        return sortOrders(updatedData)
+      })
+    }
+
+    eventSource.onerror = (error) => {
+      console.error("SSE error:", error)
+      eventSource.close()
+    }
+
     return () => {
-      if (eventSource) {
-        eventSource.close();
-      }
-    };
-  }, []);
-  
+      eventSource.close()
+    }
+  }, [])
+
   useEffect(() => {
     setFilteredData(sortOrders(showCompleted ? data : data.filter((order) => !order.isCompleted)))
   }, [showCompleted, data])

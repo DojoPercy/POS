@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify(order)}\n\n`))
           })
 
-          await new Promise((resolve) => setTimeout(resolve, 2000)) // Poll every 5 seconds
+          await new Promise((resolve) => setTimeout(resolve, 5000)) // Poll every 5 seconds
         } catch (error) {
           console.error("Error fetching orders:", error)
           controller.error(error)
