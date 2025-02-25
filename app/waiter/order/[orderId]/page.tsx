@@ -1,7 +1,7 @@
 "use client"
 
 import { useParams, useRouter } from "next/navigation"
-import { useState, useEffect, useRef, JSXElementConstructor, Key, PromiseLikeOfReactNode, ReactElement, ReactFragment, ReactPortal } from "react"
+import { useState, useEffect, useRef, JSXElementConstructor, Key, ReactElement, ReactPortal } from "react"
 import { ClipLoader } from "react-spinners"
 import { toast } from "@/components/ui/use-toast"
 
@@ -303,7 +303,7 @@ export default function ViewOrderPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orderRedux.orderLines.map((line: { menuItemId: string; quantity: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | PromiseLikeOfReactNode | null | undefined; price: number; totalPrice: number }, index: Key | null | undefined) => (
+                  {orderRedux.orderLines.map((line: OrderLine, index: number) => (
                     <TableRow key={index}>
                       <TableCell>{menuItems.find((item) => item.id === line.menuItemId)?.name || "Unknown"}</TableCell>
                       <TableCell>{line.quantity}</TableCell>
