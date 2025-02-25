@@ -443,7 +443,7 @@ const BASE_URL =
     ? `https://${process.env.NEXT_PUBLIC_BASE_URL}`
     : `http://localhost:3000`;
 
-export async function updateOrderById(order: Order): Promise<OrderType> {
+export async function updateOrderById(order: OrderType): Promise<OrderType> {
   const response = await fetch(`${BASE_URL}/api/orders/${order.id}`, {
     method: "PUT",
     headers: {
