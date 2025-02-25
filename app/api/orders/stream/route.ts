@@ -1,42 +1,36 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { getOrders } from "@/lib/order";
-
-export const runtime = "edge";
+import { type NextRequest, NextResponse } from "next/server"
+import { getOrders } from "@/lib/order"
 
 export async function GET(req: NextRequest) {
-  const searchParams = req.nextUrl.searchParams;
-  const branchId = searchParams.get("branchId");
-  const waiterId = searchParams.get("waiterId");
+  const searchParams = req.nextUrl.searchParams
+  const branchId = searchParams.get("branchId")
+  const waiterId = searchParams.get("waiterId")
 
   if (!branchId || !waiterId) {
-    return new NextResponse("Missing branchId or waiterId", { status: 400 });
+    return new NextResponse("Missing branchId or waiterId", { status: 400 })
   }
 
   const stream = new ReadableStream({
     async start(controller) {
-      const encoder = new TextEncoder();
+      const encoder = new TextEncoder()
 
       while (true) {
         try {
-          const orders = await getOrders(undefined, branchId);
-          const filteredOrders = orders.filter(
-            (order: { waiterId: string }) => order.waiterId === waiterId
-          );
+          const orders = await getOrders(undefined, branchId)
+          const filteredOrders = orders.filter((order: { waiterId: string }) => order.waiterId === waiterId)
 
           filteredOrders.forEach((order: any) => {
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify(order)}\n\n`)
-            );
-          });
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(order)}\n\n`))
+          })
 
-          await new Promise((resolve) => setTimeout(resolve, 5000)); // Poll every 5 seconds
+          await new Promise((resolve) => setTimeout(resolve, 5000)) // Poll every 5 seconds
         } catch (error) {
-          console.error("Error fetching orders:", error);
-          controller.error(error);
+          console.error("Error fetching orders:", error)
+          controller.error(error)
         }
       }
     },
-  });
+  })
 
   return new NextResponse(stream, {
     headers: {
@@ -44,5 +38,6 @@ export async function GET(req: NextRequest) {
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
     },
-  });
+  })
 }
+
