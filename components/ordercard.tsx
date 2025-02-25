@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatDistanceToNow } from 'date-fns'
-import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal, PromiseLikeOfReactNode, Key } from "react"
+
 
 interface OrderLine {
     id: string; 
@@ -48,7 +48,7 @@ export function OrderCard({ order, onComplete }: { order: any, onComplete: (orde
       </CardHeader>
       <CardContent className="flex-grow">
         <ul className="space-y-2">
-          {order.orderLines.map((line: OrderLine, index: Key | null | undefined) => (
+          {order.orderLines.map((line: OrderLine, index: number | null | undefined) => (
             <li key={index} className="flex justify-between">
               <span>{line.quantity}x {line.menuItemId}</span>
               <span>${line.totalPrice.toFixed(2)}</span>
