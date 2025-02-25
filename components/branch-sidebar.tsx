@@ -38,7 +38,7 @@ function SideBarIcon({
     } else if (text === "Profile") {
       return "/branch";
     } else {
-      return `/waiter/${text.toLowerCase()}`;
+      return `/branch/${text.toLowerCase()}`;
     }
   })();
   const modifiedHref = href === "/" ? "/" : href;
@@ -105,7 +105,7 @@ function SiderBarBranch() {
           {/* Logo here */}
           <ul className="space-y-5 font-medium">
             <li>
-              <SideBarIcon icon={<Home className="w-5 h-5" />} text="Home" />
+              <SideBarIcon icon={<Home className="w-5 h-5" />} text={decodedToken?.branchId?.toString() ?? ''} />
             </li>
           </ul>
           <ul className="pt-2 mt-2 space-y-5 font-medium border-t-2">
