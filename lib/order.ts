@@ -1,3 +1,4 @@
+import { OrderType } from "./types/types";
 
 
 
@@ -406,25 +407,7 @@ export async function getOrdersByDateRange(from: Date, to: Date) {
   });
   return res.json();
 }
-type OrderType = {
-  id: string
-  waiterId?: string
-  branchId?: string
-  orderLines: OrderLine[]
-  companyId?: string
-  totalPrice: number
-  discount: number
-  rounding: number
-  finalPrice: number
-  payment?: any[] // You might want to create a separate Payment type
-  isCompleted: boolean
-  isCheckedOut: boolean
-  orderedDate?: string
-  requiredDate?: string
-  createdAt: string
-  updatedAt?: string
-  orderNumber: string
-}
+
 type OrderLine = {
   id: string
   orderId: string

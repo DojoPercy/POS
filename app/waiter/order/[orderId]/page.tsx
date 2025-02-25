@@ -19,6 +19,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { RestaurantReceipt } from "@/components/receipt"
 import { getCompany } from "@/lib/company"
+import { OrderType } from "@/lib/types/types"
 
 
 interface DecodedToken {
@@ -94,15 +95,13 @@ export default function ViewOrderPage() {
 
       const updatedOrder = {
         ...order,
-        id: order.id, // Ensure the ID is passed for the update
         totalPrice: order.totalPrice + newOrderLine.totalPrice,
         finalPrice: order.finalPrice + newOrderLine.totalPrice,
-        orderLines: {
-          create: [newOrderLine],
-        },
+        orderLines: [...order.orderLines, newOrderLine], // Directly add the line
       }
 
-      await updateOrderById(updatedOrder)
+      await updateOrderById(updatedOrder as OrderType);
+      
       setOrder((prevOrder) => ({
         ...prevOrder!,
         orderLines: [...prevOrder!.orderLines, { ...newOrderLine, name: menuItem.name }],
@@ -139,7 +138,7 @@ export default function ViewOrderPage() {
         finalPrice: order.finalPrice - removedItem.totalPrice,
       }
 
-      await updateOrderById(updatedOrder)
+      await updateOrderById(updatedOrder as OrderType)
       setOrder(updatedOrder)
       toast({
         title: "Success",
@@ -166,7 +165,7 @@ export default function ViewOrderPage() {
         isCheckedOut: true,
       }
       console.log(completedOrder)
-      await updateOrderById(completedOrder as Order)
+      await updateOrderById(completedOrder as OrderType)
       setSuccessMessage("Order updated successfully.")
       setShowCheckoutModal(false)
       setShowReceipt(true)
