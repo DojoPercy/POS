@@ -28,6 +28,7 @@ model Company {
   menus       Menu[]    
 
   Order Order[]
+  Expense Expense[]
 }
 
 model User {
@@ -66,21 +67,45 @@ model Branch {
   company     Company  @relation(fields: [companyId], references: [id])
 
   Order Order[]
+  Expense Expense[]
 }
 
 model Menu {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  price       PriceType[]
+  companyId   String      @db.ObjectId
+  imageBase64 String
+  categoryId  String      @db.ObjectId
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  OrderLine   OrderLine[]
+  company     Company     @relation(fields: [companyId], references: [id])
+  category    MenuCategory @relation(fields: [categoryId], references: [id])
+}
+
+model PriceType {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  price      Float
+  menuItemId String  @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  menuItem   Menu     @relation(fields: [menuItemId], references: [id])
+}
+
+model MenuCategory {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
-  price       Float
   companyId   String  @db.ObjectId
-  imageBase64 String
-  category    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  OrderLine   OrderLine[]
-  company     Company  @relation(fields: [companyId], references: [id])
+  menus       Menu[]
 }
 
 model OrderLine {
@@ -105,17 +130,17 @@ model Order {
   branchId        String      @db.ObjectId
   orderLines      OrderLine[] 
   companyId       String      @db.ObjectId
-  totalPrice      Float       @default(0.0)
-  discount        Float       @default(0.0)
-  rounding        Float       @default(0.0)
-  finalPrice      Float       @default(0.0) // totalPrice - discount + rounding
+  totalPrice      Float?       @default(0.0)
+  discount        Float?       @default(0.0)
+  rounding        Float?       @default(0.0)
+  finalPrice      Float?       @default(0.0) // totalPrice - discount + rounding
   payment         Payment[]   // Payment details linked to the order
   isCompleted     Boolean     @default(false) // Tracks if the order is finalized
   isCheckedOut    Boolean     @default(false) // Tracks if payment has been made
-  orderedDate     DateTime    @default(now()) // When the order was placed
+  orderedDate     DateTime?    @default(now()) // When the order was placed
   requiredDate    DateTime?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt       DateTime?    @default(now())
+  updatedAt       DateTime ?   @updatedAt
   orderNumber    String
    branch          Branch      @relation(fields: [branchId], references: [id])
   company         Company     @relation(fields: [companyId], references: [id])
@@ -139,7 +164,7 @@ model Supplier {
   address         String?
   homePage        String?
   supplierContact SupplierContact[]
-  expense         Expense[]
+
 
   @@map("suppliers")
 }
@@ -182,29 +207,77 @@ model Payment {
 model ExpenseType {
   id      String    @id @default(auto()) @map("_id") @db.ObjectId
   name    String
-  expense Expense[]
+ 
 
   @@map("expense_types")
 }
 
+model Category {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  name  String  @unique
+  branchId String   @db.ObjectId
+  // Relationships
+  expenses      Expense[]
+  frequentItems FrequentItem[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("categories")
+}
+
 model Expense {
-  id               String             @id @default(auto()) @map("_id") @db.ObjectId
-  date             DateTime           @default(now())
-  expenseType      ExpenseType        @relation(fields: [expenseTypeId], references: [id])
-  expenseTypeId    String             @db.ObjectId
-  description      String
-  amount           Int
-  supplier         Supplier?          @relation(fields: [supplierId], references: [id])
-  supplierId       String?            @db.ObjectId
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   
+  itemName   String   
+  quantity   Int      @default(1)
+  categoryId String   @db.ObjectId
+  amount     Float    
+  dateAdded  DateTime @default(now())
+  isFrequent Boolean  @default(false)
+  companyId  String   @db.ObjectId
+  branchId   String   @db.ObjectId
+  
+  category   Category @relation(fields: [categoryId], references: [id])
+  company    Company  @relation(fields: [companyId], references: [id])
+  branch     Branch   @relation(fields: [branchId], references: [id])
+
+  
+  updatedAt DateTime @updatedAt
+
  
-  expensePayment   ExpensePayment[]
+  @@index([userId])
+  @@index([categoryId])
+  @@index([dateAdded])
 
   @@map("expenses")
 }
 
+model FrequentItem {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   
+  itemName   String   
+  categoryId String   @db.ObjectId
+  quantity   Int      @default(1)
+
+  // Relationships
+  category   Category @relation(fields: [categoryId], references: [id])
+  branchId   String   @db.ObjectId
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  
+  @@index([userId])
+  @@index([categoryId])
+
+  @@map("frequentItems")
+}
+
+
 model ExpensePayment {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  expense       Expense     @relation(fields: [expenseId], references: [id])
   expenseId     String      @db.ObjectId
   paymentDate   DateTime
   paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])

@@ -1,6 +1,5 @@
-"use client";
-import SideBarOwner from '@/components/owner-sidebar'
-import SideBar from '../SideBar'
+"use client"
+
 import { Provider } from 'react-redux'
 import { store } from '../../redux/index';
 
@@ -9,7 +8,7 @@ import { store } from '../../redux/index';
 
 
 
-export default function OwnerLayout({
+export default function LoginLayout({
   children,
 }: {
   children: React.ReactNode
@@ -17,8 +16,7 @@ export default function OwnerLayout({
   return (
     <Provider store={store}>
         <div className="h-screen">
-          <SideBarOwner/>
-          <div className="bg-white sm:ml-16">
+          <div className="">
             {children}  
           </div>
         </div>

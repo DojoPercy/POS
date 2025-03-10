@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { MenuItem } from './types/types';
 
 ;
 
@@ -10,14 +11,7 @@ export enum menuOperations {
     deleteMenu,
 }
 
-export type MenuItem = {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    category: string;
-    imageBase64: string;
-};
+
 
 export async function createMenuItem(data: Omit<MenuItem, 'id'>) {
     const query = {
@@ -41,7 +35,7 @@ export async function getMenuItems(companyId: String) {
     const query = {
         queryType: menuOperations.getMenu,
     };
-    console.log('company:', companyId);
+   
     const response = await fetch(`/api/menu?companyId=${companyId}`, {
         method: 'GET',
         headers: {
@@ -97,6 +91,30 @@ export async function deleteMenuItem(id: string) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(query),
+        cache: 'no-store',
+    }).then((res) => res.json());
+
+    return response;
+}
+
+export async function getMenuCategories(companyId: string) {
+    const response = await fetch(`/api/menu/category?companyId=${companyId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+    }).then((res) => res.json());   
+    return response;
+}
+
+export async function createMenuCategory(data: { name: string, companyId: string, description?: string }) {
+    const response = await fetch(`/api/menu/category`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
         cache: 'no-store',
     }).then((res) => res.json());
 

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { jwtVerify, SignJWT } from 'jose';
 import { jwtDecode } from 'jwt-decode';
+import { DecodedToken } from './types/types';
 
 interface UserJwtPayload {
   jti: string;
@@ -12,12 +13,7 @@ interface User {
   role: string;
   branchId?: string;
 }
-interface DecodedToken {
-  role: string;
-  branchId?: string; 
-  userId?: string; // Additional properties if available
-  [key: string]: any;
-}
+
 
 
 export const getJwtSecretKey = () => {

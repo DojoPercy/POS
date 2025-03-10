@@ -1,6 +1,6 @@
 // store/ordersSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction, RootState } from "@reduxjs/toolkit";
-import { getOrders, updateOrderById } from "@/lib/order";
+import { createOrder, getOrders, updateOrderById } from "@/lib/order";
 import { OrderType } from "@/lib/types/types";
 
 // 🏷️ Define the state type
@@ -26,6 +26,14 @@ export const fetchOrders = createAsyncThunk<OrderType[], string>(
     return Array.isArray(data) ? data : [];
   }
 );
+
+export const placeOrder = createAsyncThunk<OrderType, OrderType>(
+  "orders/place",
+  async (order) => {
+    
+    const newOrder = await createOrder(order);
+    return newOrder;
+  });
 
 
 
@@ -77,6 +85,10 @@ const ordersSlice = createSlice({
           const index = state.orders.findIndex((o) => o.id === action.payload.id);
           if (index !== -1) state.orders[index] = action.payload;
         }
+      })
+      .addCase(placeOrder.fulfilled, (state, action) => {
+        if (!Array.isArray(state.orders)) state.orders = [];
+        state.orders.push(action.payload);
       });
   },
 });

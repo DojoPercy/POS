@@ -1,77 +1,170 @@
-export enum expenseOperations{
+import { Expense } from "./types/types";
+
+const API_URL = "/api/expenses";
+type ExpenseSummaryResponse = {
+    date: string;
+    amount: number;
+  };
+  
+  export type ExpenseSummaryByDate = {
+    date: string;
+    expenses: number;
+  };
+  export enum expenseOperations {
     getExpenseSumByDateRange,
-    getExpenseSummaryByDateRange
-}
-
-type expenseSummaryResponse = {
-    date: string
-    amount: number
-}
-
-export type expenseSummaryByDate = {
-    date: string
-    expenses: number
-}
-
-
-export async function getExpenseSumByDateRange(from: Date, to: Date) {
+    getExpenseSummaryByDateRange,
+    getExpensesPerBranch,
+    createExpensesPerBranch,
+    getExpensesPerCategory,
+    getExpensesAmountByDateRange,
+    getTotalExpenseCount,
+  }
+  
+  // 🔹 Get total amount of expenses within a date range
+  export async function getExpenseSumByDateRange(from: Date, to: Date): Promise<{ totalAmount: number }> {
     const query = {
-        queryType: expenseOperations.getExpenseSumByDateRange,
-        from: from,
-        to: to,
-    }
-    const res = await fetch(`api/expenses`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(query),
-        cache: 'no-store'
-    }).then((res) => res.json())
-    return res
+      queryType: expenseOperations.getExpenseSumByDateRange,
+      from: from,
+      to: to,
+    };
+    const res = await fetch("/api/expenses/summary", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(query),
+      cache: "no-store",
+    }).then((res) => res.json());
+    return res;
+  }
+  
+  // 🔹 Get total count of expenses within a date range
+  export async function getTotalExpenseCount(from: Date, to: Date): Promise<{ totalCount: number }> {
+    const query = {
+      queryType: expenseOperations.getTotalExpenseCount,
+      from,
+      to,
+    };
+    const res = await fetch("/api/expenses/count", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(query),
+      cache: "no-store",
+    }).then((res) => res.json());
+    return res.totalCount;
+  }
+export async function getExpenses(branchId?: string, companyId?: string) {
+    const queryParams = new URLSearchParams();
+    if (branchId) queryParams.append("branchId", branchId);
+    if (companyId) queryParams.append("companyId", companyId);
+
+    const response = await fetch(`${API_URL}?${queryParams.toString()}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
 }
 
-export async function getExpenseSummaryByDateRange(from: Date, to: Date) {
-    const query = {
-        queryType: expenseOperations.getExpenseSummaryByDateRange,
-        from: from,
-        to: to,
-    }
-    const res: expenseSummaryResponse[] = await fetch(`api/expenses`, {
-        method: 'POST',
+export async function createExpense(expense: Expense) {
+    const response = await fetch(API_URL, {
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         },
-        body: JSON.stringify(query),
-        cache: 'no-store'
-    }).then((res) => res.json())
+        credentials: "include",
+        body: JSON.stringify(expense),
+    });
+    return response.json();
+}
 
-    const expensesSummary: expenseSummaryByDate[] = []
-    const currentDate = new Date(from)
-    let i = 0
+export async function getExpenseById(id: string) {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+}
 
-    while (currentDate <= to) {
-        const currentDateString = currentDate.toLocaleDateString("id")
-        expensesSummary.push({
-            date: currentDateString,
-            expenses: 0,
-        })
+export async function updateExpense(id: string, updatedExpense: Partial<Expense>) {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(updatedExpense),
+    });
+    return response.json();
+}
 
-        while (i < res.length) {
-            const orderDateString = new Date(res[i].date).toLocaleDateString("id")
-            if (orderDateString === currentDateString) {
-                expensesSummary[expensesSummary.length - 1].expenses += res[i].amount
-
-                i += 1
-            }
-            else {
-                break
-            }
-        }
+export async function deleteExpense(id: string) {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    return response.json();
+}
 
 
-        currentDate.setDate(currentDate.getDate() + 1)
-    }
+export async function getFrequentItems(branchId: string) {
+    const response = await fetch(`/api/expenses/frequent-items?branchId=${branchId}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+}
 
-    return expensesSummary
+export async function createFrequentItem(item: { itemName: string; branchId: string , categoryId: string; quantity: number , isFrequent: boolean }) {
+    const response = await fetch(`/api/expenses/frequent-items`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(item),
+    });
+    return response.json();
+}  
+
+export async function deleteFrequentItem(id: string) {
+    const response = await fetch(`/api/expenses/frequent-items/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    return response.json();
+}
+
+export async function updateFrequentItem(id: string, updatedItem: { itemName: string; branchId: string; categoryId: string; quantity: number }) {
+    const response = await fetch(`/api/expenses/frequent-items/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(updatedItem),
+    });
+    return response.json();
+}
+
+export async function getCategories(branchId: string) {
+    
+    const response = await fetch(`/api/expenses/category?branchId=${branchId}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+}
+
+export async function createCategory(category: { name: string; branchId: string }) {
+    const response = await fetch(`/api/expenses/category`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(category),
+    });
+    return response.json();
 }

@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdownMenu";
+import { MenuCategory, PriceType } from "@/lib/types/types";
 
 // Define the MenuItem type based on your database or API response structure.
 export type MenuItem = {
@@ -57,7 +58,7 @@ export const columns: ColumnDef<MenuItem>[] = [
     ),
     cell: ({ row }) => {
       const imageBase64 = row.getValue<string>("imageBase64");
-      console.log(imageBase64);
+      
       return (
         <div className="flex items-center justify-center ">
           <img
@@ -91,20 +92,42 @@ export const columns: ColumnDef<MenuItem>[] = [
     },
   },
   {
-    accessorKey: "price",
+    accessorKey: "price", // Assuming "prices" is now an array of price objects
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Price" />
     ),
     cell: ({ row }) => {
-      const price = row.getValue<number>("price");
-      return <div>${price.toFixed(2)}</div>;
+      const price = row.getValue<PriceType[]>("price");
+  
+      if (!price || price.length === 0) return <div>No Prices</div>;
+  
+      return (
+        <div>
+          {price.map((price, index) => (
+            <div key={index}>
+              {price.name ? `${price.name} $` : "$"}{price.price}
+            </div>
+          ))}
+        </div>
+      );
     },
-  },
+  }
+,  
   {
     accessorKey: "category",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Category" />
     ),
+    cell: ({ row }) => {
+      const category = row.getValue<MenuCategory>("category");
+    
+      return (
+        <div>
+          <div>{category?.name ?? "gag"}</div>
+        </div>
+      );
+    },
+    
   },
   {
     accessorKey: "available",
@@ -113,7 +136,7 @@ export const columns: ColumnDef<MenuItem>[] = [
     ),
     cell: ({ row }) => {
       const available = row.getValue<boolean>("available");
-      return <div>{available ? "Yes" : "No"}</div>;
+      return <div>{available ? "Yes" : "Yes"}</div>;
     },
   },
   {

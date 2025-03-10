@@ -73,7 +73,7 @@ export async function getOrderCounter( branchId: string) {
     body: JSON.stringify({ branchId: branchId , date: today }),
   })
   
-
+console.log(counterResponse);
   if (!counterResponse.ok) {
     throw new Error("Failed to fetch order counter");
   }
@@ -116,23 +116,7 @@ export async function getHighestOrderInBranch(companyId: string, branchId?: stri
   };
 }
 
-export async function createOrder(order: {
-    waiterId?: string;
-    branchId?: string;
-    orderLines: {
-      menuItemId: string;
-      quantity: number;
-      price: number;
-      totalPrice: number;
-    }[];
-    totalPrice: number;
-    discount: number;
-    rounding: number;
-    finalPrice: number;
-    isCompleted: boolean;
-    isCheckedOut: boolean;
-    requiredDate: string;
-  }) {
+export async function createOrder(order: OrderType) {
     const res = await fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

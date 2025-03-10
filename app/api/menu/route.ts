@@ -1,103 +1,130 @@
-
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { jwtDecode } from 'jwt-decode';
+import { prisma } from '../../../lib/prisma';
 
-const prisma = new PrismaClient();
 interface DecodedToken {
-  role: string
-  userId?: string
-  branchId?: string
-  companyId?: string
-  [key: string]: any
+  role: string;
+  userId?: string;
+  branchId?: string;
+  companyId?: string;
+  [key: string]: any;
 }
+
+// **Create a New Menu Item with PriceType**
 export async function POST(req: NextRequest) {
-    try {
-      const token = req.cookies.get("token")?.value
-              if (!token) {
-                return NextResponse.redirect(new URL("/login", req.url))
-              }
-              const decodedToken: DecodedToken = jwtDecode(token)
-      const { name, description, price, category, imageBase64 } = await req.json();
-              console.log('company:', decodedToken);
-      const newMenuItem = await prisma.menu.create({
-        data: {
-          name: name,
-          description,
-          
-          price: price,
-          imageBase64: imageBase64,
-          company: {connect: {id: decodedToken.companyId}},
-          category: category,
+  try {
+    const token = req.cookies.get("token")?.value;
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+    const decodedToken: DecodedToken = jwtDecode(token);
+    const { name, description, prices, categoryId, imageBase64 } = await req.json();
+
+    const newMenuItem = await prisma.menu.create({
+      data: {
+        name,
+        description,
+        imageBase64,
+        company: { connect: { id: decodedToken.companyId } },
+        category: { connect: { id: categoryId } },
+        price: {
+          create: prices.map((price: { name: string; price: number }) => ({
+            name: price.name,
+            price: price.price,
+          })),
         },
-      });
-  
-      return NextResponse.json(newMenuItem, { status: 201 });
-    } catch (error: any) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+      },
+      include: {
+        price: true, // Include prices in response
+      },
+    });
+
+    return NextResponse.json(newMenuItem, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
 
-  export async function GET(req: NextRequest){
-    try{
-       const { searchParams } = new URL(req.url);
-          const id = searchParams.get('id');
-          const companyId = searchParams.get('companyId') || "";
-      
-          if (id) {
-            const menu = await prisma.menu.findMany({
-              where: { id },
-            });
-            if (!menu) {
-              return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
-            }
-            return NextResponse.json(menu, { status: 200 });
-          } else if(companyId){
-            const menus = await prisma.menu.findMany({
-              where: { companyId },
-            });
-            return NextResponse.json(menus, { status: 200 });
-          }
-      const menuItems = await prisma.menu.findMany();
-      return NextResponse.json(menuItems, { status: 200 });
+// **Get Menu Items with Prices**
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    const companyId = searchParams.get('companyId') || "";
 
-    } catch (error: any) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-  }
-
-  export async function PUT(req: NextRequest){
-    try{
-      const { id, name, description, price, category, imageBase64, companyId } = await req.json();
-      const updatedMenuItem = await prisma.menu.update({
+    if (id) {
+      const menu = await prisma.menu.findUnique({
         where: { id },
-        data: {
-          name,
-          description,
-          companyId: companyId || "",
-          price,
-          imageBase64,
-          category,
+        include: { price: true, category: true },
+      });
+      if (!menu) {
+        return NextResponse.json({ error: 'Menu item not found' }, { status: 404 });
+      }
+      return NextResponse.json(menu, { status: 200 });
+    } else if (companyId) {
+      const menus = await prisma.menu.findMany({
+        where: { companyId },
+        include: { price: true, category: true },
+      });
+      return NextResponse.json(menus, { status: 200 });
+    }
+
+    const menuItems = await prisma.menu.findMany({
+      include: { price: true, category: true },
+    });
+    return NextResponse.json(menuItems, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// **Update Menu Item with Prices**
+export async function PUT(req: NextRequest) {
+  try {
+    const { id, name, description, prices, categoryId, imageBase64, companyId } = await req.json();
+
+    const updatedMenuItem = await prisma.menu.update({
+      where: { id },
+      data: {
+        name,
+        description,
+        imageBase64,
+        companyId,
+        category: { connect: { id: categoryId } },
+        price: {
+          deleteMany: { menuItemId: id }, // Remove old prices
+          create: prices.map((price: { name: string; price: number }) => ({
+            name: price.name,
+            price: price.price,
+          })),
         },
-      });
-      return NextResponse.json(updatedMenuItem, { status: 200 });
+      },
+      include: { price: true, category: true },
+    });
 
-    } catch (error: any) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    return NextResponse.json(updatedMenuItem, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
 
-  export async function DELETE(req: NextRequest){
-    try{
-      const { id } = await req.json();
-      const deletedMenuItem = await prisma.menu.delete({
-        where: { id },
-      });
-      return NextResponse.json(deletedMenuItem, { status: 200 });
+// **Delete Menu Item with Prices**
+export async function DELETE(req: NextRequest) {
+  try {
+    const { id } = await req.json();
 
-    } catch (error: any) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    // Delete related price entries first
+    await prisma.priceType.deleteMany({
+      where: { menuItemId: id },
+    });
+
+    // Then delete the menu item
+    const deletedMenuItem = await prisma.menu.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(deletedMenuItem, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
- 
+}

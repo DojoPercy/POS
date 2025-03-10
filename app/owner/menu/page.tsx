@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/dataTable";
 import { columns, MenuItem } from "@/components/menu-columns";
 import { jwtDecode } from 'jwt-decode'
+import { fetchUserFromToken, selectUser } from "@/redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@reduxjs/toolkit";
+import { getMenuItemsPerCompany } from "@/redux/companyMenuSlice";
 
 
 interface DecodedToken {
@@ -17,28 +21,25 @@ interface DecodedToken {
 export default function MenuItems() {
   const [refresh, setRefresh] = useState(true);
   const [data, setData] = useState<MenuItem[]>([]);
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const {menuItems} = useSelector((state: RootState) => state.menu);
+  useEffect(() => {
+    dispatch(fetchUserFromToken());
+  }, [dispatch]);
 
   useEffect(() => {
-    if (!refresh) return;
+    if (user?.companyId) {
+      dispatch(getMenuItemsPerCompany(user.companyId));
+    }
+  }, [dispatch, user?.companyId]);
 
-    setData([]);
-    (async () => {
-      try {
-         const token = localStorage.getItem("token");
-                    if (!token) {
-                      console.error("Token not found");
-                      return;
-                    }
-                    const decodedToken: DecodedToken = jwtDecode(token);
-        const menuItems = await getMenuItems(decodedToken.companyId);
-        setData(menuItems);
-      } catch (error) {
-        console.error("Failed to fetch menu items:", error);
-      } finally {
-        setRefresh(false);
-      }
-    })();
-  }, [refresh]);
+  useEffect(() => {
+    if (refresh && user?.companyId) {
+      dispatch(getMenuItemsPerCompany(user.companyId));
+      setRefresh(false); // Reset refresh after fetching
+    }
+  }, [dispatch, refresh, user?.companyId]);
 
   return (
     <div className="py-6 px-10">
@@ -72,7 +73,7 @@ export default function MenuItems() {
         </div>
       </div>
       <div className="mx-auto mt-10">
-        <DataTable columns={columns} data={data} />
+        <DataTable columns={columns} data={menuItems} />
       </div>
     </div>
   );

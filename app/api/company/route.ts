@@ -1,15 +1,13 @@
+import { DecodedToken } from "@/lib/types/types"
 import { PrismaClient } from "@prisma/client"
 import { jwtDecode } from "jwt-decode"
 import { type NextRequest, NextResponse } from "next/server"
+import { prisma } from '../../../lib/prisma';
 
-interface DecodedToken {
-  role: string
-  userId?: string
-  branchId?: string
-  [key: string]: any
-}
 
-const prisma = new PrismaClient()
+
+
+
 
 export async function GET(req: NextRequest) {
   try {
