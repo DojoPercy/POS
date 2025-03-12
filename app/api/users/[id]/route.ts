@@ -18,12 +18,22 @@ export async function GET(req: NextRequest, { params }: any) {
 
 export async function PUT(req: NextRequest, { params }: any) {
   try {
-    const { id } = params;
-    const { field, value } = await req.json();
+    const { id } = params; 
+    const {branchId, companyId} = await req.json(); 
 
+  
+    const existingUser = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!existingUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    
     const updatedUser = await prisma.user.update({
       where: { id },
-      data: { [field]: value }
+      data: { branchId, companyId },
     });
 
     return NextResponse.json(updatedUser, { status: 200 });

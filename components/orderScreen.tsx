@@ -12,7 +12,7 @@ import OrderSummary from "./orderSummary";
 import MenuItemCard from "./menu_item_card";
 
 import {  MenuIcon } from "lucide-react"
-import { PriceType, Category, MenuCategory } from '../lib/types/types';
+import { PriceType, Category, MenuCategory, OrderType } from '../lib/types/types';
 import { MenuItem } from "@/lib/types/types";
 import { getMenuItemsPerCompany } from "@/redux/companyMenuSlice";
 import { fetchUserFromToken, selectUser } from "@/redux/authSlice";
@@ -20,7 +20,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@reduxjs/toolkit";
 import { fetchMenuCategoriesOfCompany } from "@/redux/CompanyCategoryMenuSlice";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { getOrderCounter } from '@/lib/order';
+import { getOrderById, getOrderCounter } from '@/lib/order';
 
 // Types
 type CartItem = {
@@ -29,7 +29,10 @@ type CartItem = {
   quantity: number;
 };
 
-export default function OrderScreen() {
+type OrderScreenProp = {
+  orderId?: string
+}
+export default function OrderScreen({orderId}: OrderScreenProp) {
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -47,7 +50,19 @@ export default function OrderScreen() {
 
   useEffect(() => {
     dispatch(fetchUserFromToken());
-  }, [dispatch]);
+
+    const fetchOrder = async () => {
+        const order: OrderType = await getOrderById(orderId!);
+        const fetchCart = order.orderLines.map((orderLine) => {
+         
+        })
+    };
+
+    if (orderId) {
+        fetchOrder();
+    }
+}, [dispatch, orderId]);
+;
 
   useEffect(() => {
     setIsLoading(true)
@@ -105,7 +120,7 @@ export default function OrderScreen() {
 
   
   const filteredMenuItems = menuItems.filter((item: MenuItem) => item.categoryId === activeCategory);
-  console.log(filteredMenuItems)
+ 
 
   const CategoryList = () => (
     <div className="w-full">

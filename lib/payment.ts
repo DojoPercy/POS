@@ -1,76 +1,57 @@
-export enum paymentOperations{
-    getPaymentSumByDateRange,
-    getPaymentSummaryByDateRange,
-}
+import { CreatePaymentRequest, UpdatePaymentStatusRequest } from '@/lib/types/types';
 
-type paymentSummaryResponse = {
-    date: string
-    amount: number
-}
+const API_BASE_URL = '/api/payments';
 
-export type paymentSummaryByDate = {
-    date: string
-    paymentsIn: number
-}
+export const paymentService = {
+    async getPayments(companyId?: string, branchId?: string) {
+        const params = new URLSearchParams();
+        if (companyId) params.append('companyId', companyId);
+        if (branchId) params.append('branchId', branchId);
 
-export async function getPaymentSumByDateRange(from: Date, to: Date) {
-    const query = {
-        queryType: paymentOperations.getPaymentSumByDateRange,
-        from: from,
-        to: to,
-    }
-    const res = await fetch(`api/payments`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(query),
-        cache: 'no-store'
-    }).then((res) => res.json())
-    return res
-}
+        const response = await fetch(`${API_BASE_URL}?${params.toString()}`);
+        if (!response.ok) throw new Error('Failed to fetch payments');
 
-export async function getPaymentSummaryByDateRange(from: Date, to: Date) {
-    const query = {
-        queryType: paymentOperations.getPaymentSummaryByDateRange,
-        from: from,
-        to: to,
-    }
-    const res: paymentSummaryResponse[] = await fetch(`api/payments`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(query),
-        cache: 'no-store'
-    }).then((res) => res.json())
+        return response.json();
+    },
 
-    const paymentsSummary: paymentSummaryByDate[] = []
-    const currentDate = new Date(from)
-    let i = 0
+    async getPaymentById(id: string) {
+        const response = await fetch(`${API_BASE_URL}/${id}`);
+        if (!response.ok) throw new Error('Payment not found');
 
-    while (currentDate <= to) {
-        const currentDateString = currentDate.toLocaleDateString("id")
-        paymentsSummary.push({
-            date: currentDateString,
-            paymentsIn: 0,
-        })
+        return response.json();
+    },
 
-        while (i < res.length) {
-            const orderDateString = new Date(res[i].date).toLocaleDateString("id")
-            if (orderDateString === currentDateString) {
-                paymentsSummary[paymentsSummary.length - 1].paymentsIn += res[i].amount
+    async createPayment(paymentData: CreatePaymentRequest) {
+        const response = await fetch(API_BASE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(paymentData),
+        });
 
-                i += 1
-            }
-            else {
-                break
-            }
-        }
+        if (!response.ok) throw new Error('Failed to create payment');
 
+        return response.json();
+    },
 
-        currentDate.setDate(currentDate.getDate() + 1)
-    }
+    async updatePayment(id: string, updateData: Partial<UpdatePaymentStatusRequest>) {
+        const response = await fetch(`${API_BASE_URL}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updateData),
+        });
 
-    return paymentsSummary
-}
+        if (!response.ok) throw new Error('Failed to update payment');
+
+        return response.json();
+    },
+
+    async deletePayment(id: string) {
+        const response = await fetch(`${API_BASE_URL}/${id}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) throw new Error('Failed to delete payment');
+
+        return response.json();
+    },
+};

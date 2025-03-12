@@ -15,22 +15,16 @@ const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   try {
-      const token = req.cookies.get("token")?.value
-        if (!token) {
-          return NextResponse.redirect(new URL("/login", req.url))
-        }
-        const decodedToken: DecodedToken = jwtDecode(token)
-        console.log('decodedToken:', decodedToken);
+     
     const body = await req.json();
     console.log('Request Body:', body); 
-    const companyId: string | undefined = decodedToken.companyId;
-// Log the incoming request data
+   
     const newBranch = await prisma.branch.create({
       data: {
         name: body.name,
         location: body.location,
         company: {
-          connect: { id: companyId }, 
+          connect: { id: body.companyId || null }, 
         },
         city: body.city,
         state: body.state || null,

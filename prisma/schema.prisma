@@ -15,13 +15,39 @@ model Company {
   name        String   
   location    String 
   logo        String?  
-  city        String   // City
+  city        String 
+  currency    String?   @default("USD")
+  taxRate     Float?    @default(0.0)
+  enableDiscount Boolean?  @default(false)
+  isActivated Boolean?  @default(false)
+  paymentMethods String[]  @default(["cash", "card"])
+  orderProcessingMode String? @default("retail") 
   state       String?  // State or province (optional)
   country     String   // Country
   ownerId     String   @unique @db.ObjectId        // Reference to the owner's User ID
   owner       User     @relation("CompanyOwner", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt   DateTime @default(now())     // Timestamp for creation
-  updatedAt   DateTime @updatedAt          // Timestamp for updates
+  updatedAt   DateTime @updatedAt  
+  subcriptionPlan String?       
+  subscriptionStatus String?
+  subscriptionStartDate DateTime?
+  subscriptionEndDate DateTime?
+  subscriptionPlanEndDate DateTime?
+  subscriptionPlanStartDate DateTime?
+  subscriptionPlanId String?
+  subscriptionPaymentId String?
+  subscriptionPaymentStatus String?
+  subscriptionPaymentAmount Float?
+  subscriptionPaymentDate DateTime?
+  subscriptionPaymentMethod String?
+  subscriptionPaymentCurrency String?
+  subscriptionPaymentTransactionId String?
+  subscriptionPaymentTransactionStatus String?
+  subscriptionPaymentTransactionDate DateTime?
+  subscriptionPaymentTransactionAmount Float?
+  subscriptionPaymentTransactionCurrency String?
+  subscriptionPaymentTransactionMethod String?
+  
 
   branches    Branch[]  // Relation to branches
   users       User[]    @relation("CompanyUsers")
@@ -130,23 +156,33 @@ model Order {
   branchId        String      @db.ObjectId
   orderLines      OrderLine[] 
   companyId       String      @db.ObjectId
-  totalPrice      Float?       @default(0.0)
-  discount        Float?       @default(0.0)
-  rounding        Float?       @default(0.0)
-  finalPrice      Float?       @default(0.0) // totalPrice - discount + rounding
-  payment         Payment[]   // Payment details linked to the order
-  isCompleted     Boolean     @default(false) // Tracks if the order is finalized
-  isCheckedOut    Boolean     @default(false) // Tracks if payment has been made
-  orderedDate     DateTime?    @default(now()) // When the order was placed
+  totalPrice      Float       @default(0.0)
+  discount        Float       @default(0.0)
+  rounding        Float       @default(0.0)
+  finalPrice      Float       @default(0.0) // totalPrice - discount + rounding
+  payment         Payment[]   
+  orderStatus     OrderStatus      @default(PENDING)
+  orderedDate     DateTime    @default(now())
   requiredDate    DateTime?
-  createdAt       DateTime?    @default(now())
-  updatedAt       DateTime ?   @updatedAt
-  orderNumber    String
-   branch          Branch      @relation(fields: [branchId], references: [id])
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  orderNumber     String     
+  branch          Branch      @relation(fields: [branchId], references: [id])
   company         Company     @relation(fields: [companyId], references: [id])
 
   @@map("orders")
+  @@index([orderNumber]) 
+  @@index([branchId])
+  @@index([companyId])
 }
+enum OrderStatus {
+    PENDING       
+    PROCESSING 
+    COMPLETED   
+    CANCELED 
+  }
+  
+
 
 model OrderCounter {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId 
@@ -200,6 +236,13 @@ model Payment {
   paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
   paymentTypeId String      @db.ObjectId
   amount        Int
+  paymentDate   DateTime
+  currency      String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  paymentStatus String
+  companyId     String      @db.ObjectId
+  branchId      String      @db.ObjectId
 
   @@map("payments")
 }

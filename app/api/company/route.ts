@@ -39,31 +39,33 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const token = req.cookies.get("token")?.value
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url))
-    }
-    const decodedToken: DecodedToken = jwtDecode(token)
+  
 
-    const { name, location, city, state, country, logo } = await req.json()
-    const company = await prisma.company.create({
-      data: {
-        name,
-        location,
-        logo,
-        city,
-        state,
-        country,
-        owner: {
-          connect: {
-            id: decodedToken.userId,
+    const { name, location, city, state, country, logo, ownerId, 
+      currency, taxRate, enableDiscount, paymentMethods, 
+      orderProcessingMode, subcriptionPlan } = await req.json()
+      const company = await prisma.company.create({
+        data: {
+          name,
+          location,
+          logo: logo ?? null, // Ensure it is either null or a string
+          city,
+          state,
+          country,
+          currency: currency || "USD",
+          taxRate: taxRate ?? 0.0,
+          enableDiscount: enableDiscount ?? false,
+          isActivated: false,
+          paymentMethods: paymentMethods || ["cash", "card"],
+          orderProcessingMode: orderProcessingMode || "retail",
+          owner: {
+            connect: { id: ownerId },
           },
         },
-      },
-    })
+      });
 
   await prisma.user.update({
-          where: { id: decodedToken.userId },
+          where: { id: ownerId},
           data: { companyId: company.id }
         });
         

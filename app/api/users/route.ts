@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/utils/auth';
 
 import { jwtDecode } from 'jwt-decode';
+import { Console } from 'console';
 
 
 interface DecodedToken {
@@ -61,11 +62,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-      const token = req.cookies.get("token")?.value
-            if (!token) {
-              return NextResponse.redirect(new URL("/login", req.url))
-            }
-            const decodedToken: DecodedToken = jwtDecode(token)
+      
     const body: CreateUserRequestBody = await req.json();
 
     const { email, password, role, branchId, fullname, status, companyId } = body;
@@ -90,10 +87,10 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         role,
         branchId: branchId || null,
-        companyId: decodedToken.companyId || null,
+        companyId:  null,
       },
     });
-
+      console.log('User created:', user);
     return NextResponse.json(
       {
         message: 'User created successfully',

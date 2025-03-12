@@ -11,7 +11,7 @@ interface DecodedToken {
 }
 
 // Define public routes that don't require authentication
-const publicRoutes = ['/login', '/register', '/public', '/start'];
+const publicRoutes = ['/login', '/register', '/public', '/start', '/start/business-setup'];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

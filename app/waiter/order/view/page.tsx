@@ -14,11 +14,11 @@ import { Input } from "@/components/ui/input";
 import { addDays } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { jwtDecode } from "jwt-decode";
-import { Order } from "@/components/order-columns";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders } from "@/redux/orderSlice";
 import type { RootState, AppDispatch } from "../../../../redux/index";
 import { OrderType } from "@/lib/types/types";
+import { OrderStatus } from "@/lib/enums/enums";
 
 interface DecodedToken {
   role: string;
@@ -68,11 +68,11 @@ export default function Orders() {
       branchName: order.branch?.name ?? "N/A",
     }))
     .filter((order : OrderType) =>
-      showCompleted ? true : !order.isCompleted
+      showCompleted ? true : !(order.OrderStatus === OrderStatus.COMPLETED)
     )
     .filter((order: OrderType) => {
       if (dateRange?.from && dateRange?.to) {
-        const orderDate = new Date(order.createdAt);
+        const orderDate = new Date(order.createdAt!);
         return (
           orderDate >= dateRange.from! && orderDate <= dateRange.to!
         );

@@ -1,3 +1,4 @@
+import { OrderStatus } from '../enums/enums';
 export interface DecodedToken {
     role?: string
     userId?: string
@@ -39,8 +40,7 @@ export interface DecodedToken {
     rounding?: number
     finalPrice?: number
     payment?: any[] // You might want to create a separate Payment type
-    isCompleted: boolean
-    isCheckedOut: boolean
+    OrderStatus?: OrderStatus
     orderedDate?: string
     requiredDate?: string
     createdAt?: string
@@ -85,3 +85,32 @@ export type Category ={
     imageBase64: string;
     categoryId?: string;
   };
+
+
+
+  export interface Payment {
+    id: string;
+    orderId: string;
+    paymentTypeId: string;
+    amount: number;
+    currency: string;
+    paymentStatus: "Pending" | "Completed" | "Failed";
+    companyId: string;
+    branchId: string;
+    createdAt: string;
+    updatedAt: string;
+  }
+
+  export interface CreatePaymentRequest {
+    orderId: string;
+    paymentTypeId: string;
+    amount: number;
+    currency: string;
+    paymentStatus: "Pending" | "Completed" | "Failed";
+    companyId: string;
+    branchId: string;
+  }
+
+  export interface UpdatePaymentStatusRequest {
+    paymentStatus: "Pending" | "Completed" | "Failed";
+  }

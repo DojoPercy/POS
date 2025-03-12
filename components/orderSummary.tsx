@@ -13,6 +13,7 @@ import { placeOrder } from "@/redux/orderSlice"
 import { selectUser, fetchUserFromToken } from '@/redux/authSlice';
 import { getOrderCounter } from '@/lib/order';
 import { OrderLine } from '../lib/types/types';
+import { OrderStatus } from "@/lib/enums/enums"
 
 
 
@@ -72,8 +73,7 @@ export default function OrderSummary({ cart, updateQuantity, onClose }: OrderSum
           totalPrice: line.selectedPrice.price * line.quantity,
         } as OrderLine)),
         totalPrice: total,
-        isCompleted: false,
-        isCheckedOut: false,
+        OrderStatus: OrderStatus.PENDING,
         requiredDate: new Date().toISOString(),
         orderNumber: orderNumber,
       }

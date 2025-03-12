@@ -15,25 +15,11 @@ import {
 } from "@/components/ui/dropdownMenu"
 
 import Link from "next/link"
+import { OrderType } from "@/lib/types/types"
 
-export type Order = {
-  [x: string]: any
-  orderNumber: string
-  id: string
-  waiterId: string
-  branchId: string
-  totalPrice: number
-  discount: number
-  rounding: number
-  finalPrice: number
-  isCompleted: boolean
-  isCheckedOut: boolean
-  requiredDate: string
-  createdAt: string
-  branchName?: string
-}
 
-export const columns: ColumnDef<Order>[] = [
+
+export const columns: ColumnDef<OrderType>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -149,7 +135,7 @@ export const columns: ColumnDef<Order>[] = [
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(order.orderNumber)}>
+          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(order.orderNumber!)}>
             Copy Order Number
           </DropdownMenuItem>
           <DropdownMenuSeparator />

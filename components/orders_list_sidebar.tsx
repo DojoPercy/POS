@@ -12,6 +12,7 @@ import type { RootState, AppDispatch } from "../redux/index"; // Import proper s
 import type { Order } from "@prisma/client";
 import { jwtDecode } from "jwt-decode";
 import { OrderType } from "@/lib/types/types";
+import { OrderStatus } from "@/lib/enums/enums";
 
 interface DecodedToken {
   role: string;
@@ -46,9 +47,9 @@ const OrderItem = ({
       <span className="font-medium">{order.orderNumber}</span>
       <Badge
         variant="outline"
-        className={`${getStatusColor(order.isCompleted, order.isCheckedOut)} text-xs font-normal`}
+        className={`${getStatusColor(order.OrderStatus === OrderStatus.COMPLETED, order.OrderStatus === OrderStatus.PAID)} text-xs font-normal`}
       >
-        {getStatusText(order.isCompleted, order.isCheckedOut)}
+        {getStatusText(order.OrderStatus === OrderStatus.COMPLETED, order.OrderStatus === OrderStatus.PAID)}
       </Badge>
     </div>
     <Button
@@ -56,7 +57,7 @@ const OrderItem = ({
       size="icon"
       onClick={(e) => {
         e.stopPropagation();
-        onDelete(order.id);
+        onDelete(order.id!);
       }}
       className="text-gray-500 hover:text-gray-700 ml-2"
     >
@@ -104,7 +105,7 @@ export function OrderList() {
   const filteredData = Array.isArray(orders)
   ? orders
       .filter((order: OrderType) =>
-        showCompleted ? true : !(order.isCompleted && order.isCheckedOut)
+        showCompleted ? true : !(order.OrderStatus === OrderStatus.COMPLETED)
       )
       .sort(
         (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -118,7 +119,7 @@ export function OrderList() {
   };
 
   const handleDeleteOrder = (orderId: string) => {
-    window.location.href = `/waiter/order/${orderId}`;
+    window.location.href = `/waiter/order/`;
   };
 
   const toggleShowCompleted = () => {
@@ -172,12 +173,12 @@ export function OrderList() {
   filteredData.map((order : OrderType) => (
     <div
       key={order.id}
-      onClick={() => handleOrderClick(order.id)}
+      onClick={() => handleOrderClick(order.id!)}
       className={`cursor-pointer ${
         selectedOrder === order.id ? "bg-gray-100" : ""
       }`}
     >
-      <Link href={`/waiter/order/${order.id}`}>
+      <Link href={`/waiter/order`}>
         <OrderItem order={order} onDelete={handleDeleteOrder} />
       </Link>
     </div>

@@ -170,55 +170,11 @@ export default function LandingPage() {
                 <CardTitle className="text-2xl">Create Your Account</CardTitle>
                 <CardDescription className="text-gray-200">Start your 14-day free trial now</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form className="space-y-4" onSubmit={handleSubmit}>
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-200">
-                      Full Name
-                    </label>
-                    <Input
-                      id="name"
-                      placeholder="John Doe"
-                      required
-                      value={formData.fullname}
-                      onChange={(e) => handleChange("fullname", e.target.value)}
-                      className="bg-white/20 border-white/30 text-white placeholder-gray-300"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-200">
-                      Email Address
-                    </label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleChange("email", e.target.value)}
-                      placeholder="john@example.com"
-                      required
-                      className="bg-white/20 border-white/30 text-white placeholder-gray-300"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-200">
-                      Password
-                    </label>
-                    <Input id="password" type="password" required className="bg-white/20 border-white/30 text-white" 
-                    onChange={(e) => handleChange("password", e.target.value)}
-                    value={formData.password} />
-                  </div>
-                  <Button className="w-full bg-white text-primary hover:bg-gray-100" type="submit"> {loading ? (
-                <ClipLoader
-                  color={"#fff"}
-                  loading={loading}
-                  size={20}
-                  aria-label="Loading Spinner"
-                />
-              ) : (
-                "Create Account"
-              )}</Button>
-                </form>
-              </CardContent>
+              <Link href="start/business-setup" className="w-full">
+                <Button size="lg" className="w-full">
+                  Get Started
+                </Button>
+              </Link>
             
             </Card>
           </div>

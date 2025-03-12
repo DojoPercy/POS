@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
 import format from 'date-fns/format/index.js';
 import { ObjectId } from 'mongodb';
+import { OrderStatus } from '../../../lib/enums/enums';
 
 interface DecodedToken {
   role: string
@@ -71,8 +72,7 @@ export async function POST(req: NextRequest) {
       discount,
       rounding,
       finalPrice,
-      isCompleted,
-      isCheckedOut,
+      OrderStatus,
       requiredDate,
       orderNumber
     } = await req.json();
@@ -91,8 +91,7 @@ export async function POST(req: NextRequest) {
         discount,
         rounding,
         finalPrice,
-        isCompleted,
-        isCheckedOut,
+        orderStatus: OrderStatus,
         requiredDate,
         orderNumber: orderNumber,
         orderLines: {
