@@ -1,22 +1,10 @@
 import axios from "axios";
+import { Category } from './types/types';
 
 export async function completeBusiness(formData: any) {
   try {
-    // 1. Create Account for the Business Owner
-    const userData = {
-      email: formData.email,
-      fullname: formData.name,
-      password: formData.password,
-      role: formData.role,
-      phone: formData.phone,
-      branchId: null,
-      status: "active",
-    };
-    
-    const userResponse = await axios.post("/api/users", userData);
-    console.log("User created:", userResponse.data.user.id);
-
-    if (userResponse.status === 201) {
+   
+    if (formData.userId) {
       // 2. Create the Company
       const companyData = {
         name: formData.businessName,
@@ -31,7 +19,7 @@ export async function completeBusiness(formData: any) {
         paymentMethods: formData.paymentMethods,
         orderProcessingMode: formData.orderProcessingMode,
         logo: formData.businessLogo,
-        ownerId: userResponse.data.user.id,
+        ownerId: formData.userId,
         subscriptionPlan: formData.subscriptionPlan || "monthly",
         subscriptionStatus: "active",
         subscriptionStartDate: new Date(),
@@ -81,7 +69,7 @@ export async function completeBusiness(formData: any) {
                   openingHours: branch.openingHours,
                   status: branch.status || "active",
                   managerId: managerId,
-                  createdBy: userResponse.data.user.id,
+                  createdBy: formData.userId,
                   companyId: companyId,
                 };
 
@@ -118,8 +106,54 @@ export async function completeBusiness(formData: any) {
         );
 
         console.log("All branches and managers processed:", branchResponses);
+
+        // 4. Create Menu Categories and Menu Items
+        
+        if(true){
+          formData.menuCategories.map(async (category: any) => {
+
+            const menuCategoriesResponse = await axios.post("/api/menu/category", {
+              name: category.name,
+              description: category.description,
+              companyId: companyId,
+            })
+
+            if ( menuCategoriesResponse.status === 201){
+              const CategoryId = menuCategoriesResponse.data.id;
+              category.menuItems.map(async (item: any) => {
+                const formattedPrices = item.priceTypes.map((p:any) => ({
+                  name: p.name,
+                  price: Number.parseFloat(p.price),
+                }))
+          
+                const response = await fetch("/api/menu", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    name: item.name,
+                    description: item.description,
+                    prices: formattedPrices,
+                    categoryId: CategoryId,
+                    imageBase64: item.imageBase64,
+                    companyId,
+                  }),
+                })
+          
+                if (response.status === 201){
+                  console.log("Menu Items created successfully");
+                }else{
+                  console.error("Error creating menu items: ", response)
+                }
+              })
+            }
+
+          })
+        }
       }
-    }
+      }
+    
+              
+    
   } catch (error) {
     console.error("Error in completeBusiness:", error);
   }

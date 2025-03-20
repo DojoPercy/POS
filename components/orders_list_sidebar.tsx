@@ -13,6 +13,7 @@ import type { Order } from "@prisma/client";
 import { jwtDecode } from "jwt-decode";
 import { OrderType } from "@/lib/types/types";
 import { OrderStatus } from "@/lib/enums/enums";
+import Pusher from "pusher-js";
 
 interface DecodedToken {
   role: string;
@@ -21,19 +22,20 @@ interface DecodedToken {
   [key: string]: any;
 }
 
-const getStatusColor = (isCompleted: boolean, isCheckedOut: boolean) => {
-  if (isCompleted && isCheckedOut) return "bg-green-100 text-green-800";
-  if (isCompleted && !isCheckedOut) return "bg-yellow-100 text-yellow-800";
-  if (!isCompleted) return "bg-blue-100 text-blue-800";
+const getStatusColor = (isCompleted: boolean, isCheckedOut: boolean, isAccepted: boolean) => {
+  if ( isCheckedOut) return "bg-green-100 text-green-800";
+  if (isCompleted ) return "bg-yellow-100 text-yellow-800";
+  if (!isAccepted) return "bg-blue-100 text-blue-800";
   return "bg-gray-100 text-gray-800";
 };
 
-const getStatusText = (isCompleted: boolean, isCheckedOut: boolean) => {
-  if (isCompleted && isCheckedOut) return "Completed & Checked Out";
-  if (isCompleted && !isCheckedOut) return "Completed, Not Checked Out";
-  if (!isCompleted) return "In Progress";
-  return "Unknown Status";
+const getStatusText = (isCompleted: boolean, isCheckedOut: boolean, isAccepted: boolean) => {
+  if (isCheckedOut) return "Completed & Checked Out";
+  if (isCompleted) return "Completed, Not Checked Out";
+  if (isAccepted) return "Order Processing..";
+  return "In Progress";
 };
+
 
 const OrderItem = ({
   order,
@@ -47,9 +49,9 @@ const OrderItem = ({
       <span className="font-medium">{order.orderNumber}</span>
       <Badge
         variant="outline"
-        className={`${getStatusColor(order.OrderStatus === OrderStatus.COMPLETED, order.OrderStatus === OrderStatus.PAID)} text-xs font-normal`}
+        className={`${getStatusColor(order.orderStatus === OrderStatus.COMPLETED, order.orderStatus === OrderStatus.PAID,order.orderStatus === OrderStatus.PROCESSING )} text-xs font-normal`}
       >
-        {getStatusText(order.OrderStatus === OrderStatus.COMPLETED, order.OrderStatus === OrderStatus.PAID)}
+        {getStatusText(order.orderStatus === OrderStatus.COMPLETED, order.orderStatus === OrderStatus.PAID, order.orderStatus === OrderStatus.PROCESSING)}
       </Badge>
     </div>
     <Button
@@ -73,7 +75,7 @@ export function OrderList() {
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
 
-  // 🌟 Fetch orders and set up SSE connection
+ 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -81,31 +83,39 @@ export function OrderList() {
       return;
     }
     const decodedToken: DecodedToken = jwtDecode(token);
-    dispatch(fetchOrders(decodedToken.userId ?? ""));
+    if(decodedToken){
+      dispatch(fetchOrders(decodedToken.userId ?? ""));}
+   
 
-    const eventSourceUrl = new URL("/api/orders/stream", window.location.origin);
-    eventSourceUrl.searchParams.append("branchId", decodedToken.branchId ?? "");
-    eventSourceUrl.searchParams.append("waiterId", decodedToken.userId ?? "");
+    }
+  , [dispatch]);
+  useEffect(() => {
+    Pusher.logToConsole = true;
 
-    const eventSource = new EventSource(eventSourceUrl.toString());
-    eventSource.onmessage = (event) => {
-      const newOrder: OrderType = JSON.parse(event.data);
-      dispatch(updateOrderLocally(newOrder)); // Real-time UI update via Redux
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "ap2",
+    });
+
+    const channel = pusher.subscribe("orders");
+
+    channel.bind("order-update", (data: any) => {
+      console.log("New order update received:", data);
+     
+      dispatch(updateOrderLocally(data));
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
     };
-
-    eventSource.onerror = (error) => {
-      console.error("SSE error:", error);
-      eventSource.close();
-    };
-
-    return () => eventSource.close();
   }, [dispatch]);
 
-  // 🧩 Filter and sort orders
+
+
   const filteredData = Array.isArray(orders)
   ? orders
       .filter((order: OrderType) =>
-        showCompleted ? true : !(order.OrderStatus === OrderStatus.COMPLETED)
+        showCompleted ? true : !(order.orderStatus === OrderStatus.PAID)
       )
       .sort(
         (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -178,7 +188,7 @@ export function OrderList() {
         selectedOrder === order.id ? "bg-gray-100" : ""
       }`}
     >
-      <Link href={`/waiter/order`}>
+      <Link href={`/waiter/order/${order.id}`}>
         <OrderItem order={order} onDelete={handleDeleteOrder} />
       </Link>
     </div>

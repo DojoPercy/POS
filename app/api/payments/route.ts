@@ -31,14 +31,13 @@ export async function POST(req: NextRequest) {
     try {
         const body: CreatePaymentRequest = await req.json();
 
-        if (!body.orderId || !body.paymentTypeId || !body.amount || !body.currency || !body.paymentStatus || !body.companyId || !body.branchId) {
+        if (!body.orderId  || !body.amount || !body.currency || !body.paymentStatus || !body.companyId || !body.branchId) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
         const payment = await prisma.payment.create({
             data: {
                 orderId: body.orderId,
-                paymentTypeId: body.paymentTypeId,
                 amount: body.amount,
                 currency: body.currency,
                 paymentStatus: body.paymentStatus,
@@ -48,7 +47,7 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        return NextResponse.json(payment, { status: 201 });
+        return NextResponse.json(payment, { status: 200 });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

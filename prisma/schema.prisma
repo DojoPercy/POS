@@ -159,7 +159,7 @@ model Order {
   totalPrice      Float       @default(0.0)
   discount        Float       @default(0.0)
   rounding        Float       @default(0.0)
-  finalPrice      Float       @default(0.0) // totalPrice - discount + rounding
+  finalPrice      Float       @default(0.0) // totalPrice - discount + 
   payment         Payment[]   
   orderStatus     OrderStatus      @default(PENDING)
   orderedDate     DateTime    @default(now())
@@ -180,6 +180,7 @@ enum OrderStatus {
     PROCESSING 
     COMPLETED   
     CANCELED 
+    PAID
   }
   
 
@@ -219,23 +220,14 @@ model SupplierContact {
   @@map("supplier_contacts")
 }
 
-model PaymentType {
-  id             String           @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  payment        Payment[]
-  ExpensePayment ExpensePayment[]
 
-  @@map("payment_types")
-}
 
 model Payment {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
   order         Order       @relation(fields: [orderId], references: [id])
   orderId       String      @db.ObjectId
   date          DateTime    @default(now())
-  paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
-  paymentTypeId String      @db.ObjectId
-  amount        Int
+  amount        Float
   paymentDate   DateTime
   currency      String
   createdAt     DateTime    @default(now())
@@ -243,6 +235,7 @@ model Payment {
   paymentStatus String
   companyId     String      @db.ObjectId
   branchId      String      @db.ObjectId
+   paymentTypeId String?     @db.ObjectId
 
   @@map("payments")
 }
@@ -323,8 +316,7 @@ model ExpensePayment {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
   expenseId     String      @db.ObjectId
   paymentDate   DateTime
-  paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
-  paymentTypeId String      @db.ObjectId
+ 
   amount        Int
 
   @@map("expense_payments")

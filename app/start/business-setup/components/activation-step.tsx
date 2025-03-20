@@ -194,7 +194,7 @@ await completeBusiness(formData);
           </Card>
 
           <div className="pt-6">
-            <Button onClick={() => (window.location.href = "/dashboard")} className="min-w-[200px]">
+            <Button onClick={() => (window.location.href = "/")} className="min-w-[200px]">
               Go to Dashboard
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

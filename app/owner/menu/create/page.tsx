@@ -25,13 +25,17 @@ export default function MenuPage() {
   console.log(user);
   return (
     <div className="container mx-auto py-10 space-y-10">
-      <h1 className="text-3xl font-bold">Menu Management</h1>
-      <AddMenuItemForm onAddItem={handleAddItem} companyId={user.companyId ?? ""} />
-      <Link href="/owner/menu/create/category">
-      <Button type="submit" className=" w-2/6">
-             {'Add Menu Category'}
+      
+      <div className='flex justify-between items-center'><h1 className="text-3xl font-bold">Menu Management</h1>
+      <Link href="/owner/menu/create/category" className='w-2/6'>
+      <Button type="submit" className=" w-3/6">
+             {'Add New Menu Category'}
           </Button>
-          </Link>
+          </Link></div>
+
+
+      <AddMenuItemForm onAddItem={handleAddItem} companyId={user.companyId ?? ""} />
+     
     </div>
   );
 }

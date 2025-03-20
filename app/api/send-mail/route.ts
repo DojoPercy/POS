@@ -12,14 +12,14 @@ export async function POST(req: NextRequest) {
 
     // Configure your mail transport
     const transporter = nodemailer.createTransport({
-      service: "Gmail", // You can use SMTP, SendGrid, etc.
+      service: "Gmail", 
       auth: {
-        user: process.env.EMAIL_USER, // Your email address
-        pass: process.env.EMAIL_PASS, // App-specific password or SMTP password
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASS, 
       },
     });
 
-    // Send mail
+    
     const mailOptions = {
       from: `"Company Admin" <${process.env.EMAIL_USER}>`,
       to,

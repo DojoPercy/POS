@@ -88,6 +88,7 @@ export async function getExpenseById(id: string) {
 }
 
 export async function updateExpense(id: string, updatedExpense: Partial<Expense>) {
+    console.log("Updating expense with ID:", updatedExpense);
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: {

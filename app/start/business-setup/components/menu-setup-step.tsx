@@ -28,7 +28,7 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    // Check if at least one category has a name
+    
     const hasNamedCategory = formData.menuCategories.some((cat: any) => cat.name.trim() !== "")
 
     if (!hasNamedCategory) {
@@ -75,7 +75,7 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
       const updatedCategories = formData.menuCategories.filter((cat: any) => cat.id !== categoryId)
       updateFormData({ menuCategories: updatedCategories })
 
-      // Update active category if the removed one was active
+     
       if (activeCategory === categoryId) {
         setActiveCategory(updatedCategories[0].id)
       }

@@ -109,7 +109,11 @@ export const addCategory = createAsyncThunk(
   }
 );
 
-// Expense Slice
+export const updateExpenseDetails = createAsyncThunk(
+  "expenses/updateExpense",
+  async (payload: { id: string, expense: Expense }) => {
+    return await updateExpense(payload.id, payload.expense);
+  })
 const expensesSlice = createSlice({
   name: "expenses",
   initialState: {

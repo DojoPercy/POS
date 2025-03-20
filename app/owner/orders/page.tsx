@@ -5,7 +5,7 @@ import { RefreshCw, Download, Plus, Filter } from 'lucide-react'
 import { getOrders } from "@/lib/order"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
-import { columns, Order } from "@/components/order-columns"
+import { columns } from "@/components/order-columns"
 import { DatePickerWithRange } from "@/components/ui/date-time-picker"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -13,6 +13,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { addDays } from "date-fns"
 import { DateRange } from "react-day-picker"
 import { jwtDecode } from "jwt-decode"
+import { Company, OrderType } from "@/lib/types/types"
+import { OrderStatus } from "@/lib/enums/enums"
+import { useDispatch, useSelector } from "react-redux"
+import { fetchUserFromToken, selectUser } from "@/redux/authSlice"
+import { getCompanyDetails } from "@/redux/companySlice"
 
 interface DatePickerWithRangeProps {
     range: { from: Date; to: Date };
@@ -28,14 +33,26 @@ interface DatePickerWithRangeProps {
 
 export default function Orders() {
   const [refresh, setRefresh] = useState(true)
-  const [data, setData] = useState<Order[]>([])
-  const [filteredData, setFilteredData] = useState<Order[]>([])
+  const [data, setData] = useState<OrderType[]>([])
+  const [filteredData, setFilteredData] = useState<OrderType[]>([])
   const [showCompleted, setShowCompleted] = useState(true)
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
     to: new Date(),
   })
-
+    const user = useSelector(selectUser)
+      const dispatch = useDispatch()
+  const company = useSelector((state: any) => state.company.company) as Company
+    useEffect(() => {
+      dispatch(fetchUserFromToken())
+      
+      
+    }, [dispatch, user?.companyId])
+  useEffect(() => {
+    if (user?.companyId) {
+      dispatch(getCompanyDetails(user.companyId))
+    }
+  }, [dispatch, user?.companyId])
   useEffect(() => {
     if (!refresh) return
 
@@ -69,11 +86,11 @@ export default function Orders() {
   useEffect(() => {
     let filtered = data
     if (!showCompleted) {
-      filtered = filtered.filter(order => !order.isCompleted)
+      filtered = filtered.filter(order => !(order.orderStatus === OrderStatus.PAID))
     }
     if (dateRange?.from && dateRange?.to) {
       filtered = filtered.filter(order => {
-        const orderDate = new Date(order.createdAt)
+        const orderDate = new Date(order.createdAt!)
         return orderDate >= dateRange.from! && orderDate <= dateRange.to!
       })
     }
@@ -130,9 +147,19 @@ export default function Orders() {
       </Card>
 
       <div className="mx-auto">
-        <DataTable columns={columns} data={filteredData} />
+      {company ? (
+     <DataTable columns={columns(company.currency)} data={filteredData} />
+   ) : (
+     <div className="flex justify-center py-10">
+       <p>Loading company details...</p>
+     </div>
+   )}
       </div>
     </div>
   )
+}
+
+function dispatch(arg0: any) {
+  throw new Error("Function not implemented.")
 }
 

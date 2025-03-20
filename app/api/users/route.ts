@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         role,
         branchId: branchId || null,
-        companyId:  null,
+        companyId:  companyId || null,
       },
     });
       console.log('User created:', user);

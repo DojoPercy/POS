@@ -85,7 +85,7 @@ export function OrderForm() {
         const menuItems = await getMenuItems(decodedToken!.companyId || "")
         const company = await getCompany(decodedToken!.companyId || "")
         setCompany(company);
-        setDecodedToken(decodedToken)
+        setDecodedToken(decodedToken as DecodedToken)
         setLoadingMenu(false)
         setMenuItems(menuItems)
       } catch {
@@ -194,27 +194,7 @@ export function OrderForm() {
         orderNumber: orderNumber,
       }
 
-      if (orderLines.length !== 0) {
-        console.log("Creating order:", order)
-        const result = await createOrder(order)
-        console.log("Order created:", result)
-        setSuccessMessage("Order created successfully.")
-        setShowReceipt(true)
-        setOrderLines([])
-        setBalance(0)
-        setTimeout(() => {
-          setSuccessMessage(null)
-        }, 2000)
-        dispatch(addOrderLocally(result));
-        setLoading(false)
-        setFinalPrice(0)
-      } else {
-        setError("Please check the order details and try again.")
-        setTimeout(() => {
-          setError(null)
-        }, 2000)
-        setLoading(false)
-      }
+      
     } catch (error) {
       console.error("Failed to create order:", error)
       // Here you would typically show an error message to the user

@@ -5,7 +5,7 @@ import expensesReducer from "./expensesSlice";
 import companyCategoryMenuReducer from "./CompanyCategoryMenuSlice";
 import authReducer from "./authSlice";
 import companyMenuReducer from "./companyMenuSlice";
-
+import companyReducer from "./companySlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,10 +14,11 @@ export const store = configureStore({
     menuCategories: companyCategoryMenuReducer,
     auth: authReducer,
     menu: companyMenuReducer,
+    company:  companyReducer,
   },
 
 });
 
-// Infer types for useSelector & useDispatch
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

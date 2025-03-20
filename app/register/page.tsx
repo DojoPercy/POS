@@ -33,6 +33,7 @@ interface FormData {
   role: string;
   phone?: string;
   branchId?: string;
+  companyId?: string;
   status: string;
 }
 interface DecodedToken {
@@ -52,6 +53,7 @@ export default function Register() {
     phone: "",
     branchId: "",
     status: "active",
+    companyId: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -59,6 +61,7 @@ export default function Register() {
   const [branches, setBranches] = useState<any[]>([]);
   const [loadingBranches, setLoadingBranches] = useState<boolean>(false);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -77,13 +80,13 @@ export default function Register() {
         setLoadingBranches(false);
 
         if (decodedToken.role === "owner") {
-          setBranches(branches); // owner sees all branches
+          setBranches(branches); 
         } else if (decodedToken.role === "manager") {
           const branch = branches.find(
             (branch: { id: string }) => branch.id === decodedToken.branchId
           );
           if (branch) {
-            setBranches([branch]); // manager sees only their branch
+            setBranches([branch]); 
             setFormData((prev) => ({
               ...prev,
               branchId: branch.id,
@@ -115,6 +118,7 @@ export default function Register() {
     setLoading(true);
     setError(null);
     try {
+      formData.companyId = decodedToken?.companyId;
       const response = await axios.post("/api/users", formData);
       setLoading(false);
       setSuccessMessage("Registration successful! Redirecting...");

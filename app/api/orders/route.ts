@@ -1,9 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
-import format from 'date-fns/format/index.js';
-import { ObjectId } from 'mongodb';
-import { OrderStatus } from '../../../lib/enums/enums';
+import { sendOrderUpdate } from '@/lib/pusher';
+
 
 interface DecodedToken {
   role: string
@@ -36,7 +35,6 @@ export async function GET(req: NextRequest) {
       include: {
         branch: true,
         orderLines: true,
-        payment: true,
       },
     });
 
@@ -44,7 +42,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(orders, { status: 200 });
 
   } catch (error: any) {
-    console.error('Error fetching orders:', error);
+    console.error('Error fetching asorders:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -54,13 +52,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Check for authentication token
+   
     const token = req.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    // Decode token
+    
     const decodedToken: DecodedToken = jwtDecode(token);
 
     // Parse request body
@@ -77,10 +75,10 @@ export async function POST(req: NextRequest) {
       orderNumber
     } = await req.json();
 
-    // Normalize today's date to midnight
+    
   
 
-    // Create order in the database
+   
     const newOrder = await prisma.order.create({
       data: {
        
@@ -103,9 +101,9 @@ export async function POST(req: NextRequest) {
           })),
         },
       },
-      include: { orderLines: true }, // Include order lines in response
+      include: { orderLines: true }, 
     });
-
+await sendOrderUpdate(newOrder);
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

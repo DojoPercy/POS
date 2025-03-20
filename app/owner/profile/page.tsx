@@ -138,11 +138,7 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className="text-2xl">Your Companies</CardTitle>
-              <Link href="/company_setup">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" /> Add Company
-                </Button>
-              </Link>
+              
             </div>
           </CardHeader>
           <CardContent>

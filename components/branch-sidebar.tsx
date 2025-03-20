@@ -10,6 +10,7 @@ import {
   User,
   Settings,
   Users,
+  CreditCardIcon,
 } from "lucide-react";
 import { de } from "date-fns/locale";
 import { jwtDecode } from "jwt-decode";
@@ -113,6 +114,12 @@ function SiderBarBranch() {
               <SideBarIcon
                 icon={<ClipboardList className="w-5 h-5" />}
                 text="View Orders"
+              />
+            </li>
+            <li>
+              <SideBarIcon
+                icon={<CreditCardIcon className="w-5 h-5" />}
+                text="Expenses"
               />
             </li>
             {true? (

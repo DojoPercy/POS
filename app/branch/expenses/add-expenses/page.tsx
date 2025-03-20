@@ -46,14 +46,14 @@ useEffect(()=>{
   dispatch(fetchCategories(users?.branchId || ''));
 }, [dispatch, users])
 
-  // Update the handleFrequentItemSelect function to include quantity
+
   const handleFrequentItemSelect = (itemId: string, itemName: string, categoryId: string, quantity: number) => {
     setSelectedFrequentItem(itemId)
     setFormData({
       ...formData,
       itemName,
       categoryId,
-      quantity, // Set the quantity from the frequent item
+      quantity,
     })
   }
 

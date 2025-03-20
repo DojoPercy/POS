@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk, PayloadAction, RootState } from "@reduxjs/toolkit";
 import { createOrder, getOrders, updateOrderById } from "@/lib/order";
 import { OrderType } from "@/lib/types/types";
+import { OrderStatus } from "@/lib/enums/enums";
 
 // 🏷️ Define the state type
 interface OrderState {
@@ -27,6 +28,16 @@ export const fetchOrders = createAsyncThunk<OrderType[], string>(
   }
 );
 
+export const fetchBranchOrders = createAsyncThunk<OrderType[], string>(
+  "orders/fetchbranch",
+  async (branchId) => {
+    const data= await getOrders(undefined, branchId, undefined);
+    console.log("Fetched orders:", data);
+    const filteredData = data.filter((order: OrderType) => order.orderStatus !== OrderStatus.PAID);
+    console.log("Filtered orders:", filteredData);
+    return Array.isArray(filteredData) ? filteredData : [];
+  }
+)
 export const placeOrder = createAsyncThunk<OrderType, OrderType>(
   "orders/place",
   async (order) => {
@@ -73,6 +84,10 @@ const ordersSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
+        state.orders = Array.isArray(action.payload) ? action.payload : [];
+        state.loading = false;
+      })
+      .addCase(fetchBranchOrders.fulfilled, (state, action)=>{
         state.orders = Array.isArray(action.payload) ? action.payload : [];
         state.loading = false;
       })

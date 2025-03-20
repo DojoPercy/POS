@@ -22,5 +22,28 @@ export const columnsRevenueIncome: ColumnDef<any>[] = [
             <DataTableColumnHeader column={column} title="Revenue" />
         ),
     },
+    
 ]
 
+export const columnsPayment: ColumnDef<any>[] = [
+    
+    {
+      accessorKey: "date",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Date" />
+      ),
+    },
+    {
+      accessorKey: "transactions",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Payment" />
+      ),
+    },
+    {
+      accessorKey: "payments",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Total Amount" />
+      ),
+    },
+  ];
+  

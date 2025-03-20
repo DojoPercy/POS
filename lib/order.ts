@@ -36,6 +36,7 @@ export type orderSummaryByDate = {
 
 export async function getOrders(companyId: string | undefined, branchId: string | undefined, waiterId?: string) 
 {
+try{
   let url: string;
 
   if (typeof window !== "undefined") {
@@ -58,6 +59,10 @@ export async function getOrders(companyId: string | undefined, branchId: string 
     const res = await fetch(`${url}?companyId=${companyId}`, { cache: "no-store" });
     return res.json();
   }
+}catch(e){
+  console.log(e);
+  
+}
   
 }
 
@@ -202,16 +207,26 @@ export async function getOrderRevenueByDateRange(from: Date, to: Date, branchId?
   } else if (companyId) {
     queryParams.append("companyId", companyId);
   }
-  const res = await fetch(`/api/orders?${branchId !== undefined ? `branchId=${branchId}` : `companyId=${companyId}`}
-`, {
+
+  const response = await fetch(`/api/orders?${queryParams.toString()}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
     cache: "no-store",
-  }).then((res) => res.json());
-  const totalRevenue = res.reduce((acc: number, order: any) => acc + order.finalPrice, 0);
+  });
+
+  const res = await response.json();
+
   
+  if (!Array.isArray(res)) {
+    console.error("Unexpected response format:", res);
+    return 0;
+  }
+
+  const totalRevenue = res.reduce((acc: number, order: any) => acc + (order.finalPrice || 0), 0);
+
   return totalRevenue;
 }
+
 
 export async function getOrderIncomeByDateRange(from: Date, to: Date) {
   const query = {
@@ -292,8 +307,10 @@ export async function getOrderSummaryByDateRangeOwner(from: Date, to: Date, comp
     cache: "no-store",
   }).then((response) => response.json());
 
+ 
+
   
-  const summary: Record<string, { sales: number; revenue: number; income: number }> = {};
+  const summary: Record<string, { sales: number; revenue: number; income: number}> = {};
 
   // Iterate through the fetched data to build the summary
   for (const order of res) {
@@ -311,6 +328,7 @@ export async function getOrderSummaryByDateRangeOwner(from: Date, to: Date, comp
       summary[orderDate].sales += 1; // Increment sales count
       summary[orderDate].revenue += orderLine.totalPrice; // Add totalPrice to revenue
       summary[orderDate].income += orderLine.totalPrice - orderLine.price * orderLine.quantity; // Calculate income
+      
     }
   }
 
@@ -415,17 +433,19 @@ const BASE_URL =
     : `http://localhost:3000`;
 
 export async function updateOrderById(order: OrderType): Promise<OrderType> {
-  console.log(order);
-  const response = await fetch(`${BASE_URL}/api/orders/${order.id}`, {
+  const { id, ...orderData } = order;
+  console.log(orderData)
+  const response = await fetch(`${BASE_URL}/api/orders/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       // Include authorization header if required
       // 'Authorization': `Bearer ${getToken()}`,
     },
-    body: JSON.stringify(order),
+    body: JSON.stringify(orderData),
   })
   
+  console.log(response)
 
   if (!response.ok) {
     throw new Error("Failed to update order")

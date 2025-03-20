@@ -21,6 +21,9 @@ import { RootState } from "@reduxjs/toolkit";
 import { fetchMenuCategoriesOfCompany } from "@/redux/CompanyCategoryMenuSlice";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { getOrderById, getOrderCounter } from '@/lib/order';
+import { getCompanyDetails } from "@/redux/companySlice";
+import { selectOrderById } from "@/redux/orderSlice";
+import MenuItems from '../app/owner/menu/page';
 
 // Types
 type CartItem = {
@@ -34,9 +37,12 @@ type OrderScreenProp = {
 }
 export default function OrderScreen({orderId}: OrderScreenProp) {
   const [activeCategory, setActiveCategory] = useState<string>("");
+  
+  const [isEditingExistingOrder, setIsEditingExistingOrder] = useState(false)
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true)
+    const [orderNumber, setOrderNumber] = useState("")
  
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -47,21 +53,50 @@ export default function OrderScreen({orderId}: OrderScreenProp) {
 
   const { categories } = useSelector((state: any) => state.menuCategories);
   const { menuItems } = useSelector((state: RootState) => state.menu);
-
+  const {company} = useSelector((state: RootState) => state.company);
+  const existingOrder = useSelector((state: RootState) => (orderId ? selectOrderById(state, orderId) : null))
   useEffect(() => {
     dispatch(fetchUserFromToken());
-
+    dispatch(getCompanyDetails(user?.companyId ?? ""));
     const fetchOrder = async () => {
         const order: OrderType = await getOrderById(orderId!);
-        const fetchCart = order.orderLines.map((orderLine) => {
+        const fetchCart = order.orderLines!.map((orderLine) => {
          
         })
-    };
 
-    if (orderId) {
-        fetchOrder();
+    };
+    console.log("orderId", orderId)
+
+}, [dispatch, orderId, user?.companyId]);
+
+useEffect(() => {
+  if (orderId && existingOrder && menuItems.length > 0) {
+    setIsEditingExistingOrder(true)
+
+    setOrderNumber(existingOrder.orderNumber)
+    const orderCart: CartItem[] = []
+
+    for (const line of existingOrder.orderLines) {
+      const menuItem = menuItems.find((item: MenuItem) => item.id === line.menuItemId)
+      if (menuItem) {
+      
+        const priceOption = menuItem.price.find((p: PriceType) => p.price === line.price) || menuItem.prices[0]
+
+        orderCart.push({
+          menuItem,
+          selectedPrice: priceOption,
+          quantity: line.quantity,
+        })
+      }
     }
-}, [dispatch, orderId]);
+
+    
+    setCart(orderCart)
+
+
+    setIsLoading(false)
+  }
+}, [orderId, existingOrder, menuItems])
 ;
 
   useEffect(() => {
@@ -173,7 +208,7 @@ export default function OrderScreen({orderId}: OrderScreenProp) {
 
       {/* Main menu section */}
       <div className="flex-1">
-        {/* Category title (desktop only) */}
+        
         <div className="hidden lg:block mb-6">
           <h2 className="text-2xl font-semibold">{categories.find((c: MenuCategory) => c.id === activeCategory)?.name || "Menu"}</h2>
         </div>
@@ -191,16 +226,16 @@ export default function OrderScreen({orderId}: OrderScreenProp) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20 lg:pb-4">
               {filteredMenuItems.map((item: MenuItem) => (
-                <MenuItemCard key={item.id} item={item} onAddToCart={addToCart} />
+                <MenuItemCard key={item.id} item={item} onAddToCart={addToCart} currency={company.currency} />
               ))}
             </div>
           )}
         </ScrollArea>
       </div>
 
-      {/* Cart section - visible on larger screens, toggleable on mobile */}
+    
       <div className={`lg:w-1/4 lg:block ${isCartOpen ? "block" : "hidden"}`}>
-        <OrderSummary cart={cart} updateQuantity={updateCartItemQuantity} onClose={() => setIsCartOpen(false)} />
+        <OrderSummary cart={cart} updateQuantity={updateCartItemQuantity} onClose={() => setIsCartOpen(false)} isEditingExistingOrder={isEditingExistingOrder} orderNumber={orderNumber} orderId={orderId}/>
       </div>
 
       {/* Mobile cart button */}

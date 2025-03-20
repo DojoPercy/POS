@@ -17,8 +17,10 @@ import { jwtDecode } from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders } from "@/redux/orderSlice";
 import type { RootState, AppDispatch } from "../../../../redux/index";
-import { OrderType } from "@/lib/types/types";
+import { Company, OrderType } from "@/lib/types/types";
 import { OrderStatus } from "@/lib/enums/enums";
+import { fetchUserFromToken, selectUser } from "@/redux/authSlice"
+import { getCompanyDetails } from "@/redux/companySlice"
 
 interface DecodedToken {
   role: string;
@@ -38,7 +40,19 @@ export default function Orders() {
 
   const dispatch = useDispatch<AppDispatch>();
   const { orders, loading } = useSelector((state: RootState) => state.orders);
-
+   const user = useSelector(selectUser)
+   
+  const company = useSelector((state: any) => state.company.company) as Company
+    useEffect(() => {
+      dispatch(fetchUserFromToken())
+      
+      
+    }, [dispatch, user?.companyId])
+  useEffect(() => {
+    if (user?.companyId) {
+      dispatch(getCompanyDetails(user.companyId))
+    }
+  }, [dispatch, user?.companyId])
   // 🏃‍♂️ Fetch Orders on Refresh
   useEffect(() => {
     if (!refresh) return;
@@ -68,7 +82,7 @@ export default function Orders() {
       branchName: order.branch?.name ?? "N/A",
     }))
     .filter((order : OrderType) =>
-      showCompleted ? true : !(order.OrderStatus === OrderStatus.COMPLETED)
+      showCompleted ? true : !(order.orderStatus === OrderStatus.PAID)
     )
     .filter((order: OrderType) => {
       if (dateRange?.from && dateRange?.to) {
@@ -161,7 +175,14 @@ export default function Orders() {
 
       <Card>
         <CardContent className="p-0">
-          <DataTable columns={columns} data={filteredData} />
+        {company ? (
+  <DataTable columns={columns(company.currency)} data={filteredData} />
+) : (
+  <div className="flex justify-center py-10">
+    <p>Loading company details...</p>
+  </div>
+)}
+
         </CardContent>
       </Card>
     </div>

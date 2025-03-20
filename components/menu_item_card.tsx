@@ -14,10 +14,11 @@ import { PriceType, MenuItem } from '@/lib/types/types';
 
 type MenuItemCardProps = {
   item: MenuItem;
+  currency: string;
   onAddToCart: (item: MenuItem, selectedPrice: PriceType, quantity: number) => void;
 };
 
-export default function MenuItemCard({ item, onAddToCart }: MenuItemCardProps) {
+export default function MenuItemCard({ item, onAddToCart, currency }: MenuItemCardProps) {
   const [selectedPrice, setSelectedPrice] = useState<PriceType | null>(
     item.price.length > 0 ? item.price[0] : null
   );
@@ -52,7 +53,7 @@ export default function MenuItemCard({ item, onAddToCart }: MenuItemCardProps) {
           />
           {selectedPrice && (
             <Badge className="absolute bottom-2 right-2 text-sm font-medium px-2 py-1 bg-primary/90 hover:bg-primary">
-              ${selectedPrice.price.toFixed(2)}
+              {}{selectedPrice.price.toFixed(2)}
             </Badge>
           )}
         </div>
@@ -82,7 +83,7 @@ export default function MenuItemCard({ item, onAddToCart }: MenuItemCardProps) {
                 onClick={() => setSelectedPrice(price)}
               >
                 <span>{price.name}</span>
-                <span>${price.price.toFixed(2)}</span>
+                <span>{currency}{price.price.toFixed(2)}</span>
               </Button>
             ))}
           </div>

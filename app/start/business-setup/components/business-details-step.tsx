@@ -187,9 +187,7 @@ export function BusinessDetailsStep({ formData, updateFormData, nextStep, prevSt
         </div>
 
         <div className="flex justify-between pt-4">
-          <Button type="button" variant="outline" onClick={prevStep}>
-            Back
-          </Button>
+          
           <Button type="submit">Continue</Button>
         </div>
       </form>

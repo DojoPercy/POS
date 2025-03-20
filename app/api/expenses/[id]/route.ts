@@ -28,7 +28,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   try {
     const { id } = params
     const json = await request.json()
-    const { itemName, quantity, categoryId, amount } = json
+    const { itemName, quantity, categoryId, amount, dateAdded } = json
 
     if (!itemName || !categoryId || !amount) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -41,6 +41,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         quantity,
         categoryId,
         amount,
+        dateAdded
       },
       include: {
         category: true,

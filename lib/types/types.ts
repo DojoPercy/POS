@@ -18,6 +18,12 @@ export interface DecodedToken {
   export interface Company {
     name: string
     logo: string
+    orderProcessingMode: string
+    currency: string
+    paymentMethods: string[]
+    taxRate: number
+    enableDiscount: boolean
+
   }
   export interface MenuCategory {
     id: string;
@@ -33,14 +39,14 @@ export interface DecodedToken {
     id?: string
     waiterId?: string
     branchId?: string
-    orderLines: OrderLine[]
+    orderLines?: OrderLine[]
     companyId?: string
     totalPrice?: number
     discount?: number
     rounding?: number
     finalPrice?: number
-    payment?: any[] // You might want to create a separate Payment type
-    OrderStatus?: OrderStatus
+    payment?: CreatePaymentRequest 
+    orderStatus?: OrderStatus
     orderedDate?: string
     requiredDate?: string
     createdAt?: string
@@ -60,7 +66,7 @@ export type Category ={
       categoryId: string,
       amount: number,
       quantity: number,
-      dateAdded?: Date,
+      dateAdded?: string,
       category?: Category
       isFrequent: boolean
   }
@@ -91,7 +97,6 @@ export type Category ={
   export interface Payment {
     id: string;
     orderId: string;
-    paymentTypeId: string;
     amount: number;
     currency: string;
     paymentStatus: "Pending" | "Completed" | "Failed";
@@ -103,7 +108,6 @@ export type Category ={
 
   export interface CreatePaymentRequest {
     orderId: string;
-    paymentTypeId: string;
     amount: number;
     currency: string;
     paymentStatus: "Pending" | "Completed" | "Failed";

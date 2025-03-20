@@ -13,19 +13,15 @@ interface DecodedToken {
 // **Create a New Menu Item with PriceType**
 export async function POST(req: NextRequest) {
   try {
-    const token = req.cookies.get("token")?.value;
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-    const decodedToken: DecodedToken = jwtDecode(token);
-    const { name, description, prices, categoryId, imageBase64 } = await req.json();
+   
+    const { name, description, prices, categoryId, imageBase64, companyId } = await req.json();
 
     const newMenuItem = await prisma.menu.create({
       data: {
         name,
         description,
         imageBase64,
-        company: { connect: { id: decodedToken.companyId } },
+        company: { connect: { id: companyId } },
         category: { connect: { id: categoryId } },
         price: {
           create: prices.map((price: { name: string; price: number }) => ({

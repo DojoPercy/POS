@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { sendOrderUpdate } from '@/lib/pusher';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET order by ID
@@ -44,15 +45,38 @@ export async function PUT(req: NextRequest, { params }: any) {
   const body = await req.json();
 
   try {
+     
+    const existingOrderLines = body.orderLines?.filter((line: any) => line.id);
+    const newOrderLines = body.orderLines?.filter((line: any) => !line.id);
+
+    
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
-        isCheckedOut: body.isCheckedOut,
-        isCompleted: body.isCompleted,
         totalPrice: body.totalPrice,
+        discount: body.discount,
+        rounding: body.rounding,
         finalPrice: body.finalPrice,
+        orderStatus: body.orderStatus,
+        updatedAt: new Date(),
         orderLines: {
-          create: body.orderLines.create, // 👈 Handling nested writes properly
+          // Update existing orderLines
+          update: existingOrderLines?.map((line: any) => ({
+            where: { id: line.id },
+            data: {
+              quantity: line.quantity,
+              price: line.price,
+              totalPrice: line.totalPrice,
+            },
+          })),
+
+          
+          create: newOrderLines?.map((line: any) => ({
+            menuItemId: line.menuItemId,
+            quantity: line.quantity,
+            price: line.price,
+            totalPrice: line.totalPrice,
+          })),
         },
       },
       include: {
@@ -60,7 +84,7 @@ export async function PUT(req: NextRequest, { params }: any) {
         payment: true,
       },
     });
-
+   await sendOrderUpdate(updatedOrder);
     return NextResponse.json(updatedOrder, { status: 200 });
   } catch (error: any) {
     console.error("Update Order Error:", error);

@@ -1,40 +1,38 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getOrders } from "@/lib/order";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const branchId = searchParams.get("branchId");
   const waiterId = searchParams.get("waiterId");
 
-  if (!branchId || !waiterId) {
-    return new NextResponse("Missing branchId or waiterId", { status: 400 });
+  if (!waiterId) {
+    return new NextResponse("Missing waiterId", { status: 400 });
+  }
+
+  const encoder = new TextEncoder();
+
+  async function* orderStream() {
+    while (true) {
+      try {
+        const orders = await getOrders(undefined, undefined, waiterId!);
+        yield encoder.encode(`data: ${JSON.stringify(orders)}\n\n`);
+      } catch (error) {
+        console.error("Error fetchingssd orders:", error);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
   }
 
   const stream = new ReadableStream({
     async start(controller) {
-      const encoder = new TextEncoder();
-
-      while (true) {
-        try {
-          const orders = await getOrders(undefined, branchId);
-          const filteredOrders = orders.filter(
-            (order: { waiterId: string }) => order.waiterId === waiterId
-          );
-
-          filteredOrders.forEach((order: any) => {
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify(order)}\n\n`)
-            );
-          });
-
-          await new Promise((resolve) => setTimeout(resolve, 5000)); // Poll every 5 seconds
-        } catch (error) {
-          console.error("Error fetching orders:", error);
-          controller.error(error);
-        }
+      for await (const chunk of orderStream()) {
+        controller.enqueue(chunk);
       }
+    },
+    cancel() {
+      console.log("SSE connection closed by client");
     },
   });
 
@@ -42,7 +40,7 @@ export async function GET(req: NextRequest) {
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
-      Connection: "keep-alive",
+      "Connection": "keep-alive",
     },
   });
 }
