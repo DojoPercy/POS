@@ -1,3 +1,4 @@
+import { OrderStatus } from "@prisma/client";
 import { OrderType } from "./types/types";
 
 
@@ -221,10 +222,11 @@ export async function getOrderRevenueByDateRange(from: Date, to: Date, branchId?
     console.error("Unexpected response format:", res);
     return 0;
   }
+  const data = res.filter((order: any) => order.orderStatus !== OrderStatus.PENDING);
 
-  const totalRevenue = res.reduce((acc: number, order: any) => acc + (order.finalPrice || 0), 0);
+  const totalRevenue = data.reduce((acc: number, order: any) => acc + (order.finalPrice || 0), 0);
 
-  return totalRevenue;
+  return totalRevenue.toFixed(2);
 }
 
 
@@ -332,12 +334,12 @@ export async function getOrderSummaryByDateRangeOwner(from: Date, to: Date, comp
     }
   }
 
-  // Convert the summary object into an array
+  
   return Object.entries(summary).map(([date, data]) => ({
     date,
     sales: data.sales,
-    revenue: data.revenue,
-    income: data.income,
+    revenue: data.revenue.toFixed(2),
+    income: data.income.toFixed(2),
   }));
 }
 

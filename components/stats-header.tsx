@@ -1,6 +1,6 @@
 "use client"
 
-import { Utensils, DollarSign, TrendingUp, Users, Clock } from 'lucide-react'
+import { Utensils, DollarSign, TrendingUp, Users, Clock, Banknote } from 'lucide-react'
 
 import {
     getHighestOrderInBranch,
@@ -10,12 +10,14 @@ import {
     getOrderSummaryByDateRange,
 } from "@/lib/order"
 import { paymentService } from '@/lib/payment'
+import { getExpensesSummaryByDateRangeOwner, getExpenseSumByDateRange } from '@/lib/expense'
 
 enum StatisticGraph {
     ordersGraph,
     customersGraph,
     serviceTimeGraph,
     paymentGraph,
+    expensesGraph
 }
 
 export type StatisticHeaderDef = {
@@ -56,6 +58,13 @@ export const StatisticHeaders: StatisticHeaderDef[] = [
         call: paymentService.getPaymentByDateRange,
         graphIndex: StatisticGraph.paymentGraph,
         accessorKey: "payments"
+    },
+    {
+        name: "Expenses",
+        icon: <Banknote className="w-4 h-4"  />,
+        call: getExpenseSumByDateRange,
+        graphIndex: StatisticGraph.expensesGraph,
+        accessorKey: "totalExpenses"
     }
   
 ]
@@ -69,6 +78,14 @@ export const StatisticFns: StatisticFnDef<any[]>[] = [
    
 ]
 
+export const StatisticFnsE: StatisticFnDefP<any[]>[] = [
+    {
+        index: StatisticGraph.expensesGraph,
+        call: getExpensesSummaryByDateRangeOwner,
+    },
+    
+   
+]
 
 export const StatisticFnsP: StatisticFnDefP<any[]>[] = [
     {

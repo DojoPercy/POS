@@ -88,7 +88,7 @@ export const paymentService = {
     
       const totalPayment = res.reduce((acc: number, order: any) => acc + (order.amount || 0), 0);
     
-      return totalPayment;
+      return totalPayment.toFixed(2);
     },
 
 
@@ -132,7 +132,7 @@ export const paymentService = {
         // Convert the summary object into an array of summary entries
         return Object.entries(summary).map(([date, data]) => ({
           date,
-          payments: data.totalAmount,
+          payments: data.totalAmount.toFixed(2),
           transactions: data.transactionCount,
         }));
       }

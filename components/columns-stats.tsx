@@ -46,4 +46,27 @@ export const columnsPayment: ColumnDef<any>[] = [
       ),
     },
   ];
+
+  export const columnsExpenses: ColumnDef<any>[] = [
+    
+    {
+      accessorKey: "date",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Date" />
+      ),
+    },
+    {
+      accessorKey: "totalExpenses",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Total Amount" />
+      ),
+    },
+    {
+      accessorKey: "totalExpensesCount",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Total Count" />
+      ),
+    },
+  ];
+  
   

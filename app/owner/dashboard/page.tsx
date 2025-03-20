@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react"
 import { RefreshCw, Download } from "lucide-react"
 import { addDays } from "date-fns"
 import { jwtDecode } from "jwt-decode"
-import { type StatisticHeaderDef, StatisticHeaders, StatisticFns, StatisticFnsP } from "@/components/stats-header"
-import { columnsPayment, columnsRevenueIncome } from "@/components/columns-stats"
+import { type StatisticHeaderDef, StatisticHeaders, StatisticFns, StatisticFnsP, StatisticFnsE } from "@/components/stats-header"
+import { columnsExpenses, columnsPayment, columnsRevenueIncome } from "@/components/columns-stats"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DatePickerWithRange } from "@/components/ui/date-time-picker"
@@ -17,6 +17,7 @@ import { getOrderSummaryByDateRange, getOrderSummaryByDateRangeOwner } from "@/l
 import { CompanySwitcher } from "../../../components/company_switcher"
 import Image from "next/image"
 import { paymentService } from '../../../lib/payment';
+import { getExpensesSummaryByDateRangeOwner } from "@/lib/expense"
 
 
 type graphDataDef = {
@@ -50,6 +51,7 @@ export default function Statistics() {
   const [graphData, setGraphData] = useState<graphDataDef>({})
   const [tableData, setTableData] = useState<any[]>([])
   const [paymentTableData, setPaymentTableData] = useState<any[]>([])
+  const [expensesTableData, setExpensesTableData] = useState<any[]>([])
   const [companies, setCompanies] = useState<Company[]>([])
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
 
@@ -79,11 +81,12 @@ export default function Statistics() {
   useEffect(() => {
     if (!refresh) return;
   
-    // Clear state (or optionally, preserve previous data until new data arrives)
+ 
     setHeaderData([]);
     setGraphData({});
     setTableData([]);
     setPaymentTableData([]);
+    setExpensesTableData([]);
   
     const updatePage = async () => {
       if (!date?.from || !date?.to || !selectedCompany) {
@@ -94,13 +97,13 @@ export default function Statistics() {
       const toDate: Date = date.to!;
   
       try {
-        // Fetch header data in parallel
+       
         const headerPromises = StatisticHeaders.map(header =>
           header.call(fromDate, toDate, undefined, selectedCompany.id)
         );
         const headerContent: number[] = await Promise.all(headerPromises);
   
-        // For orders summary (StatisticFns) and payment summary (StatisticFnsP) use different parameter orders.
+        
         const orderGraphCalls = StatisticFns.map(fn =>
           fn.call(fromDate, toDate, undefined, selectedCompany.id).then(data => ({
             index: fn.index,
@@ -113,24 +116,33 @@ export default function Statistics() {
             data,
           }))
         );
-        const graphResults = await Promise.all([...orderGraphCalls, ...paymentGraphCalls]);
+        const expensesGraphCalls = StatisticFnsE.map(fn =>
+          fn.call(fromDate, toDate, selectedCompany.id, undefined).then(data => ({
+            index: fn.index,
+            data,
+          }))
+        );
+        const graphResults = await Promise.all([...orderGraphCalls, ...paymentGraphCalls, ...expensesGraphCalls]);
         const graphContent: graphDataDef = {};
         for (const result of graphResults) {
-          // If both types use the same index, you may need to merge data; here we overwrite.
+      
           graphContent[result.index] = result.data;
         }
   
-        // Fetch table data and payment table data in parallel
-        const [tableValue, paymentTableValue] = await Promise.all([
+       
+        const [tableValue, paymentTableValue, expensesTableData] = await Promise.all([
           getOrderSummaryByDateRangeOwner(fromDate, toDate, selectedCompany.id),
           paymentService.getPaymentSummaryByDateRangeOwner(fromDate, toDate, selectedCompany.id),
+          getExpensesSummaryByDateRangeOwner(fromDate, toDate, selectedCompany.id),
         ]);
   
-        // Set all fetched data into state
+       
         setHeaderData(headerContent);
         setGraphData(graphContent);
         setTableData(tableValue);
         setPaymentTableData(paymentTableValue);
+        setExpensesTableData(expensesTableData);
+
       } catch (error) {
         console.error("Error updating page:", error);
       } finally {
@@ -226,6 +238,9 @@ export default function Statistics() {
       </div>
       <div>
         <DataTable columns={columnsPayment} data={Array.isArray(paymentTableData) ? paymentTableData : []} />
+      </div>
+      <div>
+        <DataTable columns={columnsExpenses} data={Array.isArray(expensesTableData) ? expensesTableData : []} />
       </div>
     </div>
   )
