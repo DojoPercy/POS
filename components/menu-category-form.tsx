@@ -40,9 +40,16 @@ export default function MenuCategoryForm() {
     defaultValues: {
       name: "",
       description: "",
-      companyId: user!.companyId ?? "",
+      companyId:"",
     },
   })
+
+  useEffect(() => {
+    if (user) {
+      form.setValue("companyId", user.companyId ?? "");
+    }
+  }, [user, form]);
+  
 
   // Handle form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
