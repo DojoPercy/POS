@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
       branchId,
       orderLines,
       totalPrice,
+      
       discount,
       rounding,
       finalPrice,
@@ -86,6 +87,7 @@ export async function POST(req: NextRequest) {
         branchId: branchId,
         companyId: decodedToken.companyId || "",
         totalPrice,
+        
         discount,
         rounding,
         finalPrice,
@@ -93,11 +95,12 @@ export async function POST(req: NextRequest) {
         requiredDate,
         orderNumber: orderNumber,
         orderLines: {
-          create: orderLines.map((line: { menuItemId: string; quantity: number; price: number; totalPrice: number }) => ({
+          create: orderLines.map((line: { menuItemId: string; quantity: number; price: number; totalPrice: number, notes?: string }) => ({
             menuItemId: line.menuItemId,
             quantity: line.quantity,
             price: line.price,
             totalPrice: line.totalPrice,
+            notes: line.notes,
           })),
         },
       },

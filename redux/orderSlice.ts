@@ -68,9 +68,17 @@ const ordersSlice = createSlice({
     updateOrderLocally: (state, action: PayloadAction<OrderType>) => {
       if (Array.isArray(state.orders)) {
         const index = state.orders.findIndex((o) => o.id === action.payload.id);
-        if (index !== -1) state.orders[index] = action.payload;
+    
+        if (index !== -1) {
+          
+          state.orders[index] = action.payload;
+        } else {
+         
+          state.orders.push(action.payload);
+        }
       }
     },
+    
     removeOrder: (state, action: PayloadAction<string>) => {
       if (Array.isArray(state.orders)) {
         state.orders = state.orders.filter((o) => o.id !== action.payload);

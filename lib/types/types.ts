@@ -11,6 +11,7 @@ export interface DecodedToken {
     menuItemId: string
     name: string
     quantity: number
+    notes?: string
     price: number
     totalPrice: number
   }
