@@ -25,7 +25,7 @@ useEffect(()=>{
 }, [dispatch])
   useEffect(() => {
     dispatch(fetchOrders(user?.userId!) as any)
-  }, [dispatch])
+  }, [dispatch, user?.userId])
 
   if (error) {
     return (

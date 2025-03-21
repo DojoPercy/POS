@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Plus, Trash2, Image, DollarSign, Tag, FileText, MenuIcon } from "lucide-react"
+import { Plus, Trash2, DollarSign, Tag, FileText,Image, MenuIcon } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
+import ImageDiv from "next/image";
 
 interface MenuSetupStepProps {
   formData: any
@@ -401,7 +402,7 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
                   <CardContent className="p-4 flex">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-md mr-3 flex-shrink-0 flex items-center justify-center overflow-hidden">
                       {item.imageBase64 ? (
-                        <img
+                        <ImageDiv
                           src={item.imageBase64 || "/placeholder.svg"}
                           alt={item.name}
                           className="w-full h-full object-cover"
@@ -484,7 +485,7 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
                       <div className="flex items-center space-x-4">
                         <div className="w-24 h-24 border-2 border-dashed rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-800 overflow-hidden">
                           {activeMenuItemData.imageBase64 ? (
-                            <img
+                            <ImageDiv
                               src={activeMenuItemData.imageBase64 || "/placeholder.svg"}
                               alt="Item preview"
                               className="max-w-full max-h-full object-contain"

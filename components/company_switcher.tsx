@@ -4,7 +4,8 @@ import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import Image from "next/image";
 
 type Company = {
   id: string
@@ -28,7 +29,7 @@ export function CompanySwitcher({ companies, selectedCompany, onSelectCompany }:
           {selectedCompany ? (
             <div className="flex items-center">
               {selectedCompany.logo && (
-                <img
+                <Image
                   src={selectedCompany.logo || "/placeholder.svg"}
                   alt={selectedCompany.name}
                   className="w-5 h-5 mr-2 rounded-full"
@@ -61,7 +62,7 @@ export function CompanySwitcher({ companies, selectedCompany, onSelectCompany }:
                   />
                   <div className="flex items-center">
                     {company.logo && (
-                      <img
+                      <Image
                         src={company.logo || "/placeholder.svg"}
                         alt={company.name}
                         className="w-5 h-5 mr-2 rounded-full"
