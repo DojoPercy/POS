@@ -110,7 +110,7 @@ export default function Statistics() {
           setBranch(branch)
         })();
                
-    }, [])
+    }, [branchId])
 
     return (
         <div className="py-6 px-10">

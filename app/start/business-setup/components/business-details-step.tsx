@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Building, MapPin, Upload } from "lucide-react"
+import Image from "next/image";
 
 interface BusinessDetailsStepProps {
   formData: any
@@ -143,7 +144,7 @@ export function BusinessDetailsStep({ formData, updateFormData, nextStep, prevSt
           <div className="flex items-center space-x-4">
             <div className="w-24 h-24 border-2 border-dashed rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-800">
               {logoPreview ? (
-                <img
+                <Image
                   src={logoPreview || "/placeholder.svg"}
                   alt="Logo preview"
                   className="max-w-full max-h-full object-contain rounded-lg"
