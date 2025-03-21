@@ -20,15 +20,15 @@ import { Expense } from '../lib/types/types';
 // Async Thunks
 export const fetchExpenseSumByDateRange = createAsyncThunk(
   "expenses/fetchExpenseSumByDateRange",
-  async ({ from, to }: {from:Date, to:Date}) => {
-    return await getExpenseSumByDateRange(from, to);
+  async ({ from, to, branchId, companyId }: {from:Date, to:Date, branchId?:string, companyId?:string}) => {
+    return await getExpenseSumByDateRange(from, to, branchId, companyId);
   }
 );
 
 export const fetchTotalExpenseCount = createAsyncThunk(
   "expenses/fetchTotalExpenseCount",
-  async ({ from, to }: {from:Date, to:Date}) => {
-    return await getTotalExpenseCount(from, to);
+  async ({ from, to, branchId, companyId }: {from:Date, to:Date, branchId?:string, companyId?:string}) => {
+    return await getTotalExpenseCount(from, to, branchId, companyId);
   }
 );
 
@@ -118,8 +118,8 @@ const expensesSlice = createSlice({
   name: "expenses",
   initialState: {
     expenses: [],
-    expenseSum: {totalAmount: 0},
-    totalExpenseCount: {},
+    expenseSum:  0,
+    totalExpenseCount: 0,
     frequentItems: [],
     categories: [],
     status: "idle",

@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdownMenu";
 import { MenuCategory, PriceType } from "@/lib/types/types";
+import  Image  from "next/image";
 
 // Define the MenuItem type based on your database or API response structure.
 export type MenuItem = {
@@ -61,7 +62,7 @@ export const columns: ColumnDef<MenuItem>[] = [
       
       return (
         <div className="flex items-center justify-center ">
-          <img
+          <Image
             src={imageBase64}
             alt="Menu Item"
             className="h-12 w-12   object-cover rounded-md"

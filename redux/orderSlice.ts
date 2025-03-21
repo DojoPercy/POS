@@ -1,8 +1,8 @@
 // store/ordersSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction, RootState } from "@reduxjs/toolkit";
-import { createOrder, getOrders, updateOrderById } from "@/lib/order";
-import { OrderType } from "@/lib/types/types";
-import { OrderStatus } from "@/lib/enums/enums";
+import { createOrder, getOrders, updateOrderById } from "../lib/order";
+import { OrderType } from "..//lib/types/types";
+import { OrderStatus } from "../lib/enums/enums";
 
 // 🏷️ Define the state type
 interface OrderState {

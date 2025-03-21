@@ -19,13 +19,13 @@ import {
   Receipt,
 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import type { PriceType, MenuItem, OrderType, Company, CreatePaymentRequest } from "@/lib/types/types"
+import type { PriceType, MenuItem, OrderType, Company, CreatePaymentRequest } from "../lib/types/types"
 import { useDispatch, useSelector } from "react-redux"
-import { placeOrder, updateOrder } from "@/redux/orderSlice"
-import { selectUser, fetchUserFromToken } from "@/redux/authSlice"
-import { getOrderCounter } from "@/lib/order"
+import { placeOrder, updateOrder } from "../redux/orderSlice"
+import { selectUser, fetchUserFromToken } from "../redux/authSlice"
+import { getOrderCounter } from "../lib/order"
 import type { OrderLine } from "../lib/types/types"
-import { OrderStatus } from "@/lib/enums/enums"
+import { OrderStatus } from "../lib/enums/enums"
 import {
   Dialog,
   DialogContent,
