@@ -338,7 +338,7 @@ export default function OrderSummary({
           )}
         </CardHeader>
 
-        <CardContent className="flex-1 p-0">
+        <CardContent className="flex-1 p-0 h-[90vh]">
           {cart.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center p-4">
               <ShoppingCart className="h-12 w-12 text-gray-300 mb-4" />
