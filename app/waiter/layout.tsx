@@ -19,7 +19,7 @@ export default function Layout({
      <div className="flex h-screen">
       <SiderBarWaiter />
       <div className="flex-1 overflow-auto p-4">
-        <div className="flex">
+        <div className="flex h-screen">
          
           {(!["/waiter/order/view", "/waiter"].includes(pathname)) && <OrderList />}
 

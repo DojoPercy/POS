@@ -240,7 +240,7 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
 
       {/* Main menu section */}
       <div className="flex-1 px-4 lg:px-0">
-        <div className="sticky top-0 lg:top-24 z-10 bg-gray-50 pt-4 pb-2">
+        <div className=" top-0 lg:top-24 z-10 bg-gray-50 pt-4 pb-2">
           <div className="hidden lg:flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
               {categories.find((c: MenuCategory) => c.id === activeCategory)?.name || "Menu"}
