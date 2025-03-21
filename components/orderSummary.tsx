@@ -268,6 +268,7 @@ export default function OrderSummary({
                   th, td { padding: 4px 0; text-align: left; }
                   .text-right { text-align: right; }
                   .border-top { border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px; }
+                  img { display: block !important; max-width: 100px !important; }
                 }
               </style>
             </head>
