@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
 import { sendOrderUpdate } from '@/lib/pusher';
+import redis from '@/lib/redis/redis';
 
 
 interface DecodedToken {
@@ -25,7 +26,12 @@ export async function GET(req: NextRequest) {
     if (!branchId && !companyId && !waiterId) {
       return NextResponse.json({ error: 'branchId or companyId is required' }, { status: 400 });
     }
-
+    const cacheData = branchId ? `branch-${branchId}` : companyId ? `company-${companyId}` : `waiter-${waiterId}`;
+    const cachedData = await redis.get(cacheData);
+    if (cachedData) {
+      console.log('cachedData Orders:', cachedData);
+      return NextResponse.json(JSON.parse(cachedData), { status: 200 });
+    }
     const orders = await prisma.order.findMany({
       where: {
         branchId: branchId || undefined,
@@ -38,7 +44,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    
+    await redis.set(cacheData, JSON.stringify(orders), 'EX', 600);
     return NextResponse.json(orders, { status: 200 });
 
   } catch (error: any) {

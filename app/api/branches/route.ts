@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { jwtDecode } from 'jwt-decode';
+import redis from '@/lib/redis/redis';
 
 
 
@@ -49,6 +50,12 @@ export async function GET(req: Request) {
     const id = searchParams.get('id');
     const companyId = searchParams.get('companyId');
 
+    const cacheKey = companyId ? `company-${companyId}` : `branch-${id}`;
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      console.log('cachedData Branch:', cachedData);
+      return NextResponse.json(JSON.parse(cachedData), { status: 200 });
+    }
     if (id) {
       const branch = await prisma.branch.findUnique({
         where: { id },
@@ -56,16 +63,19 @@ export async function GET(req: Request) {
       if (!branch) {
         return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
       }
+      await redis.set(cacheKey, JSON.stringify(branch), 'EX', 600);
       return NextResponse.json(branch, { status: 200 });
     }
     if (companyId) {
       const branches = await prisma.branch.findMany({
         where: { companyId },
       });
+      await redis.set(cacheKey, JSON.stringify(branches), 'EX', 600);
       return NextResponse.json(branches, { status: 200 });
     }
 
     const branches = await prisma.branch.findMany();
+    await redis.set(cacheKey, JSON.stringify(branches), 'EX', 600);
     return NextResponse.json(branches, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

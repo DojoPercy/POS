@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client"
 import { jwtDecode } from "jwt-decode"
 import { type NextRequest, NextResponse } from "next/server"
 import { prisma } from '../../../lib/prisma';
+import redis from "@/lib/redis/redis";
 
 
 
@@ -16,14 +17,29 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/login", req.url))
     }
     const decodedToken: DecodedToken = jwtDecode(token)
+
     const { searchParams } = new URL(req.url);
     const companyId = searchParams.get('companyId');
+
+    const cacheKey = companyId ? `company-${companyId}` : `companies-${decodedToken.userId}`
+    const cachedData = await redis.get(cacheKey)
+
+    if (cachedData) {
+      console.log("cachedData Company", cachedData)
+      return NextResponse.json(JSON.parse(cachedData), { status: 200 })
+    }
+
     if (companyId) {
       const company = await prisma.company.findUnique({
         where: {
           id: companyId,
         },
       })
+      if (!company) {
+        return NextResponse.json({ message: "Company not found" }, { status: 404 })
+      }
+      await redis.set(cacheKey, JSON.stringify(company), "EX" , 600);
+
       return NextResponse.json(company, { status: 200 })
     }
     const companies = await prisma.company.findMany({
@@ -31,6 +47,8 @@ export async function GET(req: NextRequest) {
         ownerId: decodedToken.userId,
       },
     })
+    await redis.set(cacheKey, JSON.stringify(companies), "EX", 600);
+
     return NextResponse.json(companies, { status: 200 })
   } catch (error) {
     return NextResponse.json({ message: error }, { status: 500 })

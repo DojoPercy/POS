@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
+import redis from '@/lib/redis/redis';
 
 export async function GET(req: NextRequest){
     try{
@@ -8,6 +9,13 @@ export async function GET(req: NextRequest){
         const { searchParams } = new URL(req.url);
         const companyId = searchParams.get('companyId');
         const categoryId = searchParams.get('categoryId') || "";
+
+        const cacheKey = companyId ? `menu-category-${companyId}` : categoryId ? `menu-category-${categoryId}` : 'menu-category';
+        const cacheData = await redis.get(cacheKey);
+        if (cacheData) {
+            console.log('cacheData', cacheData);
+            return NextResponse.json(JSON.parse(cacheData), { status: 200 });
+        }
     
         if (companyId) {
             const category = await prisma.menuCategory.findMany({
@@ -16,14 +24,20 @@ export async function GET(req: NextRequest){
             if (!category) {
                 return NextResponse.json({ error: 'Category not found' }, { status: 404 });
             }
+            await redis.set(cacheKey, JSON.stringify(category), 'EX', 600);
             return NextResponse.json(category, { status: 200 });
         } else if(categoryId){
             const categories = await prisma.menuCategory.findMany({
                 where: { id: categoryId },
             });
+            if (!categories) {
+                return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+            }
+            await redis.set(cacheKey, JSON.stringify(categories), 'EX', 600);
             return NextResponse.json(categories, { status: 200 });
         }
         const categories = await prisma.category.findMany();
+        await redis.set(cacheKey, JSON.stringify(categories), 'EX', 600);
         return NextResponse.json(categories, { status: 200 });
         
     } catch (error: any) {
