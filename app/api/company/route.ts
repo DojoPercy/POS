@@ -24,10 +24,10 @@ export async function GET(req: NextRequest) {
     const cacheKey = companyId ? `company-${companyId}` : `companies-${decodedToken.userId}`
     const cachedData = await redis.get(cacheKey)
 
-    if (cachedData) {
-      console.log("cachedData Company", cachedData)
-      return NextResponse.json(JSON.parse(cachedData), { status: 200 })
-    }
+    // if (cachedData) {
+    //   console.log("cachedData Company", cachedData)
+    //   return NextResponse.json(JSON.parse(cachedData), { status: 200 })
+    // }
 
     if (companyId) {
       const company = await prisma.company.findUnique({

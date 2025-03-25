@@ -52,10 +52,10 @@ export async function GET(req: Request) {
 
     const cacheKey = companyId ? `company-${companyId}` : `branch-${id}`;
     const cachedData = await redis.get(cacheKey);
-    if (cachedData) {
-      console.log('cachedData Branch:', cachedData);
-      return NextResponse.json(JSON.parse(cachedData), { status: 200 });
-    }
+    // if (cachedData) {
+    //   console.log('cachedData Branch:', cachedData);
+    //   return NextResponse.json(JSON.parse(cachedData), { status: 200 });
+    // }
     if (id) {
       const branch = await prisma.branch.findUnique({
         where: { id },

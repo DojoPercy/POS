@@ -28,10 +28,10 @@ export async function GET(req: NextRequest) {
     }
     const cacheData = branchId ? `branch-${branchId}` : companyId ? `company-${companyId}` : `waiter-${waiterId}`;
     const cachedData = await redis.get(cacheData);
-    if (cachedData) {
-      console.log('cachedData Orders:', cachedData);
-      return NextResponse.json(JSON.parse(cachedData), { status: 200 });
-    }
+    // if (cachedData) {
+    //   console.log('cachedData Orders:', cachedData);
+    //   return NextResponse.json(JSON.parse(cachedData), { status: 200 });
+    // }
     const orders = await prisma.order.findMany({
       where: {
         branchId: branchId || undefined,

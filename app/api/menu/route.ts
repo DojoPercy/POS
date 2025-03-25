@@ -51,9 +51,9 @@ export async function GET(req: NextRequest) {
 
     const cacheKey = id ? `menu-${id}` : companyId ? `menus-${companyId}` : 'menu';
     const cacheData = await redis.get(cacheKey);
-    if (cacheData) {
-      return NextResponse.json(JSON.parse(cacheData), { status: 200 });
-    }
+    // if (cacheData) {
+    //   return NextResponse.json(JSON.parse(cacheData), { status: 200 });
+    // }
     if (id) {
       const menu = await prisma.menu.findUnique({
         where: { id },

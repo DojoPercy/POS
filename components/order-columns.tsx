@@ -55,11 +55,8 @@ export const columns = (companyCurrency: string): ColumnDef<OrderType>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Total Price" />,
     cell: ({ row }) => {
       const amount = Number(row.getValue("totalPrice")) || 0;
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: companyCurrency,
-      }).format(amount);
-      return <div className="font-medium">{formatted}</div>;
+     
+      return <div className="font-medium">{companyCurrency}{amount}</div>;
     },
   },
   {
@@ -67,13 +64,14 @@ export const columns = (companyCurrency: string): ColumnDef<OrderType>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Final Price" />,
     cell: ({ row }) => {
       const amount = Number(row.getValue("finalPrice")) || 0;
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: companyCurrency,
-      }).format(amount);
-      return <div className="font-medium">{formatted}</div>;
+      const supportedCurrencies = ["USD", "EUR", "NGN", "GBP", "CAD", "GHS"];
+      const currency = supportedCurrencies.includes(companyCurrency) ? companyCurrency : "USD";
+  
+      
+      return <div className="font-medium">{currency}{amount}</div>;
     },
   },
+  
   {
     accessorKey: "orderStatus",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Completed" />,

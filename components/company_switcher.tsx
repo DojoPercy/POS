@@ -30,9 +30,12 @@ export function CompanySwitcher({ companies, selectedCompany, onSelectCompany }:
             <div className="flex items-center">
               {selectedCompany.logo && (
                 <Image
+                  width={20}
+                  height={20}
                   src={selectedCompany.logo || "/placeholder.svg"}
                   alt={selectedCompany.name}
                   className="w-5 h-5 mr-2 rounded-full"
+                  unoptimized
                 />
               )}
               {selectedCompany.name}
