@@ -43,7 +43,7 @@ export default function MenuItems() {
 
   return (
     <div className="py-6 px-10">
-      <div className="flex flex-row">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
         <div className="mr-auto flex">
           <h1 className="mr-auto font-bold text-2xl flex items-center">
             Menu Items

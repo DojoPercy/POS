@@ -1,57 +1,51 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
-import { RefreshCw, Download } from "lucide-react";
-import { addDays } from "date-fns";
-import { jwtDecode } from "jwt-decode";
+import { useState, useEffect } from "react"
+import { RefreshCw, Download } from "lucide-react"
+import { addDays } from "date-fns"
+import { jwtDecode } from "jwt-decode"
 import {
   type StatisticHeaderDef,
   StatisticHeaders,
   StatisticFns,
   StatisticFnsP,
   StatisticFnsE,
-} from "@/components/stats-header";
-import {
-  columnsExpenses,
-  columnsPayment,
-  columnsRevenueIncome,
-} from "@/components/columns-stats";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DatePickerWithRange } from "@/components/ui/date-time-picker";
-import { DataTable } from "@/components/ui/data-table";
-import type { DateRange } from "react-day-picker";
-import { ResponsiveLineChart } from "@/components/responsive-line-chart";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  getOrderSummaryByDateRange,
-  getOrderSummaryByDateRangeOwner,
-} from "@/lib/order";
-import { CompanySwitcher } from "../../../components/company_switcher";
-import Image from "next/image";
-import { paymentService } from "../../../lib/payment";
-import { getExpensesSummaryByDateRangeOwner } from "@/lib/expense";
+} from "@/components/stats-header"
+import { columnsExpenses, columnsPayment, columnsRevenueIncome } from "@/components/columns-stats"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DatePickerWithRange } from "@/components/ui/date-time-picker"
+import { DataTable } from "@/components/ui/data-table"
+import type { DateRange } from "react-day-picker"
+import { ResponsiveLineChart } from "@/components/responsive-line-chart"
+import { Skeleton } from "@/components/ui/skeleton"
+import { getOrderSummaryByDateRangeOwner } from "@/lib/order"
+import { CompanySwitcher } from "../../../components/company_switcher"
+import Image from "next/image"
+import { paymentService } from "../../../lib/payment"
+import { getExpensesSummaryByDateRangeOwner } from "@/lib/expense"
 
 type graphDataDef = {
   [key: number]: {
-    date: string;
-    sales: number;
-    [key: string]: string | number;
-  }[];
-};
+    date: string
+    sales: number
+    [key: string]: string | number
+  }[]
+}
 
 type Company = {
-  id: string;
-  name: string;
-  logo?: string;
-};
+  id: string
+  name: string
+  logo?: string
+}
 
 interface DecodedToken {
-  companyId: string;
-  [key: string]: any;
+  companyId: string
+  [key: string]: any
 }
 
 export default function Statistics() {
+
   const [refresh, setRefresh] = useState(true);
   const [date, setDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
@@ -189,80 +183,72 @@ export default function Statistics() {
     setRefresh(true);
   }, [date, selectedCompany]);
 
-  return (
-    <div className="py-6 px-10">
-      <div className="flex flex-row items-center mb-6">
-        <div className="mr-auto flex items-center">
-          <h1 className="font-bold text-2xl flex items-center mr-4">
-            Restaurant Statistics
-          </h1>
-          {selectedCompany && (
-            <div className="flex items-center">
-              {selectedCompany.logo && (
-                <Image
-                  width={102}
-                  height={102}
-                  src={
-                    selectedCompany.logo.startsWith("data:image")
-                      ? selectedCompany.logo
-                      : "/placeholder.svg"
-                  }
-                  alt={selectedCompany.name}
-                  className=" w-20 h-8 rounded-full mr-2"
-                  unoptimized
-                />
-              )}
-              <span className="text-lg font-semibold">
-                {selectedCompany.name}
-              </span>
-            </div>
-          )}
-        </div>
-        <CompanySwitcher
-          companies={companies}
-          selectedCompany={selectedCompany}
-          onSelectCompany={setSelectedCompany}
-        />
-        <div className="ml-4">
-          <Button
-            variant="ghost"
-            className={`rounded-full p-3 items-center ${
-              refresh ? "animate-spin" : ""
-            }`}
-            onClick={() => setRefresh(true)}
-          >
-            <RefreshCw className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
 
-      <div className="flex flex-row justify-between mb-6">
-        <DatePickerWithRange date={date} setDate={setDate} />
-        <Button>
+
+  return (
+    <div className="py-4 sm:py-6 px-4 sm:px-10 w-full">
+     <div className="flex flex-col items-center justify-center w-full mb-6 gap-4">
+  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+    <h1 className="font-bold text-xl sm:text-2xl flex items-center mb-2 sm:mb-0">Owner&apos;s DashBoard</h1>
+    {selectedCompany && (
+      <div className="flex items-center">
+        {selectedCompany.logo && (
+          <Image
+            width={102}
+            height={102}
+            src={selectedCompany.logo.startsWith("data:image") ? selectedCompany.logo : "/placeholder.svg"}
+            alt={selectedCompany.name}
+            className="w-16 h-6 sm:w-20 sm:h-8 rounded-full mr-2"
+            unoptimized
+          />
+        )}
+        <span className="text-base sm:text-lg font-semibold">{selectedCompany.name}</span>
+      </div>
+    )}
+  </div>
+
+  <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
+   
+    <Button
+      variant="ghost"
+      className={`rounded-full p-2 sm:p-3 items-center ${refresh ? "animate-spin" : ""}`}
+      onClick={() => setRefresh(true)}
+    >
+      <RefreshCw className="w-4 h-4" />
+    </Button>
+  </div>
+</div>
+
+
+      <div className="flex flex-col sm:flex-row justify-between mb-6 gap-4">
+        <div className="w-full sm:w-auto">
+          <DatePickerWithRange date={date} setDate={setDate} />
+        </div>
+        <Button className="w-full sm:w-auto">
           <Download className="w-4 h-4 mr-2" /> Download
         </Button>
       </div>
 
-      <div className="mt-10 pb-2.5 flex flex-row w-full gap-5 overflow-auto">
+      <div className="mt-6 sm:mt-10 pb-2.5 flex flex-row w-full gap-3 sm:gap-5 overflow-x-auto">
         {StatisticHeaders.map((header, i) => (
           <Card
             key={i}
-            className={`w-48 h-28 ${
+            className={`min-w-[120px] sm:min-w-[160px] flex-1 sm:w-48 h-24 sm:h-28 ${
               header.name === selectedHeader.name
                 ? "bg-accent text-accent-foreground"
                 : "hover:bg-accent hover:text-accent-foreground"
             }`}
             onClick={() => setSelectedHeader(header)}
           >
-            <CardHeader>
-              <CardTitle className="flex flex-row">
+            <CardHeader className="p-3 sm:p-6">
+              <CardTitle className="flex flex-row text-sm sm:text-base">
                 <span>{header.name}</span>
                 <span className="ml-auto">{header.icon}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
               {i < headerData.length ? (
-                <p>{headerData[i]?.toString() || "0"}</p>
+                <p className="text-base sm:text-lg">{headerData[i]?.toString() || "0"}</p>
               ) : (
                 <Skeleton className="w-full h-[20px] rounded-full" />
               )}
@@ -305,5 +291,5 @@ export default function Statistics() {
         />
       </div>
     </div>
-  );
+  )
 }
