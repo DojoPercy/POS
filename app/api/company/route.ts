@@ -21,9 +21,13 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const companyId = searchParams.get('companyId');
 
-    const cacheKey = companyId ? `company-${companyId}` : `companies-${decodedToken.userId}`
-    const cachedData = await redis.get(cacheKey)
-
+  
+const cacheKey = `company:${companyId}`;
+const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      console.log("cachedData Company")
+      return NextResponse.json(JSON.parse(cachedData), { status: 200 })
+    }
     // if (cachedData) {
     //   console.log("cachedData Company", cachedData)
     //   return NextResponse.json(JSON.parse(cachedData), { status: 200 })
@@ -38,8 +42,8 @@ export async function GET(req: NextRequest) {
       if (!company) {
         return NextResponse.json({ message: "Company not found" }, { status: 404 })
       }
-      await redis.set(cacheKey, JSON.stringify(company), "EX" , 600);
-
+    
+      await redis.set(cacheKey, JSON.stringify(company), 'EX', 60 * 60); 
       return NextResponse.json(company, { status: 200 })
     }
     const companies = await prisma.company.findMany({
@@ -47,7 +51,9 @@ export async function GET(req: NextRequest) {
         ownerId: decodedToken.userId,
       },
     })
-    await redis.set(cacheKey, JSON.stringify(companies), "EX", 600);
+
+    
+
 
     return NextResponse.json(companies, { status: 200 })
   } catch (error) {

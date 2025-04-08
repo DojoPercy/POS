@@ -51,7 +51,7 @@ export async function completeBusiness(formData: any) {
                 role: "manager",
                 phone: "",
                 branchId: null,
-                status: "pending", // Pending until branch is assigned
+                status: "pending",
               };
 
               const managerResponse = await axios.post("/api/users", managerData);
@@ -96,7 +96,7 @@ export async function completeBusiness(formData: any) {
                     `,
                   });
 
-                  console.log(`Branch "${branch.name}" and Manager account created successfully.`);
+                  console.log(`Branch "${randomPassword}" and Manager account created successfully.`);
                 }
               }
             } catch (error) {

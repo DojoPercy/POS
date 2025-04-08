@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { sendOrderUpdate } from '@/lib/pusher';
 import { NextRequest, NextResponse } from 'next/server';
+import redis from '@/lib/redis/redis';
 
 // GET order by ID
 export async function GET(req: any, { params }: any) {
@@ -45,11 +46,11 @@ export async function PUT(req: NextRequest, { params }: any) {
   const body = await req.json();
 
   try {
-     
+    // Separate existing orderLines (those with an 'id') from new ones (those without 'id')
     const existingOrderLines = body.orderLines?.filter((line: any) => line.id);
     const newOrderLines = body.orderLines?.filter((line: any) => !line.id);
 
-    
+    // Update the order using Prisma
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
@@ -70,7 +71,7 @@ export async function PUT(req: NextRequest, { params }: any) {
             },
           })),
 
-          
+          // Create new orderLines
           create: newOrderLines?.map((line: any) => ({
             menuItemId: line.menuItemId,
             quantity: line.quantity,
@@ -80,11 +81,31 @@ export async function PUT(req: NextRequest, { params }: any) {
         },
       },
       include: {
-        orderLines: true,
-        payment: true,
+        orderLines: true, // Include orderLines in the response
+        payment: true,   
       },
     });
-   await sendOrderUpdate(updatedOrder);
+
+    
+    const cacheKeys = [
+      body.branchId ? `orders-${body.branchId}` : null,
+      body.companyId ? `orders-${body.companyId}` : null,
+      body.waiterId ? `orders-${body.waiterId}` : null,
+    ].filter(Boolean);
+
+    
+    await sendOrderUpdate(updatedOrder);
+
+   
+    console.log(`Deleting cache for branchId: ${body.branchId}, companyId: ${body.companyId}, waiterId: ${body.waiterId}`);
+    console.log("Cache keys to delete:", cacheKeys);
+
+    for (let key of cacheKeys) {
+      console.log("Deleting cache key:", key);
+      await redis.del(key as string);
+    }
+
+    // Return the updated order as the response
     return NextResponse.json(updatedOrder, { status: 200 });
   } catch (error: any) {
     console.error("Update Order Error:", error);

@@ -200,15 +200,15 @@ export default function Statistics() {
             <div className="flex items-center">
               {selectedCompany.logo && (
                 <Image
-                  width={32}
-                  height={32}
+                  width={102}
+                  height={102}
                   src={
                     selectedCompany.logo.startsWith("data:image")
                       ? selectedCompany.logo
                       : "/placeholder.svg"
                   }
                   alt={selectedCompany.name}
-                  className="w-8 h-8 rounded-full mr-2"
+                  className=" w-20 h-8 rounded-full mr-2"
                   unoptimized
                 />
               )}

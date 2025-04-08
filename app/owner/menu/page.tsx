@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { RefreshCw, Download, Plus, Link } from "lucide-react";
+import { RefreshCw, Download, Plus, Link, Loader2 } from "lucide-react";
 
 import { getMenuItems } from "@/lib/menu";
 
@@ -23,7 +23,7 @@ export default function MenuItems() {
   const [data, setData] = useState<MenuItem[]>([]);
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  const {menuItems} = useSelector((state: RootState) => state.menu);
+  const {menuItems, isLoading} = useSelector((state: RootState) => state.menu);
   useEffect(() => {
     dispatch(fetchUserFromToken());
   }, [dispatch]);
@@ -73,7 +73,19 @@ export default function MenuItems() {
         </div>
       </div>
       <div className="mx-auto mt-10">
-        <DataTable columns={columns} data={menuItems} />
+      {isLoading ? (
+          <div className="w-full flex flex-col items-center justify-center py-12 border rounded-md bg-muted/10">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">Loading menu items...</p>
+          </div>
+        ) : menuItems.length === 0 ? (
+          <div className="w-full flex flex-col items-center justify-center py-12 border rounded-md">
+            <p className="text-muted-foreground mb-4">No menu items found Yet</p>
+           
+          </div>
+        ) : (
+          <DataTable columns={columns} data={menuItems} />
+        )}
       </div>
     </div>
   );

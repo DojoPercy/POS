@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
 
 
     const otp = generateOTP();
+    console.log("Generated OTP:", otp);
     await redis.set(`otp:${email}`, otp, "EX", 900); 
 
   

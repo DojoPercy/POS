@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Trash2, Loader2, EyeOff, Eye, Plus, RefreshCw } from "lucide-react"
+import { Trash2, Loader2, EyeOff, Eye, Plus, RefreshCw, X } from "lucide-react"
 import Link from "next/link"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchOrders, updateOrderLocally } from "@/redux/orderSlice"
@@ -14,6 +14,7 @@ import type { OrderType } from "@/lib/types/types"
 import { OrderStatus } from "@/lib/enums/enums"
 import Pusher from "pusher-js"
 import { motion, AnimatePresence } from "framer-motion"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface DecodedToken {
   role: string
@@ -108,12 +109,13 @@ const OrderItem = ({
   )
 }
 
-export function OrderList() {
+export function OrderList({ onClose }: { onClose?: () => void } = {}) {
   const dispatch = useDispatch<AppDispatch>()
   const { orders, loading } = useSelector((state: RootState) => state.orders)
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null)
   const [showCompleted, setShowCompleted] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -155,7 +157,9 @@ export function OrderList() {
 
   const handleOrderClick = (orderId: string) => {
     setSelectedOrder(orderId)
-    console.log(`Navigating to order ${orderId}`)
+    if (isMobile && onClose) {
+      onClose()
+    }
   }
 
   const handleDeleteOrder = (orderId: string) => {
@@ -182,7 +186,9 @@ export function OrderList() {
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg shadow-sm w-80 overflow-hidden bg-white">
+    <div
+      className={`border border-gray-200 rounded-lg shadow-sm ${isMobile ? "w-full" : "w-80"} overflow-hidden bg-white h-full flex flex-col`}
+    >
       <div className="p-4 text-xl font-semibold border-b border-gray-200 flex justify-between items-center bg-white sticky top-0 z-10">
         <span className="text-gray-900">Orders</span>
         <div className="flex space-x-2">
@@ -200,10 +206,16 @@ export function OrderList() {
             {showCompleted ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             <span className="sr-only">{showCompleted ? "Hide completed" : "Show completed"}</span>
           </Button>
+          {isMobile && onClose && (
+            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full h-8 w-8">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          )}
         </div>
       </div>
 
-      <ScrollArea className="h-[calc(90vh-5rem)]">
+      <ScrollArea className={`${isMobile ? "h-[calc(100vh-10rem)]" : "h-[calc(90vh-5rem)]"} flex-1`}>
         {loading ? (
           <div className="flex justify-center items-center h-40">
             <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -251,4 +263,3 @@ export function OrderList() {
     </div>
   )
 }
-

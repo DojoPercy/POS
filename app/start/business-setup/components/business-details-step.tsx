@@ -146,6 +146,8 @@ export function BusinessDetailsStep({ formData, updateFormData, nextStep, prevSt
               {logoPreview ? (
                 <Image
                   src={logoPreview || "/placeholder.svg"}
+                  width={96}
+                  height={96}
                   alt="Logo preview"
                   className="max-w-full max-h-full object-contain rounded-lg"
                 />

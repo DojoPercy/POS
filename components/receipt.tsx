@@ -1,15 +1,12 @@
+import { OrderLine } from "@/lib/types/types";
 import React from "react";
+import { DialogFooter } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Printer } from "lucide-react";
 
 interface Company {
   name: string;
   logo?: string;
-}
-
-interface OrderLine {
-  name: string;
-  quantity: number;
-  price: number;
-  totalPrice: number;
 }
 
 interface ReceiptProps {
@@ -31,151 +28,99 @@ export const RestaurantReceipt: React.FC<ReceiptProps> = ({ order, company }) =>
 
   const formatCurrency = (value: number) => `$${value.toFixed(2)}`;
 
+  const formatReceiptText = () => {
+    let receiptText = `${company.name.toUpperCase()}\n`;
+    receiptText += "---------------------------------\n";
+    receiptText += `${new Date().toLocaleString()}\n\n`;
+
+    receiptText += `Item           Qty  Price  Total\n`;
+    receiptText += `---------------------------------\n`;
+
+    order.orderLines.forEach((line) => {
+      const item = line.name.padEnd(12, " ").substring(0, 11);
+      const qty = line.quantity.toString().padStart(4, " ");
+      const price = formatCurrency(line.price).padStart(8, " ");
+      const total = formatCurrency(line.totalPrice).padStart(8, " ");
+      receiptText += `${item}  ${qty}  ${price}  ${total}\n`;
+    });
+
+    receiptText += `---------------------------------\n`;
+    receiptText += `Subtotal:      ${formatCurrency(order.totalPrice)}\n`;
+    receiptText += `Discount:     -${formatCurrency(order.discount)}\n`;
+    receiptText += `Rounding:      ${formatCurrency(order.rounding)}\n`;
+    receiptText += `Total:         ${formatCurrency(order.finalPrice)}\n`;
+    receiptText += `---------------------------------\n`;
+
+    receiptText += "  THANK YOU FOR DINING WITH US!  \n";
+    receiptText += "        Please come again!       \n";
+    receiptText += "---------------------------------\n";
+
+    return receiptText;
+  };
+
+  const printReceipt = () => {
+    const receiptContent = formatReceiptText();
+    const printWindow = window.open("", "_blank", "width=400,height=600");
+
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Receipt</title>
+            <style>
+              @page { margin: 0; } /* Removes browser print headers */
+              body { font-family: 'Courier New', monospace; font-size: 14px; text-align: center; }
+              pre { margin: 0; white-space: pre-wrap; }
+            </style>
+          </head>
+          <body>
+            ${company.logo ? `<img src="${company.logo}" alt="${company.name} Logo" style="max-width: 100px; max-height: 100px; display: block; margin: auto; margin-bottom: 10px;" />` : ''}
+            <pre>${receiptContent}</pre>
+            <script>
+              window.onload = function() {
+                window.print();
+                window.onafterprint = function() { window.close(); };
+              };
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+  };
+
   return (
-    <div>
-      {/* Inline CSS inside a <style> tag */}
-      <style>
-        {`
-          .receipt-container {
-            font-family: "Courier New", monospace;
-            width: 300px;
-            padding: 10px;
-            margin: auto;
-            text-align: center;
-          }
-
-          .header h1 {
-            font-size: 16px;
-            margin: 0 0 5px 0;
-          }
-
-          .logo {
-            width: 70px;
-            height: 70px;
-            object-fit: contain;
-          }
-
-          .no-logo {
-            width: 70px;
-            height: 70px;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-
-          .items {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 10px;
-          }
-
-          .items th, .items td {
-            border-bottom: 1px solid #ddd;
-            text-align: right;
-            padding: 5px;
-          }
-
-          .items th:first-child, .items td:first-child {
-            text-align: left;
-          }
-
-          .totals, .payment-info {
-            width: 100%;
-            margin-bottom: 10px;
-          }
-
-          .totals div, .payment-info div {
-            display: flex;
-            justify-content: space-between;
-          }
-
-          .final-total {
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 5px 0;
-            font-weight: bold;
-            margin-bottom: 10px;
-          }
-
-          .footer {
-            font-size: 9px;
-          }
-
-          @media print {
-            body {
-              margin: 0;
-              padding: 0;
-            }
-            .receipt-container {
-              width: 100%;
-            }
-            .final-total {
-              font-size: 12px;
-            }
-          }
-        `}
-      </style>
-
-      <div className="receipt-container">
-        {/* Header */}
-        <div className="header">
-          <h1>{company.name}</h1>
-          {company.logo ? (
-            <img src={company.logo} alt={`${company.name} Logo`} className="logo" />
-          ) : (
-            <div className="no-logo">No Logo</div>
-          )}
-          <p>{new Date().toLocaleString()}</p>
-        </div>
-
-        {/* Order Table */}
-        <table className="items">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Qty</th>
-              <th>Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.orderLines.map((line, index) => (
-              <tr key={index}>
-                <td>{line.name}</td>
-                <td>{line.quantity}</td>
-                <td>{formatCurrency(line.price)}</td>
-                <td>{formatCurrency(line.totalPrice)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Totals */}
-        <div className="totals">
-          <div><span>Subtotal:</span><span>{formatCurrency(order.totalPrice)}</span></div>
-          <div><span>Discount:</span><span>-{formatCurrency(order.discount)}</span></div>
-          <div><span>Rounding:</span><span>{formatCurrency(order.rounding)}</span></div>
-        </div>
-
-        {/* Final Total */}
-        <div className="final-total">
-          <div><span>Total:</span><span>{formatCurrency(order.finalPrice)}</span></div>
-        </div>
-
-        {/* Payment Info */}
-        <div className="payment-info">
-          <div><span>Payment Type:</span><span>{order.paymentType}</span></div>
-          <div><span>Amount Received:</span><span>{formatCurrency(order.receivedAmount)}</span></div>
-          <div><span>Change:</span><span>{formatCurrency(order.balance)}</span></div>
-        </div>
-
-        {/* Footer */}
-        <div className="footer">
-          <p>Thank you for dining with us!</p>
-          <p>Please come again.</p>
-        </div>
-      </div>
+    <div style={{ textAlign: "center", fontFamily: "Courier New, monospace" }}>
+      {company.logo && (
+        <img
+          src={company.logo}
+          alt={`${company.name} Logo`}
+          onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
+          style={{
+            maxWidth: "100px",
+            maxHeight: "100px",
+            display: "block",
+            margin: "auto",
+            marginBottom: "10px",
+          }}
+        />
+      )}
+      <pre style={{ whiteSpace: "pre-wrap", fontSize: "14px" }}>{formatReceiptText()}</pre>
+      <button onClick={printReceipt} style={{ marginTop: "10px", padding: "5px 10px", cursor: "pointer" }}>
+        Print Receipt
+      </button>
+      <DialogFooter className="flex flex-col sm:flex-row gap-2">
+        <Button
+          variant="outline"
+          className="w-full sm:w-auto flex items-center justify-center"
+          onClick={printReceipt}
+        >
+          <Printer className="mr-2 h-4 w-4" /> Print Receipt
+        </Button>
+        <Button className="w-full sm:w-auto bg-primary" onClick={() => {}}>
+          Done
+        </Button>
+      </DialogFooter>
     </div>
   );
 };

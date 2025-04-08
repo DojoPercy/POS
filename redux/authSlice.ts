@@ -26,7 +26,7 @@ export const fetchUserFromToken = createAsyncThunk(
             const token = localStorage.getItem("token");
             if (!token) return null; // No token, return null
 
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+           
 
             const decoded: DecodedToken = fetchUsers(); // Decode JWT
             return decoded;

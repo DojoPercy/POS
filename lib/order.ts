@@ -128,7 +128,7 @@ export async function createOrder(order: OrderType) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(order),
     });
-  
+      console.log("res", res);
     if (!res.ok) {
       throw new Error('Failed to create order');
     }

@@ -49,11 +49,12 @@ export async function GET(req: NextRequest) {
     const id = searchParams.get('id');
     const companyId = searchParams.get('companyId') || "";
 
-    const cacheKey = id ? `menu-${id}` : companyId ? `menus-${companyId}` : 'menu';
-    const cacheData = await redis.get(cacheKey);
-    // if (cacheData) {
-    //   return NextResponse.json(JSON.parse(cacheData), { status: 200 });
-    // }
+    const cachedKey = companyId ? `companyMenu-${companyId}` : `menu-${id}`;
+    const cachedData = await redis.get(cachedKey);
+    if (cachedData) {
+     
+      return NextResponse.json(JSON.parse(cachedData), { status: 200 })
+    }
     if (id) {
       const menu = await prisma.menu.findUnique({
         where: { id },
@@ -62,21 +63,22 @@ export async function GET(req: NextRequest) {
       if (!menu) {
         return NextResponse.json({ error: 'Menu item not found' }, { status: 404 });
       }
-      await redis.set(cacheKey, JSON.stringify(menu), 'EX', 600);
+      await redis.set(cachedKey, JSON.stringify(menu), 'EX', 60 * 60);
+
       return NextResponse.json(menu, { status: 200 });
     } else if (companyId) {
       const menus = await prisma.menu.findMany({
         where: { companyId },
         include: { price: true, category: true },
       });
-      await redis.set(cacheKey, JSON.stringify(menus), 'EX', 600);
+      await redis.set(cachedKey, JSON.stringify(menus), 'EX', 60 * 60);
       return NextResponse.json(menus, { status: 200 });
     }
 
     const menuItems = await prisma.menu.findMany({
       include: { price: true, category: true },
     });
-    await redis.set(cacheKey, JSON.stringify(menuItems), 'EX', 600);
+    await redis.set(cachedKey, JSON.stringify(menuItems), 'EX', 60 * 60);
     return NextResponse.json(menuItems, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

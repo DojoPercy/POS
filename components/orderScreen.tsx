@@ -56,16 +56,20 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
   const existingOrder = useSelector((state: RootState) => (orderId ? selectOrderById(state, orderId) : null))
 
   useEffect(() => {
-    dispatch(fetchUserFromToken())
-    dispatch(getCompanyDetails(user?.companyId ?? ""))
-    const fetchOrder = async () => {
-      const order: OrderType = await getOrderById(orderId!)
-      const fetchCart = order.orderLines!.map((orderLine) => {
-        // Implementation will be handled in the next useEffect
-      })
+    if (user?.companyId) {
+      setIsLoading(true);
+     
+      dispatch(fetchUserFromToken());
+      dispatch(getCompanyDetails(user.companyId));
+      
+      
+      dispatch(getMenuItemsPerCompany(user.companyId));
+      dispatch(fetchMenuCategoriesOfCompany(user.companyId));
+
+     
+      setIsLoading(false);
     }
-    console.log("orderId", orderId)
-  }, [dispatch, orderId, user?.companyId])
+  }, [dispatch, user?.companyId]);
 
   useEffect(() => {
     if (orderId && existingOrder && menuItems.length > 0) {
@@ -92,14 +96,7 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
     }
   }, [orderId, existingOrder, menuItems])
 
-  useEffect(() => {
-    setIsLoading(true)
-    if (user?.companyId) {
-      dispatch(getMenuItemsPerCompany(user.companyId))
-      dispatch(fetchMenuCategoriesOfCompany(user.companyId))
-      setIsLoading(false)
-    }
-  }, [dispatch, user?.companyId])
+ 
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategory) {

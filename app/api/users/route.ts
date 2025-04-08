@@ -34,12 +34,7 @@ export async function GET(req: NextRequest) {
               const id = searchParams.get('id');
               const companyId = searchParams.get('companyId');
 
-              const cacheData = companyId ? `company-${companyId}` : `user-${id}`;
-              const cachedData = await redis.get(cacheData);
-              if (cachedData) {
-                console.log('cachedData User:', cachedData);
-                return NextResponse.json(JSON.parse(cachedData), { status: 200 });
-              }
+            
               if (id) {
                 const branch = await prisma.user.findUnique({
                   where: { id },
@@ -47,14 +42,14 @@ export async function GET(req: NextRequest) {
                 if (!branch) {
                   return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
                 }
-                await redis.set(cacheData, JSON.stringify(branch), 'EX', 600);
+                
                 return NextResponse.json(branch, { status: 200 });
               }else if(companyId){
                 const branches = await prisma.user.findMany({
                   where: { companyId },
                 });
                 console.log('branches:', branches);
-                await redis.set(cacheData, JSON.stringify(branches), 'EX', 600);
+             
                 return NextResponse.json(branches, { status: 200 });
               }
 

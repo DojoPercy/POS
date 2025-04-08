@@ -41,7 +41,7 @@ export const fetchBranchOrders = createAsyncThunk<OrderType[], string>(
 export const placeOrder = createAsyncThunk<OrderType, OrderType>(
   "orders/place",
   async (order) => {
-    
+    console.log("Creating order:", order);
     const newOrder = await createOrder(order);
     return newOrder;
   });

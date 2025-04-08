@@ -43,7 +43,7 @@ export async function getMenuItems(companyId: String) {
         },
         cache: 'no-store',
     }).then((res) => res.json());
-
+console.log(response)
     return response;
 }
 

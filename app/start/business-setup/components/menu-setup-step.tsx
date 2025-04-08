@@ -405,6 +405,8 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
                         <ImageDiv
                           src={item.imageBase64 || "/placeholder.svg"}
                           alt={item.name}
+                          width={96}
+                          height={96}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -487,11 +489,16 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
                           {activeMenuItemData.imageBase64 ? (
                             <ImageDiv
                               src={activeMenuItemData.imageBase64 || "/placeholder.svg"}
+                              width={96}
+                              height={96}
                               alt="Item preview"
                               className="max-w-full max-h-full object-contain"
                             />
                           ) : (
-                            <Image className="h-8 w-8 text-gray-400" />
+                            <Image className="h-8 w-8 text-gray-400" 
+                            
+                          
+                            />
                           )}
                         </div>
                         <div className="flex-1">

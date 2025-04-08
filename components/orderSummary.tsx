@@ -160,6 +160,7 @@ export default function OrderSummary({
       const newOrder: OrderType = {
         waiterId: user?.userId,
         branchId: user?.branchId,
+        companyId: user?.companyId,
         orderLines: cart.map(
           (line) =>
             ({
@@ -212,6 +213,9 @@ export default function OrderSummary({
 
       const checkOutOrder: OrderType = {
         id: orderId,
+        waiterId: user?.userId,
+        branchId: user?.branchId,
+        companyId: user?.companyId,
         orderLines: cart.map(
           (line) =>
             ({

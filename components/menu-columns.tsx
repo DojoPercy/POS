@@ -65,6 +65,8 @@ export const columns: ColumnDef<MenuItem>[] = [
           <Image
             src={imageBase64}
             alt="Menu Item"
+            width={50}
+            height={50}
             className="h-12 w-12   object-cover rounded-md"
           />
         </div>

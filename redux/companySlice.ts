@@ -8,7 +8,7 @@ export const getCompanyDetails = createAsyncThunk<Company, string>(
   "company/getCompany",
   async (companyId: string, { rejectWithValue }) => {
     try {
-        console.log(companyId);
+       
       return await getCompany(companyId);
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch company details");
