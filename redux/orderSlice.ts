@@ -44,7 +44,7 @@ export const placeOrder = createAsyncThunk<OrderType, OrderType>(
   async (order, { dispatch }) => {
     try {
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), 1000)
+        setTimeout(() => reject(new Error("Request timed out")), 90000)
       );
 
       const newOrder = await Promise.race([
