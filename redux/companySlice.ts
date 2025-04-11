@@ -1,4 +1,5 @@
 import { getCompany } from "@/lib/company";
+import { getCompanyFromIndexedDB, saveCompanyToIndexedDB } from "@/lib/localDB/indexeddb";
 import { Company } from "@/lib/types/types";
 import { createAsyncThunk, createSlice, PayloadAction, RootState } from "@reduxjs/toolkit";
 
@@ -8,8 +9,17 @@ export const getCompanyDetails = createAsyncThunk<Company, string>(
   "company/getCompany",
   async (companyId: string, { rejectWithValue }) => {
     try {
-       
-      return await getCompany(companyId);
+      const cachedCompany = await getCompanyFromIndexedDB();
+
+      console.log("Cached company from IndexedDB:", cachedCompany);
+      if (cachedCompany && cachedCompany.id === companyId) {
+        console.log("Returning company details from cache (IndexedDB)");
+        return cachedCompany;
+      }
+    
+      const companyDetails =  await getCompany(companyId);
+      await saveCompanyToIndexedDB(companyDetails);
+      return companyDetails;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch company details");
     }

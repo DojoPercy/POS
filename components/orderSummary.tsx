@@ -330,7 +330,7 @@ export default function OrderSummary({
 
   return (
     <>
-      <Card className="h-full flex flex-col shadow-md border-gray-200">
+      <Card className="h-[85%] flex flex-col shadow-md border-gray-200">
         <CardHeader className="flex flex-row items-center justify-between pb-2 border-b bg-gray-50">
           <CardTitle className="text-xl flex items-center gap-2 text-gray-800">
             <ShoppingCart className="h-5 w-5" />

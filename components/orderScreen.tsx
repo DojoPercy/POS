@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/use-toast"
 import MenuItemCard from "./menu_item_card"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
-import type { PriceType, MenuCategory, OrderType } from "../lib/types/types"
+import type { PriceType, MenuCategory } from "../lib/types/types"
 import type { MenuItem } from "@/lib/types/types"
 import { getMenuItemsPerCompany } from "@/redux/companyMenuSlice"
 import { fetchUserFromToken, selectUser } from "@/redux/authSlice"
@@ -19,7 +19,6 @@ import { useSelector, useDispatch } from "react-redux"
 import type { RootState } from "@reduxjs/toolkit"
 import { fetchMenuCategoriesOfCompany } from "@/redux/CompanyCategoryMenuSlice"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { getOrderById } from "@/lib/order"
 import { getCompanyDetails } from "@/redux/companySlice"
 import { selectOrderById } from "@/redux/orderSlice"
 import OrderSummary from "./orderSummary"
@@ -41,7 +40,7 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
   const [isEditingExistingOrder, setIsEditingExistingOrder] = useState(false)
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingData, setIsLoadingData] = useState(true)
   const [orderNumber, setOrderNumber] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -51,52 +50,57 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
   const user = useSelector(selectUser)
 
   const { categories } = useSelector((state: any) => state.menuCategories)
-  const { menuItems } = useSelector((state: RootState) => state.menu)
+  const { menuItems, isLoading } = useSelector((state: RootState) => state.menu)
   const { company } = useSelector((state: RootState) => state.company)
   const existingOrder = useSelector((state: RootState) => (orderId ? selectOrderById(state, orderId) : null))
 
   useEffect(() => {
     if (user?.companyId) {
-      setIsLoading(true);
-     
-      dispatch(fetchUserFromToken());
-      dispatch(getCompanyDetails(user.companyId));
-      
-      
-      dispatch(getMenuItemsPerCompany(user.companyId));
-      dispatch(fetchMenuCategoriesOfCompany(user.companyId));
+      setIsLoadingData(true)
 
-     
-      setIsLoading(false);
+      Promise.all([
+        dispatch(fetchUserFromToken()),
+        dispatch(getCompanyDetails(user.companyId)),
+        dispatch(getMenuItemsPerCompany(user.companyId)),
+        dispatch(fetchMenuCategoriesOfCompany(user.companyId)),
+      ]).finally(() => {
+        setIsLoadingData(false)
+      })
     }
-  }, [dispatch, user?.companyId]);
+  }, [dispatch, user?.companyId])
 
   useEffect(() => {
-    if (orderId && existingOrder && menuItems.length > 0) {
+    if (orderId && existingOrder && menuItems && menuItems.length > 0) {
       setIsEditingExistingOrder(true)
-      setOrderNumber(existingOrder.orderNumber)
+      setOrderNumber(existingOrder.orderNumber || "")
       const orderCart: CartItem[] = []
 
-      for (const line of existingOrder.orderLines) {
+      for (const line of existingOrder.orderLines || []) {
         const menuItem = menuItems.find((item: MenuItem) => item.id === line.menuItemId)
         if (menuItem) {
-          const priceOption = menuItem.price.find((p: PriceType) => p.price === line.price) || menuItem.prices[0]
+          const priceOption =
+            menuItem.price && menuItem.price.length > 0
+              ? menuItem.price.find((p: PriceType) => p.price === line.price)
+              : null
 
-          orderCart.push({
-            menuItem,
-            selectedPrice: priceOption,
-            quantity: line.quantity,
-            notes: line.notes || "",
-          })
+          const selectedPrice =
+            priceOption || (menuItem.prices && menuItem.prices.length > 0 ? menuItem.prices[0] : null)
+
+          if (selectedPrice) {
+            orderCart.push({
+              menuItem,
+              selectedPrice,
+              quantity: line.quantity || 1,
+              notes: line.notes || "",
+            })
+          }
         }
       }
 
       setCart(orderCart)
-      setIsLoading(false)
+      setIsLoadingData(false)
     }
   }, [orderId, existingOrder, menuItems])
-
- 
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategory) {
@@ -148,13 +152,16 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
     })
   }
 
-  const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0)
+  const totalCartItems = cart ? cart.reduce((total, item) => total + item.quantity, 0) : 0
 
-  const filteredMenuItems = menuItems.filter(
-    (item: MenuItem) =>
-      item.categoryId === activeCategory &&
-      (searchQuery === "" || item.name.toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+  const filteredMenuItems =
+    menuItems && menuItems.length > 0
+      ? menuItems.filter(
+          (item: MenuItem) =>
+            item.categoryId === activeCategory &&
+            (searchQuery === "" || item.name.toLowerCase().includes(searchQuery.toLowerCase())),
+        )
+      : []
 
   const CategoryList = () => {
     const getCategoryIcon = (categoryName: string) => {
@@ -170,28 +177,32 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
         <h2 className="text-lg font-semibold mb-4 px-2 text-gray-800">Categories</h2>
         <ScrollArea className="h-[calc(90vh-200px)]">
           <div className="space-y-1 p-2">
-            {categories.map((category: MenuCategory) => (
-              <motion.div key={category.id} whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
-                <Button
-                  variant={activeCategory === category.id ? "default" : "ghost"}
-                  className={`w-full justify-between text-left h-auto py-3 px-4 rounded-lg ${
-                    activeCategory === category.id
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-gray-700 hover:text-gray-900"
-                  }`}
-                  onClick={() => {
-                    setActiveCategory(category.id)
-                    setIsMobileMenuOpen(false)
-                  }}
-                >
-                  <span className="flex items-center">
-                    {getCategoryIcon(category.name)}
-                    {category.name}
-                  </span>
-                  {activeCategory === category.id && <ChevronRight className="h-4 w-4" />}
-                </Button>
-              </motion.div>
-            ))}
+            {categories && categories.length > 0 ? (
+              categories.map((category: MenuCategory) => (
+                <motion.div key={category.id} whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+                  <Button
+                    variant={activeCategory === category.id ? "default" : "ghost"}
+                    className={`w-full justify-between text-left h-auto py-3 px-4 rounded-lg ${
+                      activeCategory === category.id
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-gray-700 hover:text-gray-900"
+                    }`}
+                    onClick={() => {
+                      setActiveCategory(category.id)
+                      setIsMobileMenuOpen(false)
+                    }}
+                  >
+                    <span className="flex items-center">
+                      {getCategoryIcon(category.name)}
+                      {category.name}
+                    </span>
+                    {activeCategory === category.id && <ChevronRight className="h-4 w-4" />}
+                  </Button>
+                </motion.div>
+              ))
+            ) : (
+              <div className="text-gray-500 p-2">No categories available</div>
+            )}
           </div>
         </ScrollArea>
       </div>
@@ -217,7 +228,9 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
         </Sheet>
 
         <h2 className="text-xl font-semibold text-gray-800">
-          {categories.find((c: MenuCategory) => c.id === activeCategory)?.name || "Menu"}
+          {categories && categories.length > 0 && activeCategory
+            ? categories.find((c: MenuCategory) => c.id === activeCategory)?.name || "Menu"
+            : "Menu"}
         </h2>
 
         <Button variant="ghost" size="icon" onClick={() => setIsCartOpen(!isCartOpen)} className="relative">
@@ -240,7 +253,9 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
         <div className=" top-0 lg:top-24 z-10 bg-gray-50 pt-4 pb-2">
           <div className="hidden lg:flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
-              {categories.find((c: MenuCategory) => c.id === activeCategory)?.name || "Menu"}
+              {categories && categories.length > 0 && activeCategory
+                ? categories.find((c: MenuCategory) => c.id === activeCategory)?.name || "Menu"
+                : "Menu"}
             </h2>
 
             <div className="flex items-center gap-2">
@@ -296,7 +311,7 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <MenuItemCard key={item.id} item={item} onAddToCart={addToCart} currency={company.currency} />
+                    <MenuItemCard key={item.id} item={item} onAddToCart={addToCart} currency={company?.currency ?? "GHS"} />
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -332,4 +347,3 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
     </div>
   )
 }
-

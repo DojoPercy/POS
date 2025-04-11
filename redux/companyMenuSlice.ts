@@ -1,6 +1,8 @@
-import { createMenuItem, getMenuItems } from "@/lib/menu";
-import { MenuItem } from "@/lib/types/types";
+// redux/slices/menuSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { MenuItem } from "@/lib/types/types";
+import { getMenuItems } from "@/lib/menu";
+import {  getMenuItemsFromIndexedDB, saveMenuItemsToIndexedDB } from "@/lib/localDB/indexeddb";
 
 interface MenuState {
     menuItems: MenuItem[];
@@ -14,22 +16,25 @@ const initialState: MenuState = {
     error: null,
 };
 
-
 export const getMenuItemsPerCompany = createAsyncThunk<MenuItem[], string>(
     "menu/getMenuItemsPerCompany",
-    async (companyId) => {
-        return await getMenuItems(companyId);
+    async (companyId, { rejectWithValue }) => {
+        try {
+            const cachedMenuItems = await getMenuItemsFromIndexedDB();
+            if (cachedMenuItems.length > 0) {
+                console.log("Using cached menu items from IndexedDB");
+                return cachedMenuItems;
+            }
+
+            const fetchedMenuItems = await getMenuItems(companyId);
+            await saveMenuItemsToIndexedDB(fetchedMenuItems);
+
+            return fetchedMenuItems;
+        } catch (error: any) {
+            return rejectWithValue(error.message || "Failed to fetch menu items");
+        }
     }
 );
-
-
-export const addNewMenuItem = createAsyncThunk<MenuItem, MenuItem>(
-    "menu/addNewMenuItem",
-    async (menuItemData) => {
-        return await createMenuItem(menuItemData);
-    }
-);
-
 
 const companyMenuSlice = createSlice({
     name: "menu",
@@ -39,9 +44,8 @@ const companyMenuSlice = createSlice({
         builder
             .addCase(getMenuItemsPerCompany.fulfilled, (state, action: PayloadAction<MenuItem[]>) => {
                 state.menuItems = action.payload;
-            })
-            .addCase(addNewMenuItem.fulfilled, (state, action: PayloadAction<MenuItem>) => {
-                state.menuItems.push(action.payload);
+                state.isLoading = false;
+                state.error = null;
             })
             .addMatcher(
                 (action): action is { type: string } => action.type.endsWith("/pending"),
@@ -57,14 +61,13 @@ const companyMenuSlice = createSlice({
                 }
             )
             .addMatcher(
-                (action): action is { type: string; payload: string } => action.type.endsWith("/rejected"),
+                (action): action is { type: string; payload?: any } => action.type.endsWith("/rejected"),
                 (state, action) => {
                     state.isLoading = false;
-                    state.error = action.payload;
+                    state.error = typeof action.payload === "string" ? action.payload : "An error occurred";
                 }
             );
     },
 });
 
-// Export reducer
 export default companyMenuSlice.reducer;
