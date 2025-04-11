@@ -2,7 +2,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { MenuItem } from "@/lib/types/types";
 import { getMenuItems } from "@/lib/menu";
-import {  getMenuItemsFromIndexedDB, saveMenuItemsToIndexedDB } from "@/lib/localDB/indexeddb";
+import { getMenuItemsFromIndexedDB, saveMenuItemsToIndexedDB } from "@/lib/dexie/actions";
 
 interface MenuState {
     menuItems: MenuItem[];

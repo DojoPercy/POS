@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk, PayloadAction, RootState } from "@reduxj
 import { createOrder, getOrders, updateOrderById } from "../lib/order";
 import { OrderType } from "..//lib/types/types";
 import { OrderStatus } from "../lib/enums/enums";
+import { queueOrder } from "@/lib/dexie/actions";
 
 // 🏷️ Define the state type
 interface OrderState {
@@ -40,13 +41,32 @@ export const fetchBranchOrders = createAsyncThunk<OrderType[], string>(
 )
 export const placeOrder = createAsyncThunk<OrderType, OrderType>(
   "orders/place",
-  async (order) => {
-    console.log("Creating order:", order);
-    const newOrder = await createOrder(order);
-    return newOrder;
-  });
+  async (order, { dispatch }) => {
+    try {
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Request timed out")), 1000)
+      );
 
+      const newOrder = await Promise.race([
+        createOrder(order),
+        timeoutPromise,
+      ]);
 
+      return newOrder;
+    } catch (error) {
+      console.error("Network error or timeout:", error);
+
+     
+      await queueOrder(order);
+
+      
+      dispatch(addOrderLocally(order));
+
+    
+      throw new Error("Order saved to queue due to timeout or network error.");
+    }
+  }
+);
 
 
 export const updateOrder = createAsyncThunk<OrderType, OrderType>(

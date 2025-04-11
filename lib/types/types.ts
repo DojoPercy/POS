@@ -17,6 +17,7 @@ export interface DecodedToken {
   }
 
   export interface Company {
+    id?: string
     name: string
     logo: string
     orderProcessingMode: string

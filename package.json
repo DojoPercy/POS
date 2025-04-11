@@ -46,6 +46,7 @@
     "cmdk": "^1.0.0",
     "cookie": "^1.0.2",
     "date-fns": "^2.30.0",
+    "dexie": "^4.0.11",
     "encoding": "^0.1.13",
     "escpos": "^3.0.0-alpha.6",
     "escpos-usb": "^3.0.0-alpha.4",

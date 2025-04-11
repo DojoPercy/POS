@@ -1,5 +1,5 @@
 import { getCompany } from "@/lib/company";
-import { getCompanyFromIndexedDB, saveCompanyToIndexedDB } from "@/lib/localDB/indexeddb";
+import { getCompanyFromIndexedDB, saveCompanyToIndexedDB } from "@/lib/dexie/actions";
 import { Company } from "@/lib/types/types";
 import { createAsyncThunk, createSlice, PayloadAction, RootState } from "@reduxjs/toolkit";
 
@@ -9,7 +9,7 @@ export const getCompanyDetails = createAsyncThunk<Company, string>(
   "company/getCompany",
   async (companyId: string, { rejectWithValue }) => {
     try {
-      const cachedCompany = await getCompanyFromIndexedDB();
+      const cachedCompany = await getCompanyFromIndexedDB(companyId);
 
       console.log("Cached company from IndexedDB:", cachedCompany);
       if (cachedCompany && cachedCompany.id === companyId) {

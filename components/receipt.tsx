@@ -7,6 +7,7 @@ import { Printer } from "lucide-react";
 interface Company {
   name: string;
   logo?: string;
+  currency: string;
 }
 
 interface ReceiptProps {
@@ -26,9 +27,21 @@ interface ReceiptProps {
 export const RestaurantReceipt: React.FC<ReceiptProps> = ({ order, company }) => {
   if (!order) return <div>No order data available</div>;
 
-  const formatCurrency = (value: number) => `$${value.toFixed(2)}`;
+  const formatCurrency = (value: number) => `${company.currency}${value.toFixed(2)}`;
+  const isBase64Image = /^data:image\/[a-z]+;base64,/.test(company.logo || '');
+  const logoBase64 = company.logo
+  ? isBase64Image
+    ? company.logo
+    : `data:image/png;base64,${company.logo}`
+  : '';
+ 
+  const logoHTML = logoBase64
+  ? `<img id="receipt-logo" src="${logoBase64}" style="filter: grayscale(100%) contrast(200%); max-width: 100px; max-height: 100px; display: block; margin: auto; margin-bottom: 10px;" />`
+  : "";
+ 
 
   const formatReceiptText = () => {
+    {logoHTML}
     let receiptText = `${company.name.toUpperCase()}\n`;
     receiptText += "---------------------------------\n";
     receiptText += `${new Date().toLocaleString()}\n\n`;
@@ -57,37 +70,65 @@ export const RestaurantReceipt: React.FC<ReceiptProps> = ({ order, company }) =>
 
     return receiptText;
   };
-
   const printReceipt = () => {
     const receiptContent = formatReceiptText();
     const printWindow = window.open("", "_blank", "width=400,height=600");
-
+  
     if (printWindow) {
+      // Validate and format logo base64
+      const isBase64Image = /^data:image\/[a-z]+;base64,/.test(company.logo || '');
+      const logoBase64 = company.logo
+        ? isBase64Image
+          ? company.logo
+          : `data:image/png;base64,${company.logo}`
+        : '';
+  
+        const logoHTML = logoBase64
+        ? `<img id="receipt-logo" src="${logoBase64}" style="filter: grayscale(100%) contrast(200%); max-width: 100px; max-height: 100px; display: block; margin: auto; margin-bottom: 10px;" />`
+        : "";
+      
       printWindow.document.write(`
         <html>
           <head>
             <title>Receipt</title>
             <style>
-              @page { margin: 0; } /* Removes browser print headers */
+              @page { margin: 0; }
               body { font-family: 'Courier New', monospace; font-size: 14px; text-align: center; }
               pre { margin: 0; white-space: pre-wrap; }
             </style>
           </head>
           <body>
-            ${company.logo ? `<img src="${company.logo}" alt="${company.name} Logo" style="max-width: 100px; max-height: 100px; display: block; margin: auto; margin-bottom: 10px;" />` : ''}
+            ${logoHTML}
             <pre>${receiptContent}</pre>
             <script>
-              window.onload = function() {
-                window.print();
-                window.onafterprint = function() { window.close(); };
-              };
+              const logo = document.getElementById('receipt-logo');
+              function triggerPrint() {
+                setTimeout(() => {
+                  window.print();
+                  window.onafterprint = () => window.close();
+                }, 300);
+              }
+  
+              if (logo) {
+                if (logo.complete) {
+                  triggerPrint(); // Image already loaded
+                } else {
+                  logo.onload = triggerPrint;
+                  logo.onerror = triggerPrint; // fallback if image fails to load
+                }
+              } else {
+                triggerPrint(); // No logo
+              }
             </script>
           </body>
         </html>
       `);
+  
       printWindow.document.close();
     }
   };
+  
+  
 
   return (
     <div style={{ textAlign: "center", fontFamily: "Courier New, monospace" }}>

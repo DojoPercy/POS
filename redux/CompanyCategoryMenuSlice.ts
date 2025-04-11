@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { MenuCategory } from "@/lib/types/types";
-import { getMenuCategoriesFromIndexedDB, saveMenuCategoryToIndexedDB } from "@/lib/localDB/indexeddb";
+
 import { createMenuCategory, getMenuCategories } from "@/lib/menu";
 import { cp } from "fs";
+import { getMenuCategoriesFromIndexedDB, saveMenuCategoryToIndexedDB } from "@/lib/dexie/actions";
 
 export const fetchMenuCategoriesOfCompany = createAsyncThunk(
     "menu/fetchMenuCategoriesOfCompany",

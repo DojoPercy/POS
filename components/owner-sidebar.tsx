@@ -4,6 +4,10 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Menu, Building2, Users, Settings, ClipboardList, User, X } from 'lucide-react';
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserFromToken, selectUser } from "@/redux/authSlice";
+import { getCompanyDetails } from "@/redux/companySlice";
+import { RootState } from "@/redux";
 
 function SideBarIcon({
   icon,
@@ -39,20 +43,27 @@ function SideBarIcon({
 function SideBarOwner() {
   const [hasCompanies, setHasCompanies] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const dispatch = useDispatch()
+  const user = useSelector(selectUser)
+
+ 
+  const { company } = useSelector((state: RootState) => state.company)
+  
 
   useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const response = await fetch("/api/company");
-        const companies = await response.json();
-        setHasCompanies(companies.length > 0);
-      } catch (error) {
-        console.error("Error fetching companies:", error);
-      }
-    };
-
-    fetchCompanies();
-  }, []);
+    if (user?.companyId) {
+      
+      console.log("user companyId:", user.companyId)
+      Promise.all([
+        dispatch(fetchUserFromToken()),
+        dispatch(getCompanyDetails(user.companyId)),
+       
+      ]).finally(() => {
+        setHasCompanies(true);
+      })
+    }
+  }, [dispatch, user?.companyId])
+ 
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

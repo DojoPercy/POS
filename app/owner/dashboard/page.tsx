@@ -24,6 +24,10 @@ import { CompanySwitcher } from "../../../components/company_switcher"
 import Image from "next/image"
 import { paymentService } from "../../../lib/payment"
 import { getExpensesSummaryByDateRangeOwner } from "@/lib/expense"
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserFromToken, selectUser } from "@/redux/authSlice";
+import { getCompanyDetails } from "@/redux/companySlice";
+import { RootState } from "@/redux";
 
 type graphDataDef = {
   [key: number]: {
@@ -63,31 +67,29 @@ export default function Statistics() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
+
+  const dispatch = useDispatch()
+  const user = useSelector(selectUser)
+
+ 
+  const { company } = useSelector((state: RootState) => state.company)
+  
+
   useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const response = await fetch("/api/company");
-        const data = await response.json();
-        setCompanies(data);
-
-        const token = localStorage.getItem("token");
-        if (token) {
-          const decodedToken: DecodedToken = jwtDecode(token);
-          const initialCompany = data.find(
-            (company: Company) => company.id === decodedToken.companyId
-          );
-          if (initialCompany) {
-            setSelectedCompany(initialCompany);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching companies:", error);
-      }
-    };
-
-    fetchCompanies();
-  }, []);
-
+    dispatch(fetchUserFromToken());
+  }, [dispatch]);
+  
+  useEffect(() => {
+    if (user?.companyId) {
+      dispatch(getCompanyDetails(user.companyId));
+    }
+  }, [dispatch, user?.companyId]);
+  useEffect(()=> {
+    if (company) {
+      setSelectedCompany(company);
+    }
+  }
+,[company])
   useEffect(() => {
     if (!refresh) return;
 
@@ -233,7 +235,7 @@ export default function Statistics() {
         {StatisticHeaders.map((header, i) => (
           <Card
             key={i}
-            className={`min-w-[120px] sm:min-w-[160px] flex-1 sm:w-48 h-24 sm:h-28 ${
+            className={`min-w-[120px] sm:min-w-[160px]  sm:w-48 h-24 sm:h-28 ${
               header.name === selectedHeader.name
                 ? "bg-accent text-accent-foreground"
                 : "hover:bg-accent hover:text-accent-foreground"
@@ -256,6 +258,7 @@ export default function Statistics() {
           </Card>
         ))}
       </div>
+      
 
       <div className="mt-5">
         <Card>
