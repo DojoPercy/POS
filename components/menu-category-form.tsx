@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
 import { addNewMenuCategory } from "@/redux/CompanyCategoryMenuSlice"
 import { fetchUserFromToken, selectUser } from "@/redux/authSlice"
+import { Menu, MenuCategory } from "@prisma/client"
 
 // Form validation schema
 const formSchema = z.object({
@@ -65,7 +66,7 @@ export default function MenuCategoryForm() {
       }
       
       
-      dispatch(addNewMenuCategory(newCategory))
+      dispatch(addNewMenuCategory(newCategory ))
       
      
       form.reset()

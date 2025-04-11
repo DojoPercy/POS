@@ -21,7 +21,7 @@ export const fetchMenuCategoriesOfCompany = createAsyncThunk(
     }
 );
 
-export const addNewMenuCategory = createAsyncThunk<MenuCategory, MenuCategory>(
+export const addNewMenuCategory = createAsyncThunk<MenuCategory, any>(
     "menu/addNewMenuCategory",
     async (categoryData) => {
     
