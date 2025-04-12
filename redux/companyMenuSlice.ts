@@ -1,7 +1,7 @@
 // redux/slices/menuSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { MenuItem } from "@/lib/types/types";
-import { getMenuItems } from "@/lib/menu";
+import { getMenuItems, updateMenuItem } from "@/lib/menu";
 import { getMenuItemsFromIndexedDB, saveMenuItemsToIndexedDB } from "@/lib/dexie/actions";
 
 interface MenuState {
@@ -36,6 +36,20 @@ export const getMenuItemsPerCompany = createAsyncThunk<MenuItem[], string>(
     }
 );
 
+export const updateMenuItemData = createAsyncThunk<MenuItem, MenuItem>(
+    "menu/updateMenuItem",
+    async (menuItem, { rejectWithValue }) => {
+        try {
+            const updatedMenuItem = await updateMenuItem(menuItem);
+            await saveMenuItemsToIndexedDB([updatedMenuItem]); 
+            console.log("Updated menu item in IndexedDB:", updatedMenuItem);
+            return updatedMenuItem;
+        } catch (error: any) {
+            return rejectWithValue(error.message || "Failed to update menu item");
+        }
+    }
+)
+
 const companyMenuSlice = createSlice({
     name: "menu",
     initialState,
@@ -44,6 +58,13 @@ const companyMenuSlice = createSlice({
         builder
             .addCase(getMenuItemsPerCompany.fulfilled, (state, action: PayloadAction<MenuItem[]>) => {
                 state.menuItems = action.payload;
+                state.isLoading = false;
+                state.error = null;
+            })
+            .addCase(updateMenuItemData.fulfilled, (state, action: PayloadAction<MenuItem>) => {
+                state.menuItems = state.menuItems.map((item) =>
+                    item.id === action.payload.id ? action.payload : item
+                );
                 state.isLoading = false;
                 state.error = null;
             })

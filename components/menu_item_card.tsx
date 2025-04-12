@@ -46,7 +46,7 @@ export default function MenuItemCard({ item, onAddToCart, currency }: MenuItemCa
         {/* Item image */}
         <div className="relative w-full h-40 bg-muted">
           <Image
-            src={item.imageBase64 || "/placeholder.svg"}
+            src={item.imageUrl || "/placeholder.svg"}
             alt={item.name}
             fill
             className="object-cover"

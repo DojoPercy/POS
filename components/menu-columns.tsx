@@ -53,17 +53,17 @@ export const columns: ColumnDef<MenuItem>[] = [
     ),
   },
   {
-    accessorKey: "imageBase64",
+    accessorKey: "imageUrl",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Image" />
     ),
     cell: ({ row }) => {
-      const imageBase64 = row.getValue<string>("imageBase64");
+      const url = row.getValue<string>("imageUrl");
       
       return (
         <div className="flex items-center justify-center ">
           <Image
-            src={imageBase64}
+            src={url}
             alt="Menu Item"
             width={50}
             height={50}

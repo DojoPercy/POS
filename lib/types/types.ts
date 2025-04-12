@@ -88,6 +88,7 @@ export type Category ={
     id: string;
     name: string;
     description: string;
+    imageUrl?: string;
     price: PriceType[];
     category: string;
     imageBase64: string;

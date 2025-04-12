@@ -64,6 +64,7 @@ export async function getMenuItemById(id: string) {
 }
 
 export async function updateMenuItem(data: MenuItem) {
+   try{
     const query = {
         queryType: menuOperations.updateMenu,
         data,
@@ -73,11 +74,15 @@ export async function updateMenuItem(data: MenuItem) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(query),
+        body: JSON.stringify(data),
         cache: 'no-store',
     }).then((res) => res.json());
 
     return response;
+   } catch(error) {
+    console.error("Error updating menu item:", error);
+    throw new Error("Failed to update menu item");
+   }
 }
 
 export async function deleteMenuItem(id: string) {

@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ClipLoader } from "react-spinners"
 import { fetchMenuCategoriesOfCompany } from "@/redux/CompanyCategoryMenuSlice"
 import { Plus, Trash2 } from "lucide-react"
+import { uploadBase64Image } from "@/lib/cloudnary"
 
 interface PriceOption {
   name: string
@@ -25,6 +26,7 @@ interface MenuItemFormData {
   description: string
   prices: PriceOption[]
   imageBase64: string
+  imageUrl: string
   categoryId: string
 }
 
@@ -44,6 +46,7 @@ export default function AddMenuItemForm({ companyId, onAddItem }: { companyId: s
     description: "",
     prices: [{ name: "Regular", price: "" }], // Default price option
     imageBase64: "",
+    imageUrl: "",
     categoryId: "",
   })
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -109,6 +112,8 @@ export default function AddMenuItemForm({ companyId, onAddItem }: { companyId: s
         price: Number.parseFloat(p.price),
       }))
 
+      const url =  await uploadBase64Image(formData.imageBase64);
+      console.log("Image URL:", url)
       const response = await fetch("/api/menu", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -117,7 +122,7 @@ export default function AddMenuItemForm({ companyId, onAddItem }: { companyId: s
           description: formData.description,
           prices: formattedPrices,
           categoryId: formData.categoryId,
-          imageBase64: formData.imageBase64,
+          imageUrl: url,
           companyId,
         }),
       })
@@ -136,6 +141,7 @@ export default function AddMenuItemForm({ companyId, onAddItem }: { companyId: s
         description: "",
         prices: [{ name: "Regular", price: "" }],
         imageBase64: "",
+        imageUrl: "",
         categoryId: "",
       })
 

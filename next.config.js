@@ -8,7 +8,10 @@ const nextConfig = {
                 permanent: true,
             }
         ]
-    }
+    },
+    images: {
+        domains: ['res.cloudinary.com'],
+      },
 }
 
 module.exports = nextConfig

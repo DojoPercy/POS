@@ -35,6 +35,7 @@ export type MenuItem = {
   description: string | null;
   price: number;
   imageBase64: string;
+  imageUrl: string;
   category: string;
   available: boolean;
 };

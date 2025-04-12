@@ -15,13 +15,14 @@ interface DecodedToken {
 export async function POST(req: NextRequest) {
   try {
    
-    const { name, description, prices, categoryId, imageBase64, companyId } = await req.json();
+    const { name, description, prices, categoryId, imageBase64, companyId, imageUrl } = await req.json();
 
     const newMenuItem = await prisma.menu.create({
       data: {
         name,
         description,
         imageBase64,
+        imageUrl,
         company: { connect: { id: companyId } },
         category: { connect: { id: categoryId } },
         price: {
@@ -35,7 +36,14 @@ export async function POST(req: NextRequest) {
         price: true, // Include prices in response
       },
     });
+    const singleItemCacheKey = `menu-${newMenuItem.id}`;
+    const companyMenuCacheKey = companyId ? `companyMenu-${companyId}` : null;
 
+    await redis.del(singleItemCacheKey);
+
+    if (companyMenuCacheKey) {
+      await redis.del(companyMenuCacheKey);
+    }
     return NextResponse.json(newMenuItem, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -72,6 +80,7 @@ export async function GET(req: NextRequest) {
         include: { price: true, category: true },
       });
       await redis.set(cachedKey, JSON.stringify(menus), 'EX', 60 * 60);
+      console.log("Company Menu Cache Key:", cachedKey, menus);
       return NextResponse.json(menus, { status: 200 });
     }
 
@@ -86,34 +95,52 @@ export async function GET(req: NextRequest) {
 }
 
 
+
+
 export async function PUT(req: NextRequest) {
   try {
-    const { id, name, description, prices, categoryId, imageBase64, companyId } = await req.json();
+    const {
+      id,
+      name,
+      description,
+      prices,
+      categoryId,
+      imageBase64,
+      companyId,
+      imageUrl,
+    } = await req.json();
 
+    // Update the menu item
     const updatedMenuItem = await prisma.menu.update({
       where: { id },
       data: {
-        name,
-        description,
-        imageBase64,
-        companyId,
-        category: { connect: { id: categoryId } },
-        price: {
-          deleteMany: { menuItemId: id }, // Remove old prices
-          create: prices.map((price: { name: string; price: number }) => ({
-            name: price.name,
-            price: price.price,
-          })),
-        },
+       
+        imageUrl,
+        imageBase64
+       
       },
-      include: { price: true, category: true },
+      include: {
+        price: true,
+        category: true,
+      },
     });
+
+    const singleItemCacheKey = `menu-${id}`;
+    const companyMenuCacheKey = companyId ? `companyMenu-${companyId}` : null;
+
+    await redis.del(singleItemCacheKey);
+
+    if (companyMenuCacheKey) {
+      await redis.del(companyMenuCacheKey);
+    }
 
     return NextResponse.json(updatedMenuItem, { status: 200 });
   } catch (error: any) {
+    console.error("Update Menu Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
 
 // **Delete Menu Item with Prices**
 export async function DELETE(req: NextRequest) {

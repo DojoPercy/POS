@@ -17,6 +17,7 @@ interface OrderLine {
       price: number; 
       imageBase64?: string;
       category?: string; 
+      imageUrl?: string;
     };
   }
   

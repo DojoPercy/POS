@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import type { PriceType, MenuCategory } from "../lib/types/types"
 import type { MenuItem } from "@/lib/types/types"
-import { getMenuItemsPerCompany } from "@/redux/companyMenuSlice"
+import { getMenuItemsPerCompany, updateMenuItemData } from "@/redux/companyMenuSlice"
 import { fetchUserFromToken, selectUser } from "@/redux/authSlice"
 import { useSelector, useDispatch } from "react-redux"
 import type { RootState } from "@reduxjs/toolkit"
@@ -22,6 +22,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { getCompanyDetails } from "@/redux/companySlice"
 import { selectOrderById } from "@/redux/orderSlice"
 import OrderSummary from "./orderSummary"
+import { uploadBase64Image } from "@/lib/cloudnary"
 
 // Types
 type CartItem = {
@@ -44,6 +45,7 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
   const [orderNumber, setOrderNumber] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [uploadStarted, setUploadStarted] = useState(false);
 
   const { toast } = useToast()
   const dispatch = useDispatch()
@@ -69,6 +71,7 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
     }
   }, [dispatch, user?.companyId])
 
+ 
   useEffect(() => {
     if (orderId && existingOrder && menuItems && menuItems.length > 0) {
       setIsEditingExistingOrder(true)

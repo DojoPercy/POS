@@ -102,14 +102,14 @@ model Menu {
   description String?
   price       PriceType[]
   companyId   String      @db.ObjectId
-  imageBase64 String
+  imageBase64 String?
   categoryId  String      @db.ObjectId
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-
+  imageUrl   String?
   OrderLine   OrderLine[]
   company     Company     @relation(fields: [companyId], references: [id])
-  category    MenuCategory @relation(fields: [categoryId], references: [id])
+  category    MenuCategory? @relation(fields: [categoryId], references: [id])
 }
 
 model PriceType {
