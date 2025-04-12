@@ -22,7 +22,9 @@ export async function queueOrder(order: OrderType): Promise<void> {
   export async function clearOrderQueue(): Promise<void> {
     await db.posOrderQueue.clear()
   }
-
+export async function clearMenuitems(): Promise<void> {
+    await db.menuItems.clear()
+  }
 export async function getMenuItemsFromIndexedDB(): Promise<MenuItem[]> {
     return await db.menuItems.toArray()
   }

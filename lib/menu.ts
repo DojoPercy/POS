@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { MenuItem } from './types/types';
+import { clearMenuitems } from './dexie/actions';
 
 ;
 
@@ -26,7 +27,7 @@ export async function createMenuItem(data: Omit<MenuItem, 'id'>) {
         body: JSON.stringify(query),
         cache: 'no-store',
     }).then((res) => res.json());
-
+    await clearMenuitems();
     return response;
 }
 

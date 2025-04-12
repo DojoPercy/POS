@@ -36,6 +36,10 @@ type StatisticFnDefP<TValue> = {
     index: number,
     call: (from: Date, to: Date, companyId: string, branchId?: string) => Promise<TValue>
 } 
+type StatisticFnDefE<TValue> = {
+    index: number,
+    call: (from: Date, to: Date, companyId: string, branchId?: string) => Promise<TValue>
+} 
 
 export const StatisticHeaders: StatisticHeaderDef[] = [
     {
@@ -78,7 +82,7 @@ export const StatisticFns: StatisticFnDef<any[]>[] = [
    
 ]
 
-export const StatisticFnsE: StatisticFnDefP<any[]>[] = [
+export const StatisticFnsE: StatisticFnDefE<any[]>[] = [
     {
         index: StatisticGraph.expensesGraph,
         call: getExpensesSummaryByDateRangeOwner,
