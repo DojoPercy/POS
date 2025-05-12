@@ -90,6 +90,7 @@ export default function Register() {
             setFormData((prev) => ({
               ...prev,
               branchId: branch.id,
+              companyId: decodedToken.companyId,
             }));
           }
         }

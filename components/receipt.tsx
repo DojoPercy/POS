@@ -41,35 +41,36 @@ export const RestaurantReceipt: React.FC<ReceiptProps> = ({ order, company }) =>
  
 
   const formatReceiptText = () => {
-    {logoHTML}
     let receiptText = `${company.name.toUpperCase()}\n`;
-    receiptText += "---------------------------------\n";
+    receiptText += "--------------------------------\n";
     receiptText += `${new Date().toLocaleString()}\n\n`;
-
-    receiptText += `Item           Qty  Price  Total\n`;
-    receiptText += `---------------------------------\n`;
-
+  
+    // Column Header (fits 32 chars max)
+    receiptText += `Item       QTY  Price  Total\n`;
+    receiptText += "--------------------------------\n";
+  
     order.orderLines.forEach((line) => {
-      const item = line.name.padEnd(12, " ").substring(0, 11);
-      const qty = line.quantity.toString().padStart(4, " ");
-      const price = formatCurrency(line.price).padStart(8, " ");
-      const total = formatCurrency(line.totalPrice).padStart(8, " ");
-      receiptText += `${item}  ${qty}  ${price}  ${total}\n`;
+      const item = line.name.padEnd(10, " ").substring(0, 10);
+      const qty = line.quantity.toString().padStart(3, " ");
+      const price = formatCurrency(line.price).padStart(6, " ");
+      const total = formatCurrency(line.totalPrice).padStart(7, " ");
+      receiptText += `${item}  ${qty}  ${price} ${total}\n`;
     });
-
-    receiptText += `---------------------------------\n`;
-    receiptText += `Subtotal:      ${formatCurrency(order.totalPrice)}\n`;
-    receiptText += `Discount:     -${formatCurrency(order.discount)}\n`;
-    receiptText += `Rounding:      ${formatCurrency(order.rounding)}\n`;
-    receiptText += `Total:         ${formatCurrency(order.finalPrice)}\n`;
-    receiptText += `---------------------------------\n`;
-
-    receiptText += "  THANK YOU FOR DINING WITH US!  \n";
-    receiptText += "        Please come again!       \n";
-    receiptText += "---------------------------------\n";
-
+  
+    receiptText += "--------------------------------\n";
+    receiptText += `Subtotal:     ${formatCurrency(order.totalPrice).padStart(14)}\n`;
+    receiptText += `Discount:    -${formatCurrency(order.discount).padStart(13)}\n`;
+    receiptText += `Rounding:     ${formatCurrency(order.rounding).padStart(14)}\n`;
+    receiptText += `Total:        ${formatCurrency(order.finalPrice).padStart(14)}\n`;
+    receiptText += "--------------------------------\n";
+    receiptText += " THANK YOU FOR DINING WITH US!\n";
+    receiptText += "     Please come again!     \n";
+    receiptText += "--------------------------------\n";
+  
     return receiptText;
   };
+  
+  
   const printReceipt = () => {
     const receiptContent = formatReceiptText();
     const printWindow = window.open("", "_blank", "width=400,height=600");
@@ -93,7 +94,7 @@ export const RestaurantReceipt: React.FC<ReceiptProps> = ({ order, company }) =>
             <title>Receipt</title>
             <style>
               @page { margin: 0; }
-              body { font-family: 'Courier New', monospace; font-size: 14px; text-align: center; }
+              body { font-family: 'Courier New', monospace; font-size: 9px; text-align: center; }
               pre { margin: 0; white-space: pre-wrap; }
             </style>
           </head>

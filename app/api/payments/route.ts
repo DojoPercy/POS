@@ -7,6 +7,8 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const branchId = searchParams.get('branchId');
         const companyId = searchParams.get('companyId');
+        const from = searchParams.get('from');
+        const to = searchParams.get('to');
 
         if (!branchId && !companyId) {
             return NextResponse.json({ error: 'branchId or companyId is required' }, { status: 400 });
@@ -18,6 +20,12 @@ export async function GET(req: NextRequest) {
                     companyId ? { companyId } : {},
                     branchId ? { branchId } : {}
                 ],
+                ...(from && to ? {
+                    paymentDate: {
+                        gte: new Date(from),
+                        lte: new Date(to),
+                    },
+                } : {}),
             },
         });
 
@@ -44,8 +52,13 @@ export async function POST(req: NextRequest) {
                 companyId: body.companyId,
                 branchId: body.branchId,
                 paymentDate: new Date(),
+                paymentMethod: body.paymentMethod || 'cash',
             },
         });
+
+        
+
+        console.log('Payment created:', payment);
 
         return NextResponse.json(payment, { status: 200 });
     } catch (error: any) {

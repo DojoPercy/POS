@@ -15,7 +15,7 @@ interface DecodedToken {
 export async function POST(req: NextRequest) {
   try {
    
-    const { name, description, prices, categoryId, imageBase64, companyId, imageUrl } = await req.json();
+    const { name, description, prices, categoryId, imageBase64, companyId, imageUrl, ingredientId } = await req.json();
 
     const newMenuItem = await prisma.menu.create({
       data: {
@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
         description,
         imageBase64,
         imageUrl,
+        
         company: { connect: { id: companyId } },
         category: { connect: { id: categoryId } },
         price: {
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
         },
       },
       include: {
-        price: true, // Include prices in response
+        price: true, 
       },
     });
     const singleItemCacheKey = `menu-${newMenuItem.id}`;

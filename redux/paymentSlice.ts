@@ -5,7 +5,9 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 export const sendPayment = createAsyncThunk(
     "payment/sendPayment",
     async (paymentData:CreatePaymentRequest) => {
+        console.log("Payment data", paymentData);
         const res = await paymentService.createPayment(paymentData);
+        console.log("Payment sent", res);
         return res;
     }
 

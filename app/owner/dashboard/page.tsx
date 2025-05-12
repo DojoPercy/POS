@@ -1,55 +1,62 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { RefreshCw, Download } from "lucide-react"
-import { addDays } from "date-fns"
-import { jwtDecode } from "jwt-decode"
+import { useState, useEffect } from "react";
+import { RefreshCw, Download } from "lucide-react";
+import { addDays } from "date-fns";
+import { jwtDecode } from "jwt-decode";
 import {
   type StatisticHeaderDef,
   StatisticHeaders,
   StatisticFns,
   StatisticFnsP,
   StatisticFnsE,
-} from "@/components/stats-header"
-import { columnsExpenses, columnsPayment, columnsRevenueIncome } from "@/components/columns-stats"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { DatePickerWithRange } from "@/components/ui/date-time-picker"
-import { DataTable } from "@/components/ui/data-table"
-import type { DateRange } from "react-day-picker"
-import { ResponsiveLineChart } from "@/components/responsive-line-chart"
-import { Skeleton } from "@/components/ui/skeleton"
-import { getOrderSummaryByDateRangeOwner } from "@/lib/order"
-import { CompanySwitcher } from "../../../components/company_switcher"
-import Image from "next/image"
-import { paymentService } from "../../../lib/payment"
-import { getExpensesSummaryByDateRangeOwner } from "@/lib/expense"
+} from "@/components/stats-header";
+import {
+  columnsExpenses,
+  columnsPayment,
+  columnsRevenueIncome,
+} from "@/components/columns-stats";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePickerWithRange } from "@/components/ui/date-time-picker";
+import { DataTable } from "@/components/ui/data-table";
+import type { DateRange } from "react-day-picker";
+import { ResponsiveLineChart } from "@/components/responsive-line-chart";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getOrderSummaryByDateRangeOwner } from "@/lib/order";
+import { CompanySwitcher } from "../../../components/company_switcher";
+import Image from "next/image";
+import { paymentService } from "../../../lib/payment";
+import { getExpensesSummaryByDateRangeOwner } from "@/lib/expense";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserFromToken, selectUser } from "@/redux/authSlice";
 import { getCompanyDetails } from "@/redux/companySlice";
 import { RootState } from "@/redux";
+import BranchStats from "@/components/branchpie";
+import ProfitSummaries from "@/components/profitsummaries";
+import TopMenusChart from "@/components/top_menus";
 
 type graphDataDef = {
   [key: number]: {
-    date: string
-    sales: number
-    [key: string]: string | number
-  }[]
-}
+    date: string;
+    sales: number;
+    [key: string]: string | number;
+  }[];
+};
 
 type Company = {
-  id: string
-  name: string
-  logo?: string
-}
+  id: string;
+  name: string;
+  logo?: string;
+  currency: string;
+};
 
 interface DecodedToken {
-  companyId: string
-  [key: string]: any
+  companyId: string;
+  [key: string]: any;
 }
 
 export default function Statistics() {
-
   const [refresh, setRefresh] = useState(true);
   const [date, setDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
@@ -67,29 +74,25 @@ export default function Statistics() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
 
-  const dispatch = useDispatch()
-  const user = useSelector(selectUser)
-
- 
-  const { company } = useSelector((state: RootState) => state.company)
-  
+  const { company } = useSelector((state: RootState) => state.company);
 
   useEffect(() => {
     dispatch(fetchUserFromToken());
   }, [dispatch]);
-  
+
   useEffect(() => {
     if (user?.companyId) {
       dispatch(getCompanyDetails(user.companyId));
     }
   }, [dispatch, user?.companyId]);
-  useEffect(()=> {
+  useEffect(() => {
     if (company) {
       setSelectedCompany(company);
     }
-  }
-,[company])
+  }, [company]);
   useEffect(() => {
     if (!refresh) return;
 
@@ -185,42 +188,48 @@ export default function Statistics() {
     setRefresh(true);
   }, [date, selectedCompany]);
 
-
-
   return (
     <div className="py-4 sm:py-6 px-4 sm:px-10 w-full">
-     <div className="flex flex-col items-center justify-center w-full mb-6 gap-4">
-  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-    <h1 className="font-bold text-xl sm:text-2xl flex items-center mb-2 sm:mb-0">Owner&apos;s DashBoard</h1>
-    {selectedCompany && (
-      <div className="flex items-center">
-        {selectedCompany.logo && (
-          <Image
-            width={102}
-            height={102}
-            src={selectedCompany.logo.startsWith("data:image") ? selectedCompany.logo : "/placeholder.svg"}
-            alt={selectedCompany.name}
-            className="w-16 h-6 sm:w-20 sm:h-8 rounded-full mr-2"
-            unoptimized
-          />
-        )}
-        <span className="text-base sm:text-lg font-semibold">{selectedCompany.name}</span>
+      <div className="flex flex-col items-center justify-center w-full mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <h1 className="font-bold text-xl sm:text-2xl flex items-center mb-2 sm:mb-0">
+            Owner&apos;s DashBoard
+          </h1>
+          {selectedCompany && (
+            <div className="flex items-center">
+              {selectedCompany.logo && (
+                <Image
+                  width={102}
+                  height={102}
+                  src={
+                    selectedCompany.logo.startsWith("data:image")
+                      ? selectedCompany.logo
+                      : "/placeholder.svg"
+                  }
+                  alt={selectedCompany.name}
+                  className="w-16 h-6 sm:w-20 sm:h-8 rounded-full mr-2"
+                  unoptimized
+                />
+              )}
+              <span className="text-base sm:text-lg font-semibold">
+                {selectedCompany.name}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
+          <Button
+            variant="ghost"
+            className={`rounded-full p-2 sm:p-3 items-center ${
+              refresh ? "animate-spin" : ""
+            }`}
+            onClick={() => setRefresh(true)}
+          >
+            <RefreshCw className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
-    )}
-  </div>
-
-  <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
-   
-    <Button
-      variant="ghost"
-      className={`rounded-full p-2 sm:p-3 items-center ${refresh ? "animate-spin" : ""}`}
-      onClick={() => setRefresh(true)}
-    >
-      <RefreshCw className="w-4 h-4" />
-    </Button>
-  </div>
-</div>
-
 
       <div className="flex flex-col sm:flex-row justify-between mb-6 gap-4">
         <div className="w-full sm:w-auto">
@@ -250,7 +259,9 @@ export default function Statistics() {
             </CardHeader>
             <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
               {i < headerData.length ? (
-                <p className="text-base sm:text-lg">{headerData[i]?.toString() || "0"}</p>
+                <p className="text-base sm:text-lg">
+                  {headerData[i]?.toString() || "0"}
+                </p>
               ) : (
                 <Skeleton className="w-full h-[20px] rounded-full" />
               )}
@@ -258,7 +269,6 @@ export default function Statistics() {
           </Card>
         ))}
       </div>
-      
 
       <div className="mt-5">
         <Card>
@@ -274,7 +284,18 @@ export default function Statistics() {
           </CardContent>
         </Card>
       </div>
-
+      <div className="flex justify-between items-center w-full mt-10 gap-4 flex-col sm:flex-row">
+        <div className="w-full sm:w-1/2 ">
+          <BranchStats companyId={user?.companyId || ""} />
+        </div>
+        <div className="w-full sm:w-1/2">
+        <ProfitSummaries companyId={user?.companyId || ""} currency={selectedCompany?.currency || "GHS"}/>
+        </div>
+        
+      </div>
+      <div className="flex justify-between items-center w-full mt-10 gap-4 flex-col sm:flex-row">
+          <TopMenusChart companyId={user?.companyId || ""}/>
+        </div>
       <div className="mt-10">
         <DataTable
           columns={columnsRevenueIncome}
@@ -294,5 +315,5 @@ export default function Statistics() {
         />
       </div>
     </div>
-  )
+  );
 }

@@ -16,6 +16,7 @@ import { StepIndicator } from './components/step-indicator';
 export default function BusinessSetupPage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
     
     name: "",
@@ -66,6 +67,7 @@ export default function BusinessSetupPage() {
             description: "",
             imageBase64: null,
             priceTypes: [{ id: "price1", name: "Regular", price: 0 }],
+            ingredients: [],
           },
         ],
       },
@@ -83,9 +85,14 @@ export default function BusinessSetupPage() {
   }
 
   const nextStep = () => {
-    if (currentStep < totalSteps) {
+    console.log("Current Step:", currentStep)
+    if (!isDialogOpen && currentStep < totalSteps) {
+      console.log("Current Step:", currentStep)
       setCurrentStep(currentStep + 1)
+      console.log("Next Step:", currentStep + 1)
       window.scrollTo(0, 0)
+    } else {
+      console.log("Waiting for dialog to close before proceeding to next step.")
     }
   }
 
@@ -124,7 +131,7 @@ export default function BusinessSetupPage() {
         )
       case 5:
         return (
-          <MenuSetupStep formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} />
+          <MenuSetupStep formData={formData} updateFormData={updateFormData} nextStep={nextStep} prevStep={prevStep} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen}  />
         )
       case 6:
         return <ActivationStep formData={formData} updateFormData={updateFormData} prevStep={prevStep} />

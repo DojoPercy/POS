@@ -207,6 +207,7 @@ export default function OrderSummary({
         paymentStatus: "Completed",
         companyId: user?.companyId || "",
         branchId: user?.branchId || "",
+        paymentMethod: paymentTypeSelected.join(", ").toLowerCase() || "cash",
       }
 
       dispatch(sendPayment(payment))

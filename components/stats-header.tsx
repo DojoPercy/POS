@@ -3,6 +3,7 @@
 import { Utensils, DollarSign, TrendingUp, Users, Clock, Banknote } from 'lucide-react'
 
 import {
+    getExpectedRevenueByDataRange,
     getHighestOrderInBranch,
     getOrderCountByDateRange,
     getOrderRevenueByDateRange,
@@ -53,6 +54,13 @@ export const StatisticHeaders: StatisticHeaderDef[] = [
         name: "Revenue",
         icon: <DollarSign className="w-4 h-4" />,
         call: getOrderRevenueByDateRange,
+        graphIndex: StatisticGraph.ordersGraph,
+        accessorKey: "revenue",
+    },
+    {
+        name: "Receivables",
+        icon: <DollarSign className="w-4 h-4" />,
+        call: getExpectedRevenueByDataRange,
         graphIndex: StatisticGraph.ordersGraph,
         accessorKey: "revenue",
     },

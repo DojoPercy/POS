@@ -94,22 +94,59 @@ model Branch {
 
   Order Order[]
   Expense Expense[]
-}
 
+  InventoryStock InventoryStock[]
+}
 model Menu {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
   price       PriceType[]
-  companyId   String      @db.ObjectId
+  companyId   String         @db.ObjectId
   imageBase64 String?
-  categoryId  String      @db.ObjectId
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  imageUrl   String?
+  categoryId  String         @db.ObjectId
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  imageUrl    String?
   OrderLine   OrderLine[]
-  company     Company     @relation(fields: [companyId], references: [id])
-  category    MenuCategory? @relation(fields: [categoryId], references: [id])
+  company     Company        @relation(fields: [companyId], references: [id])
+  category    MenuCategory?  @relation(fields: [categoryId], references: [id])
+  ingredients MenuIngredient[]
+}
+
+model MenuIngredient {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  menuId       String     @db.ObjectId
+  ingredientId String     @db.ObjectId
+  amount       Float      
+
+  menu         Menu       @relation(fields: [menuId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+}
+
+model Ingredient {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  unit        String            // e.g., grams, ml, pieces
+  companyId   String            @db.ObjectId
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  stocks      InventoryStock[]
+  menuLinks   MenuIngredient[] 
+}
+
+model InventoryStock {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  ingredientId String      @db.ObjectId
+  branchId     String      @db.ObjectId
+  quantity     Float       
+  lastUpdated  DateTime    @updatedAt
+
+  ingredient   Ingredient  @relation(fields: [ingredientId], references: [id])
+  branch       Branch      @relation(fields: [branchId], references: [id])
+
+  @@unique([ingredientId, branchId])
 }
 
 model PriceType {
@@ -235,7 +272,8 @@ model Payment {
   paymentStatus String
   companyId     String      @db.ObjectId
   branchId      String      @db.ObjectId
-   paymentTypeId String?     @db.ObjectId
+  paymentTypeId String?     @db.ObjectId
+  paymentMethod String?
 
   @@map("payments")
 }

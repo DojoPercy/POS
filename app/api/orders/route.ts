@@ -19,44 +19,53 @@ export async function GET(req: NextRequest) {
   const branchId = searchParams.get('branchId');
   const companyId = searchParams.get('companyId');
   const waiterId = searchParams.get('waiterId');
+  const startDate = searchParams.get('from');
+  const endDate = searchParams.get('to');
+
+  const start = startDate ? new Date(startDate) : undefined;
+  const end = endDate ? new Date(endDate) : undefined;
+  console.log("Start Date:", start);
+  console.log("End Date:", end);
+
+  const id = branchId || companyId || waiterId;
+  const startStr = start ? start.toISOString().split("T")[0] : "any";
+  const endStr = end ? end.toISOString().split("T")[0] : "any";
+
+  if (!id) {
+    return NextResponse.json(
+      { error: 'branchId, companyId, or waiterId is required' },
+      { status: 400 }
+    );
+  }
+
+  const cacheKey = `orders-${id}-${startStr}-${endStr}`;
+  console.log("Cache Key:", cacheKey);
 
   try {
-    if (!branchId && !companyId && !waiterId) {
-      return NextResponse.json({ error: 'branchId, companyId, or waiterId is required' }, { status: 400 });
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      console.log("Cache hit:", cacheKey);
+      return NextResponse.json(JSON.parse(cached), { status: 200 });
     }
 
-    
-    const cacheKeys = [
-      branchId ? `orders-${branchId}` : null,
-      companyId ? `orders-${companyId}` : null,
-      waiterId ? `orders-${waiterId}` : null,
-    ].filter(Boolean);
-
-    
-    for (let key of cacheKeys) {
-      const cachedOrders = await redis.get(key as string);
-      if (cachedOrders) {
-        return NextResponse.json(JSON.parse(cachedOrders), { status: 200 });
-      }
-    }
-
-  
     const orders = await prisma.order.findMany({
       where: {
         branchId: branchId || undefined,
         companyId: companyId || undefined,
         waiterId: waiterId || undefined,
+        createdAt: {
+          gte: start || undefined,
+          lte: end || undefined,
+        },
       },
       include: {
         branch: true,
         orderLines: true,
       },
     });
+    console.log("Fetched orders:", orders.length);
 
-   
-    for (let key of cacheKeys) {
-      await redis.set(key as string, JSON.stringify(orders), 'EX', 60 * 5); 
-    }
+    await redis.set(cacheKey, JSON.stringify(orders), 'EX', 60 * 1);
 
     return NextResponse.json(orders, { status: 200 });
 
@@ -70,20 +79,19 @@ export async function GET(req: NextRequest) {
 
 
 
-
 export async function POST(req: NextRequest) {
   try {
-    const token = req.cookies.get("token")?.value
+    const token = req.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
     const decodedToken: DecodedToken = jwtDecode(token);
-   
+
     const {
       waiterId,
       branchId,
-      orderLines = [], 
+      orderLines = [],
       totalPrice,
       discount,
       rounding,
@@ -96,7 +104,7 @@ export async function POST(req: NextRequest) {
 
     const orderData = {
       waiterId,
-      branchId: branchId,
+      branchId,
       companyId: decodedToken.companyId || "",
       totalPrice,
       discount,
@@ -104,15 +112,20 @@ export async function POST(req: NextRequest) {
       finalPrice,
       orderStatus: OrderStatus || orderStatus,
       requiredDate,
-      orderNumber: orderNumber,
+      orderNumber,
     };
 
- 
     if (orderLines && orderLines.length > 0) {
       Object.assign(orderData, {
         orderLines: {
           create: orderLines.map(
-            (line: { menuItemId: string; quantity: number; price: number; totalPrice: number; notes?: string }) => ({
+            (line: {
+              menuItemId: string;
+              quantity: number;
+              price: number;
+              totalPrice: number;
+              notes?: string;
+            }) => ({
               menuItemId: line.menuItemId,
               quantity: line.quantity,
               price: line.price,
@@ -125,24 +138,26 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("Creating order with data:", orderData);
+
     const newOrder = await prisma.order.create({
       data: orderData,
       include: { orderLines: true },
     });
 
-    
-    const cacheKeys = [
-      branchId ? `orders-${branchId}` : null,
-      decodedToken.companyId ? `orders-${decodedToken.companyId}` : null,
-      waiterId ? `orders-${waiterId}` : null,
+    // ✅ Clear all related cache keys (including full keys with dates)
+    const idsToInvalidate = [
+      branchId,
+      decodedToken.companyId,
+      waiterId,
     ].filter(Boolean);
 
-    
-    for (let key of cacheKeys) {
-      await redis.del(key as string);
+    for (const id of idsToInvalidate) {
+      const matchingKeys = await redis.keys(`orders-${id}-*`);
+      if (matchingKeys.length > 0) {
+        await redis.del(...matchingKeys);
+      }
     }
 
-    
     await sendOrderUpdate(newOrder);
 
     return NextResponse.json(newOrder, { status: 201 });
@@ -151,3 +166,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

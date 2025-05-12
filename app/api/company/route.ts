@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode"
 import { type NextRequest, NextResponse } from "next/server"
 import { prisma } from '../../../lib/prisma';
 import redis from "@/lib/redis/redis";
+import { clearCompanyFromIndexedDB } from "@/lib/dexie/actions";
 
 
 
@@ -100,4 +101,26 @@ export async function POST(req: NextRequest) {
   }
 }
 
+
+export async function PUT(req: NextRequest){
+  try {
+
+    const body = await req.json();
+    const {id, isActivated} = body
+
+    const company = await prisma.company.update({
+      where: {
+        id: id,
+      },
+      data: {
+        isActivated: isActivated,
+      },
+    });
+    await clearCompanyFromIndexedDB(); 
+    await redis.del(`company:${id}`); // Invalidate the cache for this company
+    
+  } catch (error) {
+   return NextResponse.json({message: error}, {status: 500})
+  }
+}
 

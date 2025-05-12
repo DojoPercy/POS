@@ -1,11 +1,12 @@
-import axios from "axios";
-import { Category } from './types/types';
+import axios from "axios"
+import type { MenuIngredient } from "@/lib/types/types"
+import { uploadBase64Image } from "./cloudnary"
+import { id } from "date-fns/locale"
 
 export async function completeBusiness(formData: any) {
   try {
-   
     if (formData.userId) {
-      // 2. Create the Company
+      // 1. Create the Company
       const companyData = {
         name: formData.businessName,
         location: formData.businessAddress,
@@ -29,19 +30,66 @@ export async function completeBusiness(formData: any) {
         menus: [],
         Order: [],
         Expense: [],
-      };
+      }
 
-      const companyResponse = await axios.post("/api/company", companyData);
+      console.log("Creating company...")
+      const companyResponse = await axios.post("/api/company", companyData)
 
       if (companyResponse.status === 201) {
-        const companyId = companyResponse.data.id;
+        const companyId = companyResponse.data.id
+        console.log(`Company created with ID: ${companyId}`)
+
+        // 2. Create Raw Material Ingredients FIRST
+        console.log("Creating raw material ingredients...")
+        const ingredientsMap = new Map<string, string>() // To store created ingredients for reference
+
+        // Extract all unique ingredients from menu items
+        const allIngredients = new Set<string>()
+        formData.menuCategories.forEach((category: any) => {
+          category.menuItems.forEach((item: any) => {
+            if (item.ingredients && Array.isArray(item.ingredients)) {
+              item.ingredients.forEach((ing: MenuIngredient) => {
+                if (ing.ingredient && ing.ingredient.name) {
+                  allIngredients.add(
+                    JSON.stringify({
+                      name: ing.ingredient.name,
+                      unit: ing.ingredient.unit,
+                      companyId,
+                    }),
+                  )
+                }
+              })
+            }
+          })
+        })
+
+        // Create all ingredients first
+        const ingredientPromises = Array.from(allIngredients).map(async (ingredientJson) => {
+          const ingredient = JSON.parse(ingredientJson)
+          try {
+            const response = await axios.post("/api/ingredient", ingredient)
+            if (response.status === 200) {
+              ingredientsMap.set(ingredient.name, response.data.id)
+              console.log(`Ingredient "${ingredient.name}" created successfully.`)
+              return response.data
+            }
+          } catch (error) {
+            console.error(`Error creating ingredient ${ingredient.name}:`, error)
+          }
+          return null
+        })
+
+        // Wait for all ingredients to be created
+        await Promise.all(ingredientPromises)
+        console.log(`Created ${ingredientsMap.size} ingredients successfully.`)
 
         // 3. Create Branch Managers & Branches
+        console.log("Creating branches and managers...")
         const branchResponses = await Promise.all(
           formData.branches.map(async (branch: any) => {
             try {
               // 3.1 Generate random password
-              const randomPassword = Math.random().toString(36).slice(-8);
+              const randomPassword = Math.random().toString(36).slice(-8)
 
               // 3.2 Create Manager Account
               const managerData = {
@@ -52,12 +100,12 @@ export async function completeBusiness(formData: any) {
                 phone: "",
                 branchId: null,
                 status: "pending",
-              };
+              }
 
-              const managerResponse = await axios.post("/api/users", managerData);
+              const managerResponse = await axios.post("/api/users", managerData)
 
               if (managerResponse.status === 201) {
-                const managerId = managerResponse.data.user.id;
+                const managerId = managerResponse.data.user.id
 
                 // 3.3 Create the Branch
                 const branchData = {
@@ -71,15 +119,15 @@ export async function completeBusiness(formData: any) {
                   managerId: managerId,
                   createdBy: formData.userId,
                   companyId: companyId,
-                };
+                }
 
-                const branchResponse = await axios.post("/api/branches", branchData);
+                const branchResponse = await axios.post("/api/branches", branchData)
 
                 if (branchResponse.status === 201) {
-                  const branchId = branchResponse.data.id;
+                  const branchId = branchResponse.data.id
 
                   // 3.4 Update Manager Account with branchId
-                  await axios.put(`/api/users/${managerId}`, { branchId, companyId });
+                  await axios.put(`/api/users/${managerId}`, { branchId, companyId })
 
                   // 3.5 Send email to manager with login credentials
                   await axios.post("/api/send-mail", {
@@ -94,23 +142,29 @@ export async function completeBusiness(formData: any) {
 
                       Please reset your password upon login.
                     `,
-                  });
+                  })
 
-                  console.log(`Branch "${randomPassword}" and Manager account created successfully.`);
+                  console.log(`Branch "${branch.name}" and Manager account created successfully.`)
+                  return { success: true, branch: branchResponse.data }
                 }
               }
             } catch (error) {
-              console.error(`Error creating branch and manager for ${branch.name}:`, error);
+              console.error(`Error creating branch and manager for ${branch.name}:`, error)
             }
-          })
-        );
+            return { success: false, branch: null }
+          }),
+        )
 
-        console.log("All branches and managers processed:", branchResponses);
+        console.log(`Created ${branchResponses.filter((r) => r.success).length} branches successfully.`)
 
         // 4. Create Menu Categories and Menu Items
-        
-        if(true){
-          formData.menuCategories.map(async (category: any) => {
+        console.log("Creating menu categories and items...")
+        const categoryPromises = formData.menuCategories.map(async (category: any) => {
+          try {
+            if (!category.name) {
+              console.log("Skipping category with no name")
+              return null
+            }
 
             const menuCategoriesResponse = await axios.post("/api/menu/category", {
               name: category.name,
@@ -118,43 +172,101 @@ export async function completeBusiness(formData: any) {
               companyId: companyId,
             })
 
-            if ( menuCategoriesResponse.status === 201){
-              const CategoryId = menuCategoriesResponse.data.id;
-              category.menuItems.map(async (item: any) => {
-                const formattedPrices = item.priceTypes.map((p:any) => ({
+            if (menuCategoriesResponse.status === 201) {
+              const categoryId = menuCategoriesResponse.data.id
+              console.log(`Menu Category "${category.name}" created with ID: ${categoryId}`)
+
+              // Create menu items for this category
+              const menuItemPromises = category.menuItems.map(async (item: any) => {
+                if (!item.name) {
+                  console.log("Skipping menu item with no name")
+                  return null
+                }
+
+                const formattedPrices = item.priceTypes.map((p: any) => ({
                   name: p.name,
                   price: Number.parseFloat(p.price),
                 }))
-          
-                const response = await fetch("/api/menu", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
+
+                try {
+                  const imageUrl = await uploadBase64Image(item.imageBase64)
+                  console.log(imageUrl)
+                  const menuResponse = await axios.post("/api/menu", {
                     name: item.name,
                     description: item.description,
                     prices: formattedPrices,
-                    categoryId: CategoryId,
-                    imageBase64: item.imageBase64,
+                    categoryId: categoryId,
+                    imageUrl: imageUrl,
+                    imageBase64: "",
                     companyId,
-                  }),
-                })
-          
-                if (response.status === 201){
-                  console.log("Menu Items created successfully");
-                }else{
-                  console.error("Error creating menu items: ", response)
-                }
-              })
-            }
+                  })
 
-          })
-        }
+                  if (menuResponse.status === 201) {
+                    const menuId = menuResponse.data.id
+                    console.log(`Menu Item "${item.name}" created with ID: ${menuId}`)
+
+                    // 5. Create Menu-Ingredient relationships
+                    if (item.ingredients && Array.isArray(item.ingredients)) {
+                      const menuIngredientPromises = item.ingredients.map(async (ing: MenuIngredient) => {
+                        if (ing.ingredient && ing.ingredient.name && ingredientsMap.has(ing.ingredient.name)) {
+                          const ingredientId = ingredientsMap.get(ing.ingredient.name)
+
+                          try {
+                            const menuIngResponse = await axios.post("/api/menu_ingredient", {
+                              menuId,
+                              ingredientId,
+                              amount: ing.amount || 0,
+                            })
+
+                            if (menuIngResponse.status === 200) {
+                              console.log(
+                                `Menu-ingredient relationship created for "${item.name}" and "${ing.ingredient.name}".`,
+                              )
+                              return menuIngResponse.data
+                            }
+                          } catch (error) {
+                            console.error(`Error creating menu-ingredient relationship:`, error)
+                          }
+                        } else {
+                          console.warn(`Ingredient "${ing.ingredient?.name}" not found in ingredientsMap.`)
+                        }
+                        return null
+                      })
+
+                      await Promise.all(menuIngredientPromises)
+                    }
+
+                    return menuResponse.data
+                  }
+                } catch (error) {
+                  console.error(`Error creating menu item "${item.name}":`, error)
+                }
+                return null
+              })
+
+              await Promise.all(menuItemPromises)
+              return menuCategoriesResponse.data
+            }
+          } catch (error) {
+            console.error(`Error creating menu category "${category.name}":`, error)
+          }
+          return null
+        })
+
+        await Promise.all(categoryPromises)
+
+        // 6. Update company status to activated
+        console.log("Activating company...")
+        await axios.put(`/api/company}`, { isActivated: true , id : companyId })
+        console.log("Company activated successfully!")
+
+        return { success: true, companyId }
       }
-      }
-    
-              
-    
+    }
+
+    return { success: false, error: "User ID not provided" }
   } catch (error) {
-    console.error("Error in completeBusiness:", error);
+    console.error("Error in completeBusiness:", error)
+    return { success: false, error }
   }
 }

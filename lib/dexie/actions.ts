@@ -51,3 +51,15 @@ export async function getMenuItemsFromIndexedDB(): Promise<MenuItem[]> {
     await db.company.put(company, company.id)
   }
     
+  export async function clearCompanyFromIndexedDB(): Promise<void> {
+    await db.company.clear()
+  }
+
+  export async function clearAllIndexedDB(): Promise<void> {
+
+    await clearCompanyFromIndexedDB()
+    await clearMenuitems()
+    await clearOrderQueue()
+    await db.delete()
+    console.log("All IndexedDB cleared")
+  }

@@ -1,4 +1,5 @@
 import { fetchUsers } from "@/lib/auth";
+import { clearAllIndexedDB } from "@/lib/dexie/actions";
 import { DecodedToken } from "@/lib/types/types";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -57,6 +58,20 @@ export const loginUser = createAsyncThunk(
     }
 );
 
+export const logoutUser = createAsyncThunk("auth/logoutUser", async () => { 
+    console.log("Logging out user...");
+    localStorage.removeItem("token");
+    delete axios.defaults.headers.common["Authorization"];
+    const response = await axios.post("/api/logout");
+    await clearAllIndexedDB()
+    if(response.status === 200){
+        console.log("User logged out successfully.");
+    }
+    
+
+})
+
+
 const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -97,7 +112,12 @@ const authSlice = createSlice({
             .addCase(fetchUserFromToken.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
-            });
+            })
+            .addCase(logoutUser.fulfilled, (state)=>{
+                state.user = null;
+                state.token = null;
+                
+            })
     },
 });
 

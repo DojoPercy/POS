@@ -25,6 +25,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ClipLoader from "react-spinners/ClipLoader";
 import { jwtDecode } from "jwt-decode";
+import { decode } from "punycode";
 
 interface Branch {
   id: string;
@@ -46,6 +47,7 @@ interface User {
   email: string;
   role: string;
   branchId?: string;
+  companyId?: string;
 }
 interface DecodedToken {
   role: string; // Assuming the token contains a "role" property
@@ -57,6 +59,7 @@ export default function BranchManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [userId, setUserId] = useState<string>(""); 
   const [branches, setBranches] = useState<Branch[]>([]);
+  const [companyId, setCompanyId] = useState<string>(""); // Assuming you have a companyId in the token
  
  
   const [formData, setFormData] = useState<Partial<Branch>>({
@@ -89,6 +92,7 @@ export default function BranchManagement() {
     const decodedToken: DecodedToken = jwtDecode(token);
 
     setUserId(decodedToken.userId || "");
+    setCompanyId(decodedToken.companyId || ""); // Set the companyId from the token
         const response = await axios.get("/api/users");
         const managers = response.data.filter(
           (user: User) => user.role === "manager"
@@ -128,11 +132,13 @@ export default function BranchManagement() {
     setLoading(true);
     setError(null);
     try {
-     
+     console.log("Form Data:", formData); // Log the form data before sending it
       const response = await axios.post("/api/branches", {
         ...formData,
         createdBy: userId,
+        companyId: companyId, // Assuming you have the companyId in the token
       });
+
       setSuccessMessage("Branch created successfully! Redirecting...");
       setLoading(false);
       setTimeout(() => {
@@ -286,35 +292,7 @@ export default function BranchManagement() {
           </form>
         </CardContent>
       </Card>
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle className="text-lg">Existing Branches</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {branches.map((branch) => (
-              <li
-                key={branch.id}
-                className="flex justify-between items-center border p-3 rounded"
-              >
-                <div>
-                  <p className="font-bold">{branch.name}</p>
-                  <p className="text-sm text-gray-600">{branch.location}</p>
-                </div>
-                <p
-                  className={`text-sm ${
-                    branch.status === "active"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}
-                >
-                  {branch.status}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+     
     </div>
   );
 }

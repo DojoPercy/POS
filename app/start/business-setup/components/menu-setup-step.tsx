@@ -10,26 +10,30 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Plus, Trash2, DollarSign, Tag, FileText,Image, MenuIcon } from "lucide-react"
+import { Plus, Trash2, ImageIcon, DollarSign, Tag, FileText, MenuIcon, Utensils } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
-import ImageDiv from "next/image";
+import { MenuIngredients } from "./menu-indregients"
+import type { Ingredient, MenuIngredient } from "@/lib/types/types"
 
 interface MenuSetupStepProps {
   formData: any
   updateFormData: (data: any) => void
   nextStep: () => void
   prevStep: () => void
+  isDialogOpen: boolean
+  setIsDialogOpen: (isOpen: boolean) => void
 }
 
-export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: MenuSetupStepProps) {
+export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep, isDialogOpen, setIsDialogOpen }: MenuSetupStepProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [activeCategory, setActiveCategory] = useState<string>(formData.menuCategories[0]?.id || "")
   const [activeMenuItem, setActiveMenuItem] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("categories")
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    
+    // Check if at least one category has a name
     const hasNamedCategory = formData.menuCategories.some((cat: any) => cat.name.trim() !== "")
 
     if (!hasNamedCategory) {
@@ -45,6 +49,11 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
     if (validateForm()) {
       nextStep()
     }
+  }
+
+  // Ingredient management
+  const updateIngredients = (ingredients: Ingredient[]) => {
+    updateFormData({ ingredients })
   }
 
   // Category management
@@ -63,6 +72,7 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
             description: "",
             imageBase64: null,
             priceTypes: [{ id: uuidv4(), name: "Regular", price: 0 }],
+            ingredients: [],
           },
         ],
       },
@@ -76,7 +86,7 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
       const updatedCategories = formData.menuCategories.filter((cat: any) => cat.id !== categoryId)
       updateFormData({ menuCategories: updatedCategories })
 
-     
+      // Update active category if the removed one was active
       if (activeCategory === categoryId) {
         setActiveCategory(updatedCategories[0].id)
       }
@@ -114,6 +124,7 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
               description: "",
               imageBase64: null,
               priceTypes: [{ id: uuidv4(), name: "Regular", price: 0 }],
+              ingredients: [],
             },
           ],
         }
@@ -240,6 +251,26 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
     updateFormData({ menuCategories: updatedCategories })
   }
 
+  // Ingredient management
+  const updateMenuItemIngredients = (categoryId: string, itemId: string, ingredients: MenuIngredient[]) => {
+    const updatedCategories = formData.menuCategories.map((cat: any) => {
+      if (cat.id === categoryId) {
+        return {
+          ...cat,
+          menuItems: cat.menuItems.map((item: any) => {
+            if (item.id === itemId) {
+              return { ...item, ingredients }
+            }
+            return item
+          }),
+        }
+      }
+      return cat
+    })
+
+    updateFormData({ menuCategories: updatedCategories })
+  }
+
   // Image handling
   const handleImageChange = (categoryId: string, itemId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -267,10 +298,11 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Tabs defaultValue="categories" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="items">Menu Items</TabsTrigger>
+            <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
           </TabsList>
 
           {/* Categories Tab */}
@@ -402,15 +434,13 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
                   <CardContent className="p-4 flex">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-md mr-3 flex-shrink-0 flex items-center justify-center overflow-hidden">
                       {item.imageBase64 ? (
-                        <ImageDiv
+                        <img
                           src={item.imageBase64 || "/placeholder.svg"}
                           alt={item.name}
-                          width={96}
-                          height={96}
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <Image className="h-8 w-8 text-gray-400" />
+                        <ImageIcon className="h-8 w-8 text-gray-400" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -441,6 +471,14 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
                           </div>
                         ))}
                       </div>
+                      {item.ingredients && item.ingredients.length > 0 && (
+                        <div className="mt-2">
+                          <span className="text-xs text-gray-500 flex items-center">
+                            <Utensils className="h-3 w-3 mr-1" />
+                            {item.ingredients.length} ingredient{item.ingredients.length !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -487,18 +525,13 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
                       <div className="flex items-center space-x-4">
                         <div className="w-24 h-24 border-2 border-dashed rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-800 overflow-hidden">
                           {activeMenuItemData.imageBase64 ? (
-                            <ImageDiv
+                            <img
                               src={activeMenuItemData.imageBase64 || "/placeholder.svg"}
-                              width={96}
-                              height={96}
                               alt="Item preview"
                               className="max-w-full max-h-full object-contain"
                             />
                           ) : (
-                            <Image className="h-8 w-8 text-gray-400" 
-                            
-                          
-                            />
+                            <ImageIcon className="h-8 w-8 text-gray-400" />
                           )}
                         </div>
                         <div className="flex-1">
@@ -623,6 +656,40 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
               </Card>
             )}
           </TabsContent>
+
+          {/* Ingredients Tab */}
+          <TabsContent value="ingredients" className="space-y-4 pt-4">
+            {activeMenuItemData ? (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium">Ingredients for: {activeMenuItemData.name || "New Menu Item"}</h3>
+                </div>
+                <MenuIngredients
+                  companyId={formData.companyId || "temp-company-id"}
+                  menuId={activeMenuItemData.id}
+                  initialIngredients={activeMenuItemData.ingredients || []}
+                  allIngredients={formData.ingredients || []}
+                  onIngredientsChange={updateIngredients}
+                  onChange={(ingredients: MenuIngredient[]) =>
+                    updateMenuItemIngredients(activeCategory, activeMenuItemData.id, ingredients)
+                  }
+                  isDialogOpen={isDialogOpen}
+                  setIsDialogOpen={setIsDialogOpen}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Utensils className="h-16 w-16 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">Select a Menu Item First</h3>
+                <p className="text-muted-foreground max-w-md">
+                  Please select a menu item from the &rdquo;Menu Items&rdquo; tab to manage its ingredients
+                </p>
+                <Button variant="outline" className="mt-4" onClick={() => setActiveTab("items")}>
+                  Go to Menu Items
+                </Button>
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
 
         <div className="flex justify-between pt-4">
@@ -635,4 +702,3 @@ export function MenuSetupStep({ formData, updateFormData, nextStep, prevStep }: 
     </div>
   )
 }
-

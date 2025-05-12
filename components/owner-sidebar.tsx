@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Menu, Building2, Users, Settings, ClipboardList, User, X } from 'lucide-react';
+import { Home, Menu, Building2, Users, Settings, ClipboardList, User, X, LogOutIcon } from 'lucide-react';
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserFromToken, selectUser } from "@/redux/authSlice";
+import { fetchUserFromToken, logoutUser, selectUser } from "@/redux/authSlice";
 import { getCompanyDetails } from "@/redux/companySlice";
-import { RootState } from "@/redux";
+import { RootState } from "@/redux";import { useRouter } from "next/navigation"
 
 function SideBarIcon({
   icon,
@@ -21,6 +21,7 @@ function SideBarIcon({
   const pathname = usePathname();
   const href = text === "Home" ? "/" : `/owner/${text.toLowerCase()}`;
   const modifiedHref = href === "/" ? "/" : href;
+ 
 
   return (
     <Link href={modifiedHref} onClick={onClick}>
@@ -46,7 +47,7 @@ function SideBarOwner() {
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
 
- 
+  const router = useRouter()
   const { company } = useSelector((state: RootState) => state.company)
   
 
@@ -72,6 +73,11 @@ function SideBarOwner() {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+
+  const logout = async () => {
+    await dispatch(logoutUser());
+    router.push("/login")
+  }
 
   return (
     <React.Fragment>
@@ -169,6 +175,26 @@ function SideBarOwner() {
                   />
                 </li>
               </ul>
+              <div className="flex-grow"></div>
+        <div className=" bg-white text-white flex flex-col border-t-2">
+          <ul className="space-y-5 font-medium">
+            <li>
+              <SideBarIcon 
+                icon={<Settings className="w-5 h-5" />} 
+                text="Settings" 
+                onClick={closeMobileMenu}
+              />
+            </li>
+            <li>
+              <button
+                onClick={logout}
+                className="flex items-center justify-center h-12 w-12 my-2 mx-auto transition-colors duration-300 ease-linear cursor-pointer group rounded-xl text-zinc-900 bg-white hover:border-2 hover:border-zinc-400"
+              >
+                <LogOutIcon className="w-5 h-5" />
+              </button>
+            </li>
+          </ul>
+        </div>
             </>
           ) : (
             <ul>
@@ -182,6 +208,7 @@ function SideBarOwner() {
             </ul>
           )}
         </div>
+    
       </aside>
     </React.Fragment>
   );

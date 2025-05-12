@@ -1,5 +1,6 @@
 import { OrderStatus } from "@prisma/client";
 import { OrderType } from "./types/types";
+import { getBranchNameById } from "./branch";
 
 
 
@@ -79,7 +80,7 @@ export async function getOrderCounter( branchId: string) {
     body: JSON.stringify({ branchId: branchId , date: today }),
   })
   
-console.log(counterResponse);
+
   if (!counterResponse.ok) {
     throw new Error("Failed to fetch order counter");
   }
@@ -128,7 +129,7 @@ export async function createOrder(order: OrderType) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(order),
     });
-      console.log("res", res);
+     
     if (!res.ok) {
       throw new Error('Failed to create order');
     }
@@ -222,6 +223,7 @@ export async function getOrderRevenueByDateRange(from: Date, to: Date, branchId?
     console.error("Unexpected response format:", res);
     return 0;
   }
+  
   const data = res.filter((order: any) => order.orderStatus !== OrderStatus.PENDING);
 
   const totalRevenue = data.reduce((acc: number, order: any) => acc + (order.finalPrice || 0), 0);
@@ -248,17 +250,16 @@ export async function getOrderIncomeByDateRange(from: Date, to: Date) {
 
 export async function getOrderSummaryByDateRange(from: Date, to: Date, branchId?: string, companyId?: string): Promise<any[]> {
   const queryParams = new URLSearchParams();
-    queryParams.append("from", from.toISOString());
-    queryParams.append("to", to.toISOString());
+  queryParams.append("from", from.toISOString());
+  queryParams.append("to", to.toISOString());
 
-    if (branchId) {
-      queryParams.append("branchId", branchId);
-    } else if (companyId) {
-      queryParams.append("companyId", companyId);
-    }
+  if (branchId) {
+    queryParams.append("branchId", branchId);
+  } else if (companyId) {
+    queryParams.append("companyId", companyId);
+  }
 
-  const res = await fetch(`/api/orders?${branchId !== undefined ? `branchId=${branchId}` : `companyId=${companyId}`}
-`, {
+  const res = await fetch(`/api/orders?${queryParams.toString()}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
     cache: "no-store",
@@ -266,11 +267,13 @@ export async function getOrderSummaryByDateRange(from: Date, to: Date, branchId?
 
   
   const summary: Record<string, { sales: number; revenue: number; income: number }> = {};
-
-  // Iterate through the fetched data to build the summary
+  let totalRevenue = 0;
+  
   for (const order of res) {
+    if (order.orderStatus === OrderStatus.PENDING) continue;
+  
     const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
-
+  
     if (!summary[orderDate]) {
       summary[orderDate] = {
         sales: 0,
@@ -278,13 +281,19 @@ export async function getOrderSummaryByDateRange(from: Date, to: Date, branchId?
         income: 0,
       };
     }
-
+  
     for (const orderLine of order.orderLines) {
-      summary[orderDate].sales += 1; // Increment sales count
-      summary[orderDate].revenue += orderLine.totalPrice; // Add totalPrice to revenue
-      summary[orderDate].income += orderLine.totalPrice - orderLine.price * orderLine.quantity; // Calculate income
+      summary[orderDate].sales += 1;
+      summary[orderDate].revenue += orderLine.totalPrice;
+      summary[orderDate].income += orderLine.totalPrice - orderLine.price * orderLine.quantity;
     }
+  
+    totalRevenue += order.finalPrice || 0;
+    
+    summary[orderDate].revenue = totalRevenue;
+  
   }
+  
 
   // Convert the summary object into an array
   return Object.entries(summary).map(([date, data]) => ({
@@ -302,13 +311,22 @@ export async function getOrderSummaryByDateRangeOwner(from: Date, to: Date, comp
     to,
     companyId,
   };
+  
+  const queryParams = new URLSearchParams();
+    queryParams.append("from", from.toISOString());
+    queryParams.append("to", to.toISOString());
 
-  const res = await fetch(`/api/orders?companyId=${companyId || ''}`, {
+  if (companyId) {
+      queryParams.append("companyId", companyId);
+    }
+
+  
+  const res = await fetch(`/api/orders?${queryParams.toString()}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
     cache: "no-store",
   }).then((response) => response.json());
-
+  
  
 
   
@@ -317,6 +335,7 @@ export async function getOrderSummaryByDateRangeOwner(from: Date, to: Date, comp
   // Iterate through the fetched data to build the summary
   for (const order of res) {
     const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+    if (order.orderStatus === OrderStatus.PENDING) continue;
 
     if (!summary[orderDate]) {
       summary[orderDate] = {
@@ -328,10 +347,11 @@ export async function getOrderSummaryByDateRangeOwner(from: Date, to: Date, comp
 
     for (const orderLine of order.orderLines) {
       summary[orderDate].sales += 1; // Increment sales count
-      summary[orderDate].revenue += orderLine.totalPrice; // Add totalPrice to revenue
-      summary[orderDate].income += orderLine.totalPrice - orderLine.price * orderLine.quantity; // Calculate income
+      
+      
       
     }
+    summary[orderDate].revenue += order.totalPrice; 
   }
 
   
@@ -339,8 +359,105 @@ export async function getOrderSummaryByDateRangeOwner(from: Date, to: Date, comp
     date,
     sales: data.sales,
     revenue: data.revenue.toFixed(2),
-    income: data.income.toFixed(2),
+    
   }));
+}
+
+export async function getSalesSummaryOfBranches(from: Date, to: Date, companyId: string){
+  try {
+    const query = {
+      queryType: orderOperations.getOrderSummaryByDateRange,
+      from,
+      to,
+      companyId,
+    };
+    
+    const queryParams = new URLSearchParams();
+    queryParams.append("from", from.toISOString());
+    queryParams.append("to", to.toISOString());
+
+     if (companyId) {
+      queryParams.append("companyId", companyId);
+    }
+
+    const res = await fetch(`/api/orders?${queryParams.toString()}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+    })
+.then((response) => response.json());
+
+
+    const summary : Record<string, {branch: string; sales:number; revenue:number;}>={};
+
+    for(const order of res){
+      const branch = await getBranchNameById(order.branchId);
+if(!branch){
+  console.error("Branch not found for ID:", order.branchId);
+  continue; 
+}
+if (order.orderStatus === OrderStatus.PENDING) continue;
+      if(!summary[branch]){
+        summary[branch] = {
+          branch: branch,
+          sales: 0,
+          revenue: 0,
+        };
+      }
+
+      for(const orderLine of order.orderLines){
+        summary[branch].sales += 1;
+       
+       
+      }
+       summary[branch].revenue += order.totalPrice;
+    }
+
+    return Object.entries(summary).map(([branch, data]) => ({
+      branch,
+      sales: data.sales,
+      revenue: data.revenue.toFixed(2),
+    }));
+    
+  } catch (error) {
+    console.error("Error fetching sales summary of branches:", error);
+  }
+}
+export async function getExpectedRevenueByDataRange(from: Date, to: Date, branchId?: string, companyId?: string){
+  try{
+    const queryParams = new URLSearchParams();
+  queryParams.append("from", from.toISOString());
+  queryParams.append("to", to.toISOString());
+
+  if (branchId) {
+    queryParams.append("branchId", branchId);
+  } else if (companyId) {
+    queryParams.append("companyId", companyId);
+  }
+
+  const response = await fetch(`/api/orders?${queryParams.toString()}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+  });
+
+  const res = await response.json();
+
+  
+  if (!Array.isArray(res)) {
+    console.error("Unexpected response format:", res);
+    return 0;
+  }
+
+  const data = res.filter((order: any) => order.orderStatus === OrderStatus.PENDING);
+
+  const totalRevenue = data.reduce((acc: number, order: any) => acc + (order.totalPrice || 0), 0);
+
+  return totalRevenue.toFixed(2);
+
+  } catch(error){
+    console.error("Error fetching expected revenue by date range:", error);
+  }
 }
 
 
@@ -436,7 +553,7 @@ const BASE_URL =
 
 export async function updateOrderById(order: OrderType): Promise<OrderType> {
   const { id, ...orderData } = order;
-  console.log(orderData)
+  
   const response = await fetch(`${BASE_URL}/api/orders/${id}`, {
     method: "PUT",
     headers: {
@@ -447,7 +564,7 @@ export async function updateOrderById(order: OrderType): Promise<OrderType> {
     body: JSON.stringify(orderData),
   })
   
-  console.log(response)
+
 
   if (!response.ok) {
     throw new Error("Failed to update order")

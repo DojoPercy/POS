@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { Resend } from 'resend';
 import { NextRequest, NextResponse } from "next/server";
 
 // Define the POST method for sending emails
@@ -11,24 +12,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Configure your mail transport
-    const transporter = nodemailer.createTransport({
-      service: "Gmail", 
-      auth: {
-        user: process.env.EMAIL_USER, 
-        pass: process.env.EMAIL_PASS, 
-      },
-    });
-
-    
-    const mailOptions = {
+    const resend = new Resend(process.env.RESEND_API_KEY)
+ 
+   const info = await resend.emails.send({
       from: `"Company Admin" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       text: body,
-      html: `<p>${body.replace(/\n/g, "<br>")}</p>`,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
+      html: '<p>' + body.replace(/\n/g, "<br>") + '</p>',
+    });
+    
+    
 
     return NextResponse.json({ message: "Email sent successfully", info }, { status: 200 });
   } catch (error) {

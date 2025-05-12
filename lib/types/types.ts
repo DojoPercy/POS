@@ -116,8 +116,25 @@ export type Category ={
     paymentStatus: "Pending" | "Completed" | "Failed";
     companyId: string;
     branchId: string;
+    paymentMethod: string;
   }
 
   export interface UpdatePaymentStatusRequest {
     paymentStatus: "Pending" | "Completed" | "Failed";
+  }
+
+
+  export interface Ingredient {
+    id?: string
+    name: string
+    unit: string
+    companyId?: string
+  }
+  
+  export interface MenuIngredient {
+    id?: string
+    ingredientId: string
+    menuId?: string
+    amount: number
+    ingredient: Ingredient
   }

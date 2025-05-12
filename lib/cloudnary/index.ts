@@ -13,4 +13,4 @@ export const uploadBase64Image = async (base64: string): Promise<string | null> 
     const data = await res.json();
     return data.url || null;
   };
-  
+

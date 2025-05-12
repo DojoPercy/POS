@@ -2,10 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, ClipboardList, FilePlus, User, Settings } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, ClipboardList, FilePlus, User, Settings, LogOutIcon } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "@/redux/authSlice";
 
 function SideBarIcon({ icon, text }: { icon: React.ReactElement; text: string }) {
+    
     const pathname = usePathname();
     const href = (() => {
         if (text === 'Home') {
@@ -21,6 +24,7 @@ function SideBarIcon({ icon, text }: { icon: React.ReactElement; text: string })
         }
       })();
     const modifiedHref = href === "/" ? "/" : href;
+
 
     return (
         <Link href={modifiedHref}>
@@ -41,6 +45,15 @@ function SideBarIcon({ icon, text }: { icon: React.ReactElement; text: string })
 }
 
 function SiderBarWaiter() {
+    const dispatch = useDispatch()
+  
+    const router = useRouter()
+    const logout = async () => {
+    
+    
+        await dispatch(logoutUser());
+        router.push("/login")
+      }
     return (
         <React.Fragment>
             <button
@@ -88,11 +101,26 @@ function SiderBarWaiter() {
                             <SideBarIcon icon={<User className="w-5 h-5" />} text="Profile" />
                         </li>
                     </ul>
-                    <ul className="pt-2 mt-auto font-medium border-t-2">
-                        <li>
-                            <SideBarIcon icon={<Settings className="w-5 h-5" />} text="Settings" />
-                        </li>
-                    </ul>
+                   
+                         <div className="flex-grow"></div>
+                            <div className=" bg-white text-white flex flex-col border-t-2">
+                              <ul className="space-y-5 font-medium">
+                                <li>
+                                  <SideBarIcon 
+                                    icon={<Settings className="w-5 h-5" />} 
+                                    text="Settings"
+                                  />
+                                </li>
+                                <li>
+                                  <button
+                                    onClick={logout}
+                                    className="flex items-center justify-center h-12 w-12 my-2 mx-auto transition-colors duration-300 ease-linear cursor-pointer group rounded-xl text-zinc-900 bg-white hover:border-2 hover:border-zinc-400"
+                                  >
+                                    <LogOutIcon className="w-5 h-5" />
+                                  </button>
+                                </li>
+                              </ul>
+                            </div>
                 </div>
             </aside>
         </React.Fragment>

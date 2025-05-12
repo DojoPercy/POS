@@ -68,9 +68,12 @@ export const paymentService = {
     
       if (branchId) {
         queryParams.append("branchId", branchId);
+      ;
       } else if (companyId) {
         queryParams.append("companyId", companyId);
       }
+      queryParams.append("from", from.toISOString());
+      queryParams.append("to", to.toISOString())
     console.log(`/api/payments?${queryParams.toString()}`);
       const response = await fetch(`/api/payments?${queryParams.toString()}`, {
         method: "GET",
@@ -98,7 +101,14 @@ export const paymentService = {
         companyId: string
       ): Promise<any[]> {
         // Fetch payments for the specified company
-        const res = await fetch(`/api/payments?companyId=${companyId}`, {
+        const queryParams = new URLSearchParams();
+     
+    if (companyId) {
+        queryParams.append("companyId", companyId);
+      }
+      queryParams.append("from", from.toISOString());
+      queryParams.append("to", to.toISOString())
+        const res = await fetch(`/api/payments?${queryParams}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           cache: "no-store",
@@ -106,21 +116,15 @@ export const paymentService = {
         const payments = (await res.json()) as any[];
       
         // Filter payments within the specified date range
-        const fromTime = from.getTime();
-        const toTime = to.getTime();
-      
-        const filteredPayments = payments.filter((payment: any) => {
-          const createdTime = new Date(payment.createdAt).getTime();
-          return createdTime >= fromTime && createdTime <= toTime;
-        });
+       
       
         // Group payments by date (YYYY-MM-DD)
         const summary: Record<
           string,
           { totalAmount: number; transactionCount: number }
         > = {};
-      
-        for (const payment of filteredPayments) {
+      console.log("payments", payments)
+        for (const payment of payments) {
           const paymentDate = new Date(payment.createdAt).toISOString().split("T")[0];
           if (!summary[paymentDate]) {
             summary[paymentDate] = { totalAmount: 0, transactionCount: 0 };
@@ -135,6 +139,19 @@ export const paymentService = {
           payments: data.totalAmount.toFixed(2),
           transactions: data.transactionCount,
         }));
-      }
+      },
       
+
+      async getPaymentTypeSummaryByDateRange(from: Date, to: Date, companyId: string) {
+        try{
+
+
+
+        } catch (error) {
+            console.error("Error fetching payment type summary:", error);
+            throw error;
+        }
+
+      }
+
 };
