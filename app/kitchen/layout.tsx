@@ -3,7 +3,6 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Provider } from "react-redux"
 import { store } from "@/redux"
-import SiderBarWaiter from "@/components/waiter-sidebar"
 import SiderBarKitchen from "@/components/kitchen-waiter"
 
 

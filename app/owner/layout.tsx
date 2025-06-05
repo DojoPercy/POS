@@ -1,13 +1,11 @@
-"use client";
-import SideBarOwner from '@/components/owner-sidebar'
-import SideBar from '../SideBar'
-import { Provider } from 'react-redux'
-import { store } from '../../redux/index';
+"use client"
+import SideBarOwner from "@/components/owner-sidebar"
+import type React from "react"
 
-
-
-
-
+import { Provider } from "react-redux"
+import { store } from "../../redux/index"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { SidebarHeaderComponent } from "@/components/ui/sidebarHeader"
 
 export default function OwnerLayout({
   children,
@@ -16,13 +14,17 @@ export default function OwnerLayout({
 }) {
   return (
     <Provider store={store}>
-        <div className="h-screen ">
-          <SideBarOwner/>
-          <div className="bg-white sm:ml-16">
-            {children}  
-          </div>
+      
+      <SidebarProvider>
+        <div className="flex h-screen w-full">
+          <SideBarOwner />
+          <SidebarInset>
+            <main className="flex-1 overflow-auto bg-white p-4">
+              <SidebarHeaderComponent/>
+              {children}</main>
+          </SidebarInset>
         </div>
-        </Provider>
-     
+      </SidebarProvider>
+    </Provider>
   )
 }

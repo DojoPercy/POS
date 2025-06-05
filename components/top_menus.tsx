@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -24,7 +24,7 @@ export default function TopMenusChart({ companyId}: TopMenusChartProps) {
   })
   const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined)
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!companyId) return
 
     setLoading(true)
@@ -43,11 +43,11 @@ export default function TopMenusChart({ companyId}: TopMenusChartProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [companyId, dateRange.from, dateRange.to])
 
   useEffect(() => {
     fetchData()
-  }, [companyId]) // Initial fetch when component mounts
+  }, [companyId, fetchData]) // Initial fetch when component mounts
 
   const handleDateChange = (range: DateRange) => {
     if (range.from && range.to) {

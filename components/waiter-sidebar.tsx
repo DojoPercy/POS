@@ -1,130 +1,173 @@
-"use client";
+"use client"
 
-import React from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Home, ClipboardList, FilePlus, User, Settings, LogOutIcon } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { logoutUser } from "@/redux/authSlice";
+import { useEffect } from "react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { Home, ClipboardList, FilePlus, User, Settings, LogOut, ChefHat, Receipt } from "lucide-react"
+import { useDispatch, useSelector } from "react-redux"
+import { logoutUser, selectUser, fetchUserFromToken } from "@/redux/authSlice"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarGroupLabel,
+  SidebarGroup,
+  SidebarGroupContent,
+} from "@/components/ui/sidebar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
-function SideBarIcon({ icon, text }: { icon: React.ReactElement; text: string }) {
-    
-    const pathname = usePathname();
-    const href = (() => {
-        if (text === 'Home') {
-          return '/';
-        } else if (text === 'Create Order') {
-          return '/waiter/order/new';
-        } else if (text === 'View Orders') {
-          return '/waiter/order/view';
-        } else if (text === 'Profile') {
-          return '/waiter';
-        } else {
-          return `/waiter/${text.toLowerCase()}`;
-        }
-      })();
-    const modifiedHref = href === "/" ? "/" : href;
+const mainNavItems = [{ icon: Home, text: "Dashboard", href: "/waiter" }]
+
+const orderNavItems = [
+  { icon: FilePlus, text: "New Order", href: "/waiter/order/new" },
+  { icon: ClipboardList, text: "View Orders", href: "/waiter/order/view" },
+]
 
 
-    return (
-        <Link href={modifiedHref}>
-            <div
-                className={`relative flex items-center justify-center h-12 w-12 my-2 mx-auto transition-colors duration-300 ease-linear cursor-pointer group rounded-xl text-zinc-900 bg-white ${
-                    pathname === modifiedHref
-                        ? "border-2 border-zinc-900"
-                        : "hover:border-2 hover:border-zinc-400"
-                }`}
-            >
-                {icon}
-                <span className="absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md text-white bg-zinc-900 text-xs font-bold z-50 transition-all duration-100 origin-left scale-0 group-hover:scale-100">
-                    {text}
-                </span>
-            </div>
-        </Link>
-    );
+
+export function WaiterSidebar() {
+  const dispatch = useDispatch()
+  const router = useRouter()
+  const pathname = usePathname()
+  const user = useSelector(selectUser)
+
+  useEffect(() => {
+    dispatch(fetchUserFromToken())
+  }, [dispatch])
+
+  const handleLogout = async () => {
+    await dispatch(logoutUser())
+    router.push("/login")
+  }
+
+  const isActive = (href: string) => {
+    if (href === "/waiter") return pathname === "/waiter"
+    return pathname.startsWith(href)
+  }
+
+  return (
+    <Sidebar collapsible="offcanvas" className="border-r">
+      <SidebarHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold">
+            <ChefHat className="h-5 w-5" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-gray-900">Waiter Portal</span>
+            <span className="text-xs text-gray-500">Order Management</span>
+          </div>
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent className="px-2 py-4">
+        {/* Main Navigation */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.text}>
+                  <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.text}>
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.text}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* Order Management */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Order Management</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {orderNavItems.map((item) => (
+                <SidebarMenuItem key={item.text}>
+                  <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.text}>
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.text}</span>
+                      {item.text === "View Orders" && (
+                        <Badge variant="secondary" className="ml-auto">
+                          
+                        </Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* Account */}
+        
+      </SidebarContent>
+
+      <SidebarFooter className="border-t bg-gray-50 p-4">
+        {/* User Profile */}
+        <div className="flex items-center gap-3 mb-3">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={user?.profileImage || "/placeholder.svg"} />
+            <AvatarFallback className="bg-blue-100 text-blue-600">{user?.firstName?.charAt(0) || "W"}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {user?.firstName} {user?.lastName}
+            </p>
+            <p className="text-xs text-gray-500 truncate">Waiter</p>
+          </div>
+        </div>
+
+        {/* Logout Button */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" className="w-full justify-start">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Sign Out</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to sign out? Any unsaved changes will be lost.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleLogout}>Sign Out</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </SidebarFooter>
+
+      <SidebarRail />
+    </Sidebar>
+  )
 }
-
-function SiderBarWaiter() {
-    const dispatch = useDispatch()
-  
-    const router = useRouter()
-    const logout = async () => {
-    
-    
-        await dispatch(logoutUser());
-        router.push("/login")
-      }
-    return (
-        <React.Fragment>
-            <button
-                data-drawer-target="sidebar"
-                data-drawer-toggle="sidebar"
-                aria-controls="sidebar"
-                type="button"
-                className="inline-flex items-center p-2 mt-2 ml-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-            >
-                <svg
-                    className="w-6 h-6"
-                    aria-hidden="true"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        clipRule="evenodd"
-                        fillRule="evenodd"
-                        d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
-                    ></path>
-                </svg>
-            </button>
-
-            <aside
-                id="sidebar"
-                className="fixed top-0 left-0 w-16 h-screen transition-transform -translate-x-full sm:translate-x-0"
-                aria-label="sidebar"
-            >
-                <div className="h-full px-2 bg-white text-white flex flex-col border-r-2">
-                    {/* Logo here */}
-                    <ul className="space-y-5 font-medium">
-                        <li>
-                            <SideBarIcon icon={<Home className="w-5 h-5" />} text="Home" />
-                        </li>
-                    </ul>
-                    <ul className="pt-2 mt-2 space-y-5 font-medium border-t-2">
-                        <li>
-                            <SideBarIcon icon={<FilePlus className="w-5 h-5" />} text="Create Order" />
-                        </li>
-                        <li>
-                            <SideBarIcon icon={<ClipboardList className="w-5 h-5" />} text="View Orders" />
-                        </li>
-                        <li>
-                            <SideBarIcon icon={<User className="w-5 h-5" />} text="Profile" />
-                        </li>
-                    </ul>
-                   
-                         <div className="flex-grow"></div>
-                            <div className=" bg-white text-white flex flex-col border-t-2">
-                              <ul className="space-y-5 font-medium">
-                                <li>
-                                  <SideBarIcon 
-                                    icon={<Settings className="w-5 h-5" />} 
-                                    text="Settings"
-                                  />
-                                </li>
-                                <li>
-                                  <button
-                                    onClick={logout}
-                                    className="flex items-center justify-center h-12 w-12 my-2 mx-auto transition-colors duration-300 ease-linear cursor-pointer group rounded-xl text-zinc-900 bg-white hover:border-2 hover:border-zinc-400"
-                                  >
-                                    <LogOutIcon className="w-5 h-5" />
-                                  </button>
-                                </li>
-                              </ul>
-                            </div>
-                </div>
-            </aside>
-        </React.Fragment>
-    );
-}
-
-export default SiderBarWaiter;

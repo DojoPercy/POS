@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
 import { prisma } from '../../../lib/prisma';
 import redis from '@/lib/redis/redis';
+import { MenuIngredients } from '../../start/business-setup/components/menu-indregients';
 
 interface DecodedToken {
   role: string;
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
 
     if (companyMenuCacheKey) {
       await redis.del(companyMenuCacheKey);
+      
     }
     return NextResponse.json(newMenuItem, { status: 201 });
   } catch (error: any) {
@@ -67,7 +69,7 @@ export async function GET(req: NextRequest) {
     if (id) {
       const menu = await prisma.menu.findUnique({
         where: { id },
-        include: { price: true, category: true },
+        include: { price: true, category: true, ingredients: true },
       });
       if (!menu) {
         return NextResponse.json({ error: 'Menu item not found' }, { status: 404 });
@@ -78,7 +80,7 @@ export async function GET(req: NextRequest) {
     } else if (companyId) {
       const menus = await prisma.menu.findMany({
         where: { companyId },
-        include: { price: true, category: true },
+        include: { price: true, category: true, ingredients: true  },
       });
       await redis.set(cachedKey, JSON.stringify(menus), 'EX', 60 * 60);
       console.log("Company Menu Cache Key:", cachedKey, menus);
@@ -86,7 +88,7 @@ export async function GET(req: NextRequest) {
     }
 
     const menuItems = await prisma.menu.findMany({
-      include: { price: true, category: true },
+      include: { price: true, category: true, ingredients: true  },
     });
     await redis.set(cachedKey, JSON.stringify(menuItems), 'EX', 60 * 60);
     return NextResponse.json(menuItems, { status: 200 });

@@ -1,158 +1,232 @@
-"use client";
+"use client"
 
-import React, { useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { Home, ClipboardList, Users, CreditCard, User, Settings, LogOut, Building2, BarChart3, Package } from "lucide-react"
+import { jwtDecode } from "jwt-decode"
 import {
-  Home,
-  ClipboardList,
-  FilePlus,
-  User,
-  Settings,
-  Users,
-  CreditCardIcon,
-} from "lucide-react";
-import { de } from "date-fns/locale";
-import { jwtDecode } from "jwt-decode";
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarGroupLabel,
+  SidebarGroup,
+  SidebarGroupContent,
+} from "@/components/ui/sidebar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { getBranchById } from "@/lib/branch"
+
 interface DecodedToken {
-  role: string;
-  userId?: string;
-  branchId?: string;
-  [key: string]: any;
+  role: string
+  userId?: string
+  branchId?: string
+  [key: string]: any
 }
 
-function SideBarIcon({
-  icon,
-  text,
-}: {
-  icon: React.ReactElement;
-  text: string;
-}) {
-  const pathname = usePathname();
-  const href = (() => {
-    if (text === "Staffs") {
-      return "/branch/staffs";
-    } else if (text === "Create Order") {
-      return "/branch/orders";
-    } else if (text === "View Orders") {
-      return "/branch/orders";
-    } else if (text === "Profile") {
-      return "/branch";
-    } else {
-      return `/branch/${text.toLowerCase()}`;
-    }
-  })();
-  const modifiedHref = href === "/" ? "/" : href;
-
-  return (
-    <Link href={modifiedHref}>
-      <div
-        className={`relative flex items-center justify-center h-12 w-12 my-2 mx-auto transition-colors duration-300 ease-linear cursor-pointer group rounded-xl text-zinc-900 bg-white ${
-          pathname === modifiedHref
-            ? "border-2 border-zinc-900"
-            : "hover:border-2 hover:border-zinc-400"
-        }`}
-      >
-        {icon}
-        <span className="absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md text-white bg-zinc-900 text-xs font-bold z-50 transition-all duration-100 origin-left scale-0 group-hover:scale-100">
-          {text}
-        </span>
-      </div>
-    </Link>
-  );
+interface Branch {
+  id: string
+  name: string
+  address: string
+  city: string
+  status: "active" | "inactive"
 }
 
-function SiderBarBranch() {
-  const [decodedToken, setDecodedToken] = React.useState<DecodedToken | null>(
-    null
-  );
+const mainNavItems = [{ icon: Home, text: "Dashboard", href: "/branch" }]
+
+const managementNavItems = [
+  { icon: ClipboardList, text: "Orders", href: "/branch/orders" },
+  { icon: CreditCard, text: "Expenses", href: "/branch/expenses" },
+  { icon: Users, text: "Staff", href: "/branch/staffs" },
+  {icon: Package, text: "Inventory", href: "/branch/inventory"},
+]
+
+const accountNavItems = [
+  { icon: User, text: "Profile", href: "/branch" },
+  { icon: Settings, text: "Settings", href: "/branch/settings" },
+]
+
+export function BranchSidebar() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null)
+  const [branch, setBranch] = useState<Branch | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
     if (token) {
-      const decodedToken = jwtDecode(token) as DecodedToken;
-      setDecodedToken(decodedToken);
+      try {
+        const decoded = jwtDecode(token) as DecodedToken
+        setDecodedToken(decoded)
+
+        // Fetch branch details
+        if (decoded.branchId) {
+          getBranchById(decoded.branchId).then((branchData) => {
+            setBranch(branchData)
+            setIsLoading(false)
+          })
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error)
+        setIsLoading(false)
+      }
+    } else {
+      setIsLoading(false)
     }
-  }, []);
+  }, [])
+
+  const handleLogout = async () => {
+    localStorage.removeItem("token")
+    router.push("/login")
+  }
+
+  const isActive = (href: string) => {
+    if (href === "/branch") return pathname === "/branch"
+    return pathname.startsWith(href)
+  }
+
+  // Don't show sidebar for owners
+  if (decodedToken?.role === "owner") {
+    return null
+  }
+
   return (
-    <React.Fragment>
-      <button
-        data-drawer-target="sidebar"
-        data-drawer-toggle="sidebar"
-        aria-controls="sidebar"
-        type="button"
-        className="inline-flex items-center p-2 mt-2 ml-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-      >
-        <svg
-          className="w-6 h-6"
-          aria-hidden="true"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            clipRule="evenodd"
-            fillRule="evenodd"
-            d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
-          ></path>
-        </svg>
-      </button>
-
-      <aside
-        id="sidebar"
-        className="fixed top-0 left-0 w-16 h-screen transition-transform -translate-x-full sm:translate-x-0"
-        aria-label="sidebar"
-      >
-        <div className={`h-full px-2 bg-white text-white flex flex-col border-r-2 ${decodedToken?.role === 'owner' ? 'hidden': 'flex'}`} >
-          {/* Logo here */}
-          <ul className="space-y-5 font-medium">
-            <li>
-              <SideBarIcon icon={<Home className="w-5 h-5" />} text={decodedToken?.branchId?.toString() ?? ''} />
-            </li>
-          </ul>
-          <ul className="pt-2 mt-2 space-y-5 font-medium border-t-2">
-            <li>
-              <SideBarIcon
-                icon={<ClipboardList className="w-5 h-5" />}
-                text="View Orders"
-              />
-            </li>
-            <li>
-              <SideBarIcon
-                icon={<CreditCardIcon className="w-5 h-5" />}
-                text="Expenses"
-              />
-            </li>
-            {true? (
-              <li>
-                <SideBarIcon
-                  icon={<Users className="w-5 h-5" />}
-                  text="Staffs"
-                />
-              </li>
-            ) : null}
-
-            {true? (
-              <li>
-                <SideBarIcon
-                  icon={<User className="w-5 h-5" />}
-                  text="Profile"
-                />
-              </li>
-            ) : null}
-          </ul>
-          <ul className="pt-2 mt-auto font-medium border-t-2">
-            <li>
-              <SideBarIcon
-                icon={<Settings className="w-5 h-5" />}
-                text="Settings"
-              />
-            </li>
-          </ul>
+    <Sidebar collapsible="offcanvas" className="border-r">
+      <SidebarHeader className="border-b bg-gradient-to-r from-green-50 to-emerald-50 p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold">
+            <Building2 className="h-5 w-5" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-gray-900">
+              {isLoading ? "Loading..." : branch?.name || "Branch Portal"}
+            </span>
+            <span className="text-xs text-gray-500">Management Dashboard</span>
+          </div>
         </div>
-        
-      </aside>
-    </React.Fragment>
-  );
-}
+      </SidebarHeader>
 
-export default SiderBarBranch;
+      <SidebarContent className="px-2 py-4">
+        {/* Main Navigation */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.text}>
+                  <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.text}>
+                    <Link href={`${item.href}/${branch?.id}`} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.text}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* Management */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {managementNavItems.map((item) => (
+                <SidebarMenuItem key={item.text}>
+                  <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.text}>
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.text}</span>
+                      {item.text === "Orders" && (
+                        <Badge variant="secondary" className="ml-auto">
+                          12
+                        </Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* Account */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {accountNavItems.map((item) => (
+                <SidebarMenuItem key={item.text}>
+                  <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.text}>
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.text}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="border-t bg-gray-50 p-4">
+        {/* Branch Status */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">{branch?.name || "Branch Name"}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <div className={`w-2 h-2 rounded-full ${branch?.status === "active" ? "bg-green-500" : "bg-red-500"}`} />
+              <p className="text-xs text-gray-500 capitalize">{branch?.status || "Unknown"}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Logout Button */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" className="w-full justify-start">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Sign Out</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to sign out? Any unsaved changes will be lost.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleLogout}>Sign Out</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </SidebarFooter>
+
+      <SidebarRail />
+    </Sidebar>
+  )
+}

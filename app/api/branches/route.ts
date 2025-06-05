@@ -49,7 +49,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     const companyId = searchParams.get('companyId');
-
+    const branchId = searchParams.get('branchId');
     const cacheKey = companyId ? `company-${companyId}` : `branch-${id}`;
    
     if (id) {

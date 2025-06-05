@@ -42,7 +42,7 @@ export function MenuIngredients(this: any, {
   }, [initialIngredients])
 
   const handleIngredientSelect = (ingredient: Ingredient) => {
-    // Check if ingredient is already added
+    
     const exists = menuIngredients.some(
       (item) => item.ingredientId === ingredient.id || item.ingredient.id === ingredient.id,
     )

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from "chart.js"
 import { Bar } from "react-chartjs-2"
 import { generateColors } from "./branchpie"
@@ -53,7 +53,7 @@ const ProfitSummaries = ({ companyId, currency }: { companyId: string, currency:
   })
   const [loading, setLoading] = useState(true)
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       if (!date?.from || !date?.to) return
@@ -75,17 +75,17 @@ const ProfitSummaries = ({ companyId, currency }: { companyId: string, currency:
     } finally {
       setLoading(false)
     }
-  }
+  }, [companyId, date?.from, date?.to])
 
   useEffect(() => {
     if (date?.from && date?.to) {
       fetchData()
     }
-  }, [date?.from, date?.to, companyId])
+  }, [date?.from, date?.to, companyId, fetchData])
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [fetchData])
 
   const chartData = {
     labels: ["Total Revenue", "Total Expense", "Profit"],

@@ -10,7 +10,7 @@ interface DecodedToken {
   [key: string]: any;
 }
 
-const publicRoutes = ['/login', '/register', '/public', '/start', '/start/business-setup'];
+const publicRoutes = ['/login', '/register', '/public', '/start', '/start/business-setup', '/waiter', '/branch'];
 interface RolePermissions {
   [key: string]: string[];
 }

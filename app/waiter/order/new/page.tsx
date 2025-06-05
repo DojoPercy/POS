@@ -1,14 +1,23 @@
-import { OrderForm } from '@/components/order-form'
-import OrderScreen from '@/components/orderScreen'
-import React from 'react'
+"use client"
 
-const OrderPage = () => {
+
+import OrderScreen from "@/components/orderScreen"
+import { WaiterHeader } from "@/components/waiter-header"
+
+export default function NewOrderPage() {
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/waiter" },
+    { label: "Orders", href: "/waiter/order/view" },
+    { label: "New Order" },
+  ]
+
   return (
-    <div className=" mx-auto py-10">
-    <h1 className="text-2xl font-bold mb-5">New Order</h1>
-    <OrderScreen />
-  </div>
+    <div className="flex flex-col h-full">
+      <WaiterHeader title="New Order" breadcrumbs={breadcrumbs} showSearch={true} showOrderList={true} />
+
+      <div className="flex-1 overflow-hidden">
+        <OrderScreen />
+      </div>
+    </div>
   )
 }
-
-export default OrderPage

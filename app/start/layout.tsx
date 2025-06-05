@@ -1,5 +1,7 @@
+import { ToastProvider } from '@radix-ui/react-toast'
 import '../globals.css'
 import { Inter } from 'next/font/google'
+import { Toaster } from '@/components/toaster'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -17,12 +19,15 @@ export default function StartLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <ToastProvider swipeDirection="right">
+        <Toaster />
         <div className="h-screen">
           
           <div className="bg-white  ">
             {children}  
           </div>
         </div>
+        </ToastProvider>
       </body>
     </html>
   )

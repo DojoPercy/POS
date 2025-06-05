@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Doughnut } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -55,7 +55,7 @@ const BranchStats = ({ companyId  }: {companyId:string }) => {
   const [loading, setLoading] = useState(true)
   const [branchData, setBranchData] = useState<Array<{ branch: string; sales: number; revenue: number }>>([])
   const [chartType, setChartType] = useState<"sales" | "revenue">("revenue")
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
         const fromDate: Date = date!.from!;
@@ -77,16 +77,16 @@ const BranchStats = ({ companyId  }: {companyId:string }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [companyId, date])
   
   
   useEffect(() => {
     fetchData()
-  }, [date!.from!, date?.to])
+  }, [date?.to, fetchData])
   
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [fetchData])
 
   const prepareChartData = () => {
     const labels = branchData.map((item) => item.branch)
