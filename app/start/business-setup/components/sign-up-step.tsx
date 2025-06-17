@@ -86,16 +86,7 @@ export function SignUpStep({ formData, updateFormData, nextStep }: SignUpStepPro
       setUserId(newUserId)
 
      
-      await axios.post("/api/send-otp", {
-        email: formData.email,
-        name: formData.name,
-      })
-
-      setOtpSent(true)
-      setStatusMessage({
-        type: "success",
-        message: "Verification code sent to your email",
-      })
+     
     } catch (error: any) {
       setStatusMessage({
         type: "error",
