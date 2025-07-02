@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { sendOrderUpdate } from '@/lib/pusher';
 import { NextRequest, NextResponse } from 'next/server';
 import redis from '@/lib/redis/redis';
+import { OrderStatus } from '../../../../lib/enums/enums';
 
 // GET order by ID
 export async function GET(req: any, { params }: any) {
@@ -93,7 +94,49 @@ export async function PUT(req: NextRequest, { params }: any) {
       body.waiterId ? `orders-${body.waiterId}` : null,
     ].filter(Boolean);
 
-    
+    console.log("sratus", body.orderStatus === OrderStatus.PAID);
+    console.log("status", body.OrderStatus);
+    console.log("updatedOrder", updatedOrder);
+    // Inventory deduction only if status is COMPLETED
+      if (body.orderStatus === "PAID" ) {
+      // Group ingredient deductions by ingredientId and branchId
+      const ingredientDeductions = new Map<string, number>(); // Key: `${ingredientId}-${branchId}`, Value: totalDeductQty
+console.log("Deducting inventory for order:", updatedOrder.id);
+      for (const line of updatedOrder.orderLines) {
+        // Fetch menu ingredients once per menuItemId if not already fetched
+        const ingredients = await prisma.menuIngredient.findMany({
+          where: { menuId: line.menuItemId },
+          select: { ingredientId: true, amount: true } // Select only necessary fields
+        });
+
+        for (const ingredient of ingredients) {
+          const deductQty = ingredient.amount * line.quantity;
+          const key = `${ingredient.ingredientId}-${body.branchId}`;
+          ingredientDeductions.set(key, (ingredientDeductions.get(key) || 0) + deductQty);
+        }
+      }
+
+      // Prepare a single batch update for inventory
+      const inventoryUpdates = Array.from(ingredientDeductions.entries()).map(([key, totalDeductQty]) => {
+        const [ingredientId, targetBranchId] = key.split('-');
+        return prisma.inventoryStock.updateMany({
+          where: {
+            ingredientId: ingredientId,
+            branchId: targetBranchId,
+          },
+          data: {
+            quantity: {
+              decrement: totalDeductQty,
+            },
+          },
+        });
+      });
+
+      // Run all inventory updates in a single transaction
+      if (inventoryUpdates.length > 0) {
+        await prisma.$transaction(inventoryUpdates);
+      }
+    }
     await sendOrderUpdate(updatedOrder);
 
    

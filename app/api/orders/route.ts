@@ -62,7 +62,14 @@ export async function GET(req: NextRequest) {
         branch: true,
         orderLines: {
           include: {
-            menuItem: true, // Include menu item details
+            menuItem: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+                categoryId: true,
+              },
+            }, // Include menu item details
           },
         },
         
@@ -83,13 +90,10 @@ export async function GET(req: NextRequest) {
 
 
 
-
 export async function POST(req: NextRequest) {
   try {
     const token = req.cookies.get("token")?.value;
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
+    if (!token) return NextResponse.redirect(new URL("/login", req.url));
 
     const decodedToken: DecodedToken = jwtDecode(token);
 
@@ -107,68 +111,89 @@ export async function POST(req: NextRequest) {
       orderNumber,
     } = await req.json();
 
+    const status = OrderStatus || orderStatus;
+    const companyId = decodedToken.companyId || "";
+
     const orderData = {
       waiterId,
       branchId,
-      companyId: decodedToken.companyId || "",
+      companyId,
       totalPrice,
       discount,
       rounding,
       finalPrice,
-      orderStatus: OrderStatus || orderStatus,
+      orderStatus: status,
       requiredDate,
       orderNumber,
+      orderLines: {
+        create: orderLines.map((line: any) => ({
+          menuItemId: line.menuItemId,
+          quantity: line.quantity,
+          price: line.price,
+          totalPrice: line.totalPrice,
+          notes: line.notes,
+        })),
+      },
     };
-
-    if (orderLines && orderLines.length > 0) {
-      Object.assign(orderData, {
-        orderLines: {
-          create: orderLines.map(
-            (line: {
-              menuItemId: string;
-              quantity: number;
-              price: number;
-              totalPrice: number;
-              notes?: string;
-            }) => ({
-              menuItemId: line.menuItemId,
-              quantity: line.quantity,
-              price: line.price,
-              totalPrice: line.totalPrice,
-              notes: line.notes,
-            })
-          ),
-        },
-      });
-    }
-
-    console.log("Creating order with data:", orderData);
 
     const newOrder = await prisma.order.create({
       data: orderData,
       include: { orderLines: true },
     });
 
-    // ✅ Clear all related cache keys (including full keys with dates)
-    const idsToInvalidate = [
-      branchId,
-      decodedToken.companyId,
-      waiterId,
-    ].filter(Boolean);
-
+    // Invalidate cache
+    const idsToInvalidate = [branchId, companyId, waiterId].filter(Boolean);
     for (const id of idsToInvalidate) {
-      const matchingKeys = await redis.keys(`orders-${id}-*`);
-      if (matchingKeys.length > 0) {
-        await redis.del(...matchingKeys);
+      const keys = await redis.keys(`orders-${id}-*`);
+      if (keys.length > 0) await redis.del(...keys);
+    }
+console.log("sratus", status);
+    // Inventory deduction only if status is COMPLETED
+      if (status === "PAID" && newOrder.orderLines.length > 0) {
+      // Group ingredient deductions by ingredientId and branchId
+      const ingredientDeductions = new Map<string, number>(); // Key: `${ingredientId}-${branchId}`, Value: totalDeductQty
+console.log("Deducting inventory for order:", newOrder.id);
+      for (const line of newOrder.orderLines) {
+        // Fetch menu ingredients once per menuItemId if not already fetched
+        const ingredients = await prisma.menuIngredient.findMany({
+          where: { menuId: line.menuItemId },
+          select: { ingredientId: true, amount: true } // Select only necessary fields
+        });
+
+        for (const ingredient of ingredients) {
+          const deductQty = ingredient.amount * line.quantity;
+          const key = `${ingredient.ingredientId}-${branchId}`;
+          ingredientDeductions.set(key, (ingredientDeductions.get(key) || 0) + deductQty);
+        }
+      }
+
+      // Prepare a single batch update for inventory
+      const inventoryUpdates = Array.from(ingredientDeductions.entries()).map(([key, totalDeductQty]) => {
+        const [ingredientId, targetBranchId] = key.split('-');
+        return prisma.inventoryStock.updateMany({
+          where: {
+            ingredientId: ingredientId,
+            branchId: targetBranchId,
+          },
+          data: {
+            quantity: {
+              decrement: totalDeductQty,
+            },
+          },
+        });
+      });
+
+      // Run all inventory updates in a single transaction
+      if (inventoryUpdates.length > 0) {
+        await prisma.$transaction(inventoryUpdates);
       }
     }
-
     await sendOrderUpdate(newOrder);
 
     return NextResponse.json(newOrder, { status: 201 });
+
   } catch (error: any) {
     console.error("Error creating order:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
