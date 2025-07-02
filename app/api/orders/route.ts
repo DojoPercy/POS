@@ -60,7 +60,12 @@ export async function GET(req: NextRequest) {
       },
       include: {
         branch: true,
-        orderLines: true,
+        orderLines: {
+          include: {
+            menuItem: true, // Include menu item details
+          },
+        },
+        
       },
     });
     console.log("Fetched orders:", orders.length);

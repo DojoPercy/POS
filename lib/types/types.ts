@@ -9,6 +9,7 @@ export interface DecodedToken {
   
  export interface OrderLine {
     menuItemId?: string
+    menuItem?: any;
     name: string
     quantity: number
     notes?: string

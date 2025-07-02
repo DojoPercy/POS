@@ -80,7 +80,17 @@ export async function GET(req: NextRequest) {
     } else if (companyId) {
       const menus = await prisma.menu.findMany({
         where: { companyId },
-        include: { price: true, category: true, ingredients: true  },
+        include: { price: true, category: true, ingredients: {
+          include:{
+            ingredient: {
+              select: {
+                id: true,
+                name: true,
+                unit: true,
+              },
+            },
+          }
+        }  },
       });
       await redis.set(cachedKey, JSON.stringify(menus), 'EX', 60 * 60);
       console.log("Company Menu Cache Key:", cachedKey, menus);

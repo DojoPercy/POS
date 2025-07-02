@@ -423,6 +423,64 @@ if (order.orderStatus === OrderStatus.PENDING) continue;
     console.error("Error fetching sales summary of branches:", error);
   }
 }
+export async function getTodaySalesSummaryOfBranches(companyId: string) {
+  try {
+    const now = new Date();
+    const from = new Date(now.setHours(0, 0, 0, 0));
+    const to = new Date(new Date().setHours(23, 59, 59, 999));
+
+    const queryParams = new URLSearchParams();
+    queryParams.append("from", from.toISOString());
+    queryParams.append("to", to.toISOString());
+
+    if (companyId) {
+      queryParams.append("companyId", companyId);
+    }
+
+    const res = await fetch(`/api/orders?${queryParams.toString()}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+    }).then((response) => response.json());
+
+    console.log('today sales summary response:', res);
+
+    const summary: Record<string, { branch: string; sales: number; revenue: number }> = {};
+
+    for (const order of res) {
+      const branch = await getBranchNameById(order.branchId);
+      if (!branch) {
+        console.error("Branch not found for ID:", order.branchId);
+        continue;
+      }
+
+      if (order.orderStatus === OrderStatus.PENDING) continue;
+
+      if (!summary[branch]) {
+        summary[branch] = {
+          branch: branch,
+          sales: 0,
+          revenue: 0,
+        };
+      }
+
+      for (const orderLine of order.orderLines) {
+        summary[branch].sales += 1;
+      }
+
+      summary[branch].revenue += order.totalPrice;
+    }
+
+    return Object.entries(summary).map(([branch, data]) => ({
+      branch,
+      sales: res.length,
+      revenue: data.revenue.toFixed(2),
+    }));
+  } catch (error) {
+    console.error("Error fetching today's sales summary of branches:", error);
+  }
+}
+
 export async function getExpectedRevenueByDataRange(from: Date, to: Date, branchId?: string, companyId?: string){
   try{
     const queryParams = new URLSearchParams();

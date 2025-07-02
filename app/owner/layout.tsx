@@ -1,7 +1,7 @@
 "use client"
+
 import SideBarOwner from "@/components/owner-sidebar"
 import type React from "react"
-
 import { Provider } from "react-redux"
 import { store } from "../../redux/index"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
@@ -14,14 +14,14 @@ export default function OwnerLayout({
 }) {
   return (
     <Provider store={store}>
-      
-      <SidebarProvider>
-        <div className="flex h-screen w-full">
+      <SidebarProvider defaultOpen={true}>
+        <div className="flex h-screen w-full overflow-hidden bg-slate-50">
           <SideBarOwner />
-          <SidebarInset>
-            <main className="flex-1 overflow-auto bg-white p-4">
-              <SidebarHeaderComponent/>
-              {children}</main>
+          <SidebarInset className="flex flex-col flex-1 min-w-0">
+            <SidebarHeaderComponent />
+            <main className="flex-1 overflow-auto bg-slate-50 p-4 md:p-6">
+              <div className="max-w-full">{children}</div>
+            </main>
           </SidebarInset>
         </div>
       </SidebarProvider>

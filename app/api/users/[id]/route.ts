@@ -4,9 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest, { params }: any) {
   try {
     const { id } = params; 
-    const users = await prisma.order.findUnique({
+    const users = await prisma.user.findUnique({
       where: { id }, 
     });
+    if (!users) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     return NextResponse.json(users, { status: 200 }); 
   } catch (error) {

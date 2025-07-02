@@ -60,7 +60,7 @@ export default function IngredientsPage() {
           <p className="text-muted-foreground mt-1">Manage your companys ingredients inventory</p>
         </div>
         <div className="flex items-center gap-2 w-full md:w-auto">
-          <Button onClick={() => setShowAddDialog(true)} className="flex items-center gap-2">
+          <Button onClick={() => setShowAddDialog(true)} className="flex items-center gap-2 bg-gradient-to-br from-blue-500 to-purple-500">
             <Plus className="h-4 w-4" />
             <span>Add Ingredient</span>
           </Button>

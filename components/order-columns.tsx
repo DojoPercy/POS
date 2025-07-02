@@ -1,10 +1,11 @@
-"use client";
+"use client"
 
-import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import type { ColumnDef } from "@tanstack/react-table"
+import { MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header"
+import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +13,41 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdownMenu";
-import Link from "next/link";
-import { OrderType } from "@/lib/types/types";
+} from "@/components/ui/dropdown-menu"
+import type { OrderType } from "@/lib/types/types"
 
-export const columns = (companyCurrency: string): ColumnDef<OrderType>[] => [
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "COMPLETED":
+    case "PAID":
+      return "bg-green-100 text-green-800 border-green-200"
+    case "PENDING":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200"
+    case "CANCELLED":
+      return "bg-red-100 text-red-800 border-red-200"
+    case "PROCESSING":
+      return "bg-blue-100 text-blue-800 border-blue-200"
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-200"
+  }
+}
+
+const getStatusText = (status: string) => {
+  switch (status) {
+    case "PAID":
+      return "Completed"
+    case "PENDING":
+      return "Pending"
+    case "CANCELLED":
+      return "Error"
+    case "PROCESSING":
+      return "Processing"
+    default:
+      return status
+  }
+}
+
+export const columns = (companyCurrency: string, onOrderClick?: (order: OrderType) => void): ColumnDef<OrderType>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -31,6 +62,7 @@ export const columns = (companyCurrency: string): ColumnDef<OrderType>[] => [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     enableSorting: false,
@@ -38,89 +70,76 @@ export const columns = (companyCurrency: string): ColumnDef<OrderType>[] => [
   },
   {
     accessorKey: "orderNumber",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Order Number" />,
-    cell: ({ row }) => <div className="font-medium">{row.getValue("orderNumber")}</div>,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="ORDER" />,
+    cell: ({ row }) => <div className="font-medium text-gray-900">{row.getValue("orderNumber")}</div>,
   },
   {
-    accessorKey: "waiterId",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Waiter ID" />,
+    accessorKey: "pickupNumber",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="PICKUP" />,
+    cell: ({ row }) => <div className="text-gray-600">{ "N/A"}</div>,
+  },
+  {
+    accessorKey: "customerName",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="CUSTOMER" />,
+    cell: ({ row }) => <div className="text-gray-600">{"Walk-in"}</div>,
   },
   {
     accessorKey: "branchName",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Branch" />,
-    cell: ({ row }) => <div className="font-medium">{row.getValue("branchName")}</div>,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="BRANCH" />,
+    cell: ({ row }) => <div className="text-gray-600">{row.getValue("branchName")}</div>,
   },
   {
-    accessorKey: "totalPrice",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Total Price" />,
+    accessorKey: "orderLines",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="ITEM" />,
     cell: ({ row }) => {
-      const amount = Number(row.getValue("totalPrice")) || 0;
-     
-      return <div className="font-medium">{companyCurrency}{amount}</div>;
+      const orderLines = row.getValue("orderLines") as any[]
+      const firstItem = orderLines?.[0]?.menuItem?.name || "No items"
+      const additionalCount = orderLines?.length > 1 ? ` +${orderLines.length - 1}` : ""
+      return (
+        <div className="text-gray-600">
+          {firstItem}
+          {additionalCount}
+        </div>
+      )
     },
   },
   {
     accessorKey: "finalPrice",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Final Price" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="PRICE" />,
     cell: ({ row }) => {
-      const amount = Number(row.getValue("finalPrice")) || 0;
-      const supportedCurrencies = ["USD", "EUR", "NGN", "GBP", "CAD", "GHS"];
-      const currency = supportedCurrencies.includes(companyCurrency) ? companyCurrency : "USD";
-  
-      
-      return <div className="font-medium">{currency}{amount}</div>;
+      const amount = Number(row.getValue("finalPrice")) || Number(row.original.totalPrice) || 0
+      return (
+        <div className="font-medium text-gray-900">
+          {companyCurrency}
+          {amount.toFixed(2)}
+        </div>
+      )
     },
   },
-  
   {
-    accessorKey: "orderStatus",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Completed" />,
+    accessorKey: "orderLines",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="DESCRIPTION" />,
     cell: ({ row }) => {
-      const status = row.getValue("orderStatus") as string;
-      const isCompleted = status === "PAID" || status === "COMPLETED";
-      return (
-        <div className={`font-medium ${isCompleted ? "text-green-600" : "text-red-600"}`}>
-          {isCompleted ? "Yes" : "No"}
-        </div>
-      );
+      const orderLines = row.getValue("orderLines") as any[]
+      const firstNote = orderLines?.[0]?.notes
+      return <div className="text-gray-500 max-w-xs truncate">{firstNote || "No special instructions"}</div>
     },
   },
   {
     accessorKey: "orderStatus",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Checked Out" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="STATUS" />,
     cell: ({ row }) => {
-      const status = row.getValue("orderStatus") as string;
-      const isCheckedOut = status === "PAID";
-      return (
-        <div className={`font-medium ${isCheckedOut ? "text-green-600" : "text-red-600"}`}>
-          {isCheckedOut ? "Yes" : "No"}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "requiredDate",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Required Date" />,
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("requiredDate") || "");
-      return <div>{date.toLocaleDateString()}</div>;
-    },
-  },
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Created At" />,
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt") || "");
-      return <div>{date.toLocaleString()}</div>;
+      const status = row.getValue("orderStatus") as string
+      return <Badge className={`${getStatusColor(status)} border`}>{getStatusText(status)}</Badge>
     },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const order = row.original;
+      const order = row.original
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
@@ -132,16 +151,21 @@ export const columns = (companyCurrency: string): ColumnDef<OrderType>[] => [
               Copy Order Number
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href={`/waiter/order/${order.id}`} passHref className="flex items-center">
-                <Eye className="mr-2 h-4 w-4" />
-                View Order Details
-              </Link>
+            <DropdownMenuItem onClick={() => onOrderClick?.(order)}>
+              <Eye className="mr-2 h-4 w-4" />
+              View Details
             </DropdownMenuItem>
-            <DropdownMenuItem>Update Order Status</DropdownMenuItem>
+            <DropdownMenuItem>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Order
+            </DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Cancel Order
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      );
+      )
     },
   },
-];
+]

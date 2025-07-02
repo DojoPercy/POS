@@ -1,47 +1,44 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from "chart.js"
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js"
 import { Bar } from "react-chartjs-2"
-import { generateColors } from "./branchpie"
-import { Skeleton } from "./ui/skeleton"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { DatePickerWithRange } from "./ui/date-time-picker"
 import type { DateRange } from "react-day-picker"
-import { format, addDays } from "date-fns"
+import { addDays } from "date-fns"
 import { getProfitSummaryByDateRange, type Summary } from "@/lib/summaries"
-import { Button } from "./ui/button"
-import { Calendar, RefreshCw } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
-import { Calendar as CalendarComponent } from "./ui/calendar"
+import { RefreshCw, TrendingUp, TrendingDown, DollarSign } from "lucide-react"
 
-// Register required Chart.js components
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title)
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const BarChartSkeleton = () => (
-  <div className="flex flex-col items-center justify-center w-full h-[300px] space-y-4">
+  <div className="space-y-4">
     <div className="flex w-full justify-center space-x-2">
-      {[...Array(5)].map((_, index) => (
-        <div key={index} className="h-[200px] w-[40px] bg-gray-200 animate-pulse rounded-md"></div>
+      {[...Array(3)].map((_, index) => (
+        <div key={index} className="h-[200px] w-[80px] bg-slate-200 animate-pulse rounded-md"></div>
       ))}
     </div>
-    <div className="flex flex-col space-y-2 w-full max-w-[300px]">
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
+    <div className="grid grid-cols-3 gap-4">
+      {[...Array(3)].map((_, index) => (
+        <Skeleton key={index} className="h-20 w-full" />
+      ))}
     </div>
   </div>
 )
 
-const formatCurrency = (value: number) => {
+const formatCurrency = (value: number, currency = "USD") => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "GHS",
+    currency: currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value)
 }
 
-const ProfitSummaries = ({ companyId, currency }: { companyId: string, currency: string }) => {
-  const colors = generateColors(3)
+const ProfitSummaries = ({ companyId, currency = "USD" }: { companyId: string; currency?: string }) => {
   const [date, setDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
     to: new Date(),
@@ -54,13 +51,14 @@ const ProfitSummaries = ({ companyId, currency }: { companyId: string, currency:
   const [loading, setLoading] = useState(true)
 
   const fetchData = useCallback(async () => {
+    if (!date?.from || !date?.to) return
+
     setLoading(true)
     try {
-      if (!date?.from || !date?.to) return
-
       const fromDate: Date = date.from
       const toDate: Date = date.to
       const data = await getProfitSummaryByDateRange(fromDate, toDate, undefined, companyId)
+
       if (data) {
         setProfitData(data)
       } else {
@@ -71,121 +69,154 @@ const ProfitSummaries = ({ companyId, currency }: { companyId: string, currency:
         })
       }
     } catch (error) {
-      console.error("Error fetching Summaries data:", error)
+      console.error("Error fetching profit data:", error)
     } finally {
       setLoading(false)
     }
   }, [companyId, date?.from, date?.to])
 
   useEffect(() => {
-    if (date?.from && date?.to) {
-      fetchData()
-    }
-  }, [date?.from, date?.to, companyId, fetchData])
-
-  useEffect(() => {
     fetchData()
   }, [fetchData])
 
   const chartData = {
-    labels: ["Total Revenue", "Total Expense", "Profit"],
+    labels: ["Revenue", "Expenses", "Profit"],
     datasets: [
       {
-        label: "Profit Summary",
+        label: "Financial Summary",
         data: [profitData?.totalRevenue, profitData?.totalExpense, profitData?.profit],
-        backgroundColor: colors,
-        borderColor: colors,
-        borderWidth: 1,
+        backgroundColor: [
+          "rgba(34, 197, 94, 0.8)", // Green for revenue
+          "rgba(239, 68, 68, 0.8)", // Red for expenses
+          "rgba(59, 130, 246, 0.8)", // Blue for profit
+        ],
+        borderColor: ["rgb(34, 197, 94)", "rgb(239, 68, 68)", "rgb(59, 130, 246)"],
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
       },
     ],
   }
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top" as const,
+        display: false,
       },
       tooltip: {
         callbacks: {
           label: (context: any) => {
-            let label = context.dataset.label || ""
-            if (label) {
-              label += ": "
-            }
-            if (context.parsed.y !== null) {
-              label += formatCurrency(context.parsed.y)
-            }
-            return label
+            const value = context.parsed.y
+            return `${context.label}: ${formatCurrency(value, currency)}`
           },
         },
       },
     },
     scales: {
       y: {
+        beginAtZero: true,
         ticks: {
-          callback: (value: any) => formatCurrency(value),
+          callback: (value: any) => formatCurrency(value, currency),
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 0.1)",
+        },
+      },
+      x: {
+        grid: {
+          display: false,
         },
       },
     },
   }
 
-  const dateRangeText =
-    date?.from && date?.to
-      ? `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`
-      : "Select date range"
+  const profitMargin =
+    profitData?.totalRevenue > 0 ? (((profitData?.profit || 0) / profitData.totalRevenue) * 100).toFixed(1) : "0"
 
   if (loading) {
-    return <BarChartSkeleton />
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Profit Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <BarChartSkeleton />
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
-    <div className="w-full space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Profit Summary</h2>
-        <Button variant="outline" size="sm" onClick={fetchData} className="ml-auto">
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Update
-                    </Button>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>{dateRangeText}</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end">
-            <CalendarComponent
-              initialFocus
-              mode="range"
-              defaultMonth={date?.from}
-              selected={date}
-              onSelect={setDate}
-              numberOfMonths={2}
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
+    <Card className="w-full">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-slate-600" />
+            Profit Summary
+          </CardTitle>
+          <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+            Update
+          </Button>
+        </div>
+      </CardHeader>
 
-      <div className="h-[300px]">
-        <Bar options={options} data={chartData} />
-      </div>
+      <CardContent className="space-y-6">
+        <DatePickerWithRange date={date} setDate={setDate} />
 
-      <div className="grid grid-cols-3 gap-4 mt-4">
-        <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950">
-          <p className="text-sm font-medium text-green-600 dark:text-green-400">Revenue</p>
-          <p className="text-2xl font-bold">{formatCurrency(profitData?.totalRevenue || 0)}</p>
+        <div className="h-[280px]">
+          <Bar options={options} data={chartData} />
         </div>
-        <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950">
-          <p className="text-sm font-medium text-red-600 dark:text-red-400">Expenses</p>
-          <p className="text-2xl font-bold">{formatCurrency(profitData?.totalExpense || 0)}</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700">Total Revenue</p>
+                  <p className="text-xl font-bold text-green-900">
+                    {formatCurrency(profitData?.totalRevenue || 0, currency)}
+                  </p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-red-700">Total Expenses</p>
+                  <p className="text-xl font-bold text-red-900">
+                    {formatCurrency(profitData?.totalExpense || 0, currency)}
+                  </p>
+                </div>
+                <TrendingDown className="h-8 w-8 text-red-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-700">Net Profit</p>
+                  <p className="text-xl font-bold text-blue-900">{formatCurrency(profitData?.profit || 0, currency)}</p>
+                  <p className="text-xs text-blue-600">{profitMargin}% margin</p>
+                </div>
+                <DollarSign className="h-8 w-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950">
-          <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Profit</p>
-          <p className="text-2xl font-bold">{formatCurrency(profitData?.profit || 0)}</p>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 

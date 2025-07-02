@@ -23,10 +23,10 @@ export default function RootLayout({
       <Toaster />
         <div className="h-[85%]">
           
-          <div className="bg-white sm:ml-16 ">
+       
             {children}  
           </div>
-        </div>
+        
         </ToastProvider>
       </body>
     </html>

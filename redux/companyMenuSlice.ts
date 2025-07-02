@@ -22,7 +22,7 @@ export const getMenuItemsPerCompany = createAsyncThunk<MenuItem[], string>(
         try {
             const cachedMenuItems = await getMenuItemsFromIndexedDB();
             if (cachedMenuItems.length > 0) {
-                console.log("Using cached menu items from IndexedDB");
+                console.log("Using cached menu items from IndexedDB", cachedMenuItems);
                 return cachedMenuItems;
             }
 

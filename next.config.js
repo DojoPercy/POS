@@ -10,7 +10,12 @@ const nextConfig = {
         ]
     },
     images: {
-        domains: ['res.cloudinary.com'],
+        domains: ['res.cloudinary.com', 
+                  'images.unsplash.com', 
+                  'cdn.pixabay.com', 
+                  'avatars.githubusercontent.com', 
+                  'lh3.googleusercontent.com', 
+                  'www.gravatar.com'],
       },
 }
 

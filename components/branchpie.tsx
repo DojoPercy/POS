@@ -4,32 +4,36 @@ import { useState, useEffect, useCallback } from "react"
 import { Doughnut } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { CalendarIcon, RefreshCw } from "lucide-react"
-import { DatePicker } from "./ui/datepicker"
+import { RefreshCw, Building2, TrendingUp, Currency } from 'lucide-react'
+import { DatePickerWithRange } from "./ui/date-time-picker"
 import { DateRange } from "react-day-picker"
 import { addDays } from "date-fns"
-import { DatePickerWithRange } from "./ui/date-time-picker"
 import { getSalesSummaryOfBranches } from "@/lib/summaries"
+import { Badge } from "@/components/ui/badge"
 
-// Register required Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-// Function to generate random colors
 export const generateColors = (count: number) => {
+  const baseColors = [
+    'rgb(59, 130, 246)',   // Blue
+    'rgb(16, 185, 129)',   // Green
+    'rgb(245, 158, 11)',   // Orange
+    'rgb(139, 92, 246)',   // Purple
+    'rgb(239, 68, 68)',    // Red
+    'rgb(6, 182, 212)',    // Cyan
+    'rgb(236, 72, 153)',   // Pink
+    'rgb(34, 197, 94)',    // Emerald
+  ]
+  
   const colors = []
   for (let i = 0; i < count; i++) {
-    const r = Math.floor(Math.random() * 255)
-    const g = Math.floor(Math.random() * 255)
-    const b = Math.floor(Math.random() * 255)
-    colors.push(`rgb(${r}, ${g}, ${b})`)
+    colors.push(baseColors[i % baseColors.length])
   }
   return colors
 }
 
-// Skeleton component for loading state
 const ChartSkeleton = () => (
   <div className="flex flex-col items-center justify-center w-full h-[300px] space-y-4">
     <Skeleton className="h-[200px] w-[200px] rounded-full" />
@@ -41,28 +45,25 @@ const ChartSkeleton = () => (
   </div>
 )
 
-
-// Mock function for getBranchNameById since it's used in getSalesSummaryOfBranches
-
-
-const BranchStats = ({ companyId  }: {companyId:string }) => {
-   
-    
-    const [date, setDate] = useState<DateRange | undefined>({
-        from: addDays(new Date(), -7),
-        to: new Date(),
-      });
+const BranchStats = ({ companyId, currency }: { companyId: string, currency : string}) => {
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: addDays(new Date(), -7),
+    to: new Date(),
+  })
   const [loading, setLoading] = useState(true)
   const [branchData, setBranchData] = useState<Array<{ branch: string; sales: number; revenue: number }>>([])
   const [chartType, setChartType] = useState<"sales" | "revenue">("revenue")
+
   const fetchData = useCallback(async () => {
+    if (!date?.from || !date?.to) return
+    
     setLoading(true)
     try {
-        const fromDate: Date = date!.from!;
-        const toDate: Date = date!.to!;
-      const data = await getSalesSummaryOfBranches(fromDate!, toDate!, companyId)
+      const fromDate: Date = date.from
+      const toDate: Date = date.to
+      const data = await getSalesSummaryOfBranches(fromDate, toDate, companyId)
+      
       if (data) {
-        // Ensure that revenue is a number, if it’s a string, convert it to a number.
         const formattedData = data.map(item => ({
           branch: item.branch,
           sales: item.sales,
@@ -78,12 +79,7 @@ const BranchStats = ({ companyId  }: {companyId:string }) => {
       setLoading(false)
     }
   }, [companyId, date])
-  
-  
-  useEffect(() => {
-    fetchData()
-  }, [date?.to, fetchData])
-  
+
   useEffect(() => {
     fetchData()
   }, [fetchData])
@@ -100,53 +96,61 @@ const BranchStats = ({ companyId  }: {companyId:string }) => {
           label: chartType === "sales" ? "Sales" : "Revenue",
           data: values,
           backgroundColor: colors,
-          hoverOffset: 4,
+          borderWidth: 2,
+          borderColor: '#ffffff',
+          hoverOffset: 8,
         },
       ],
     }
   }
 
+  const totalValue = branchData.reduce((sum, item) => 
+    sum + (chartType === "sales" ? item.sales : item.revenue), 0
+  )
+
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-md font-medium">
-          Branch {chartType === "sales" ? "Sales" : "Revenue"} Distribution
-        </CardTitle>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant={chartType === "sales" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setChartType("sales")}
-          >
-            Sales
-          </Button>
-          <Button
-            variant={chartType === "revenue" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setChartType("revenue")}
-          >
-            Revenue
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2">
-              
-              <DatePickerWithRange date={date} setDate={setDate} />
-            </div>
-           
-            <Button variant="outline" size="sm" onClick={fetchData} className="ml-auto">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Update
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-slate-600" />
+            <CardTitle className="text-lg font-semibold">Branch Performance</CardTitle>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={chartType === "sales" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setChartType("sales")}
+              className="h-8"
+            >
+              Sales
+            </Button>
+            <Button
+              variant={chartType === "revenue" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setChartType("revenue")}
+              className="h-8"
+            >
+              Revenue
             </Button>
           </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
+          <DatePickerWithRange date={date} setDate={setDate} />
+          <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Update
+          </Button>
+        </div>
 
-          {loading ? (
-            <ChartSkeleton />
-          ) : branchData.length > 0 ? (
-            <div className="h-[300px] flex items-center justify-center">
+        {loading ? (
+          <ChartSkeleton />
+        ) : branchData.length > 0 ? (
+          <div className="space-y-4">
+            <div className="h-[280px] flex items-center justify-center relative">
               <Doughnut
                 data={prepareChartData()}
                 options={{
@@ -155,15 +159,24 @@ const BranchStats = ({ companyId  }: {companyId:string }) => {
                   plugins: {
                     legend: {
                       position: "bottom",
+                      labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                          size: 12
+                        }
+                      }
                     },
                     tooltip: {
                       callbacks: {
                         label: (context) => {
                           const label = context.label || ""
-                          const value = context.raw
-                          const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0)
-                          const percentage = Math.round(((value as number) / total) * 100)
-                          return `${label}: ${value} (${percentage}%)`
+                          const value = context.raw as number
+                          const percentage = Math.round((value / totalValue) * 100)
+                          const formattedValue = chartType === "revenue" 
+                            ? `${currency}${value.toLocaleString()}` 
+                            : value.toLocaleString()
+                          return `${label}: ${formattedValue} (${percentage}%)`
                         },
                       },
                     },
@@ -171,16 +184,28 @@ const BranchStats = ({ companyId  }: {companyId:string }) => {
                 }}
               />
             </div>
-          ) : (
-            <div className="flex items-center justify-center h-[300px]">
-              <p className="text-muted-foreground">No data available for the selected period</p>
+            
+            {/* Summary Stats */}
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+              <div className="text-center">
+                <p className="text-sm text-slate-600">Total {chartType === "sales" ? "Sales" : "Revenue"}</p>
+                <p className="text-xl font-bold text-slate-900">
+                  {chartType === "revenue" ? `${currency}${totalValue.toLocaleString()}` : totalValue.toLocaleString()}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-slate-600">Active Branches</p>
+                <p className="text-xl font-bold text-slate-900">{branchData.length}</p>
+              </div>
             </div>
-          )}
-
-          {!loading && branchData.length > 0 && (
-            <div className="text-xs text-muted-foreground text-center">Last updated: {new Date().toLocaleString()}</div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-[300px] text-center">
+            <Building2 className="h-12 w-12 text-slate-300 mb-4" />
+            <p className="text-slate-500 font-medium">No branch data available</p>
+            <p className="text-sm text-slate-400">Try selecting a different date range</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

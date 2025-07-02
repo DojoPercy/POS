@@ -55,6 +55,8 @@ model Company {
 
   Order Order[]
   Expense Expense[]
+
+  Notification Notification[]
 }
 
 model User {
@@ -72,6 +74,10 @@ model User {
   
   company     Company?  @relation("CompanyUsers", fields: [companyId], references: [id])
   managedCompany Company? @relation("CompanyOwner")
+
+  Notification Notification[] @relation("NotificationUser")
+
+  
 }
 
 
@@ -96,6 +102,60 @@ model Branch {
   Expense Expense[]
 
   InventoryStock InventoryStock[]
+
+  Notification Notification[]
+}
+
+model Notification {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  message     String
+  type        NotificationType  // COMPANY, BRANCH, USER
+  priority    NotificationPriority @default(MEDIUM)
+  
+  // Optional foreign keys based on notification type
+  companyId   String?           @db.ObjectId
+  branchId    String?           @db.ObjectId
+  userId      String?           @db.ObjectId
+  
+  // Metadata
+  isRead      Boolean           @default(false)
+  readAt      DateTime?
+  readBy      String?           @db.ObjectId  // User who marked it as read
+  
+  // Who created the notification
+  createdBy   String            @db.ObjectId
+  
+  // Timestamps
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  expiresAt   DateTime?         // Optional expiration date
+  
+  // Relationships
+  company     Company?          @relation(fields: [companyId], references: [id])
+  branch      Branch?           @relation(fields: [branchId], references: [id])
+  user        User?             @relation("NotificationUser", fields: [userId], references: [id])
+  
+  @@index([companyId])
+  @@index([branchId])
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  COMPANY   // Company-wide notification
+  BRANCH    // Branch-specific notification
+  USER      // User-specific notification
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 model Menu {
   id          String         @id @default(auto()) @map("_id") @db.ObjectId

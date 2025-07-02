@@ -41,7 +41,9 @@ export const fetchUsers = async () => {
 
   export const fetchUser = async (id: string) => {
     try {
+      console.log("Fetching user with ID:", id);
       const user = await axios.get(`/api/users/${id}`);
+      console.log("User fetched:", user.data);
       return user.data;
 
     }catch{
