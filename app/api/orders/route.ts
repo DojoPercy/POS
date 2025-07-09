@@ -68,6 +68,7 @@ export async function GET(req: NextRequest) {
                 name: true,
                 price: true,
                 categoryId: true,
+                imageUrl: true,
               },
             }, // Include menu item details
           },

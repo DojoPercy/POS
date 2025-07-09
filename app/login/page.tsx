@@ -173,7 +173,7 @@ const Login = () => {
               disabled={loading}
               className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-200"
             >
-              {loading || isMatch ? <ClipLoader color="#fff" loading={loading} size={20} /> : "Sign in to Dashboard"}
+              {loading || isMatch ? <ClipLoader color="#fff" loading={loading || isMatch} size={20} /> : "Sign in to Dashboard"}
             </Button>
           </form>
 

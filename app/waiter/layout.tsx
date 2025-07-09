@@ -7,7 +7,6 @@ import { store } from "../../redux/index"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { usePathname } from "next/navigation"
 import { Toaster } from "@/components/ui/toaster"
-import { OrderListSidebar } from "@/components/orders_list_sidebar"
 import { WaiterSidebar } from "@/components/waiter-sidebar"
 
 export default function WaiterLayout({
@@ -26,11 +25,6 @@ export default function WaiterLayout({
           <SidebarInset className="flex-1">
             <div className="flex h-full">
               <main className="flex-1 overflow-hidden">{children}</main>
-              {shouldShowOrderList && (
-                <div className="hidden xl:block w-96 border-l bg-white">
-                  <OrderListSidebar />
-                </div>
-              )}
             </div>
           </SidebarInset>
         </div>

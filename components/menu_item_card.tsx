@@ -2,30 +2,32 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Minus, Plus, ShoppingBag, Star, Clock } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Minus, Plus, ShoppingBag, Star, Clock, X } from "lucide-react"
 import { motion } from "framer-motion"
 import type { PriceType, MenuItem } from "@/lib/types/types"
 
 type MenuItemCardProps = {
   item: MenuItem
   currency: string
-  onAddToCart: (item: MenuItem, selectedPrice: PriceType, quantity: number) => void
+  onAddToCart: (item: MenuItem, selectedPrice: PriceType, quantity: number, notes?: string) => void
 }
 
 export default function MenuItemCard({ item, onAddToCart, currency }: MenuItemCardProps) {
-  const [selectedPrice, setSelectedPrice] = useState<PriceType | null>(item.price.length > 0 ? item.price[0] : null)
+  const itemPrices = item.price || []
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedPrice, setSelectedPrice] = useState<PriceType | null>(itemPrices.length > 0 ? itemPrices[0] : null)
   const [quantity, setQuantity] = useState(1)
   const [isHovered, setIsHovered] = useState(false)
 
   const handleAddToCart = () => {
     if (selectedPrice) {
       onAddToCart(item, selectedPrice, quantity)
-      // Reset quantity after adding to cart with animation feedback
       setQuantity(1)
+      setIsModalOpen(false)
     }
   }
 
@@ -37,175 +39,196 @@ export default function MenuItemCard({ item, onAddToCart, currency }: MenuItemCa
     setQuantity((prev) => Math.max(prev - 1, 1))
   }
 
-  // Mock data for enhanced features - replace with actual data
   const rating = 4.5
-  const prepTime = "15-20 min"
-  const isPopular = true
-  const isAvailable  = true
+  const isAvailable = true
+  const basePrice = itemPrices.length > 0 ? itemPrices[0].price : 0
 
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-    >
-      <Card
-        className={`overflow-hidden h-full flex flex-col shadow-sm hover:shadow-lg transition-all duration-300 ${
-          !isAvailable ? "opacity-60" : ""
-        }`}
+    <>
+      {/* Simplified Card */}
+      <motion.div
+        whileHover={{ y: -4 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ duration: 0.2 }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
       >
-        <CardHeader className="p-0 relative">
-          {/* Item image */}
-          <div className="relative w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+        <Card
+          className="cursor-pointer overflow-hidden bg-white hover:shadow-lg transition-all duration-300 border border-gray-100"
+          onClick={() => setIsModalOpen(true)}
+        >
+          {/* Image */}
+          <div className="relative w-full h-40 overflow-hidden">
             <Image
-              src={item.imageUrl || "/placeholder.svg?height=200&width=300"}
+              src={item.imageUrl || "/placeholder.svg?height=160&width=240"}
               alt={item.name}
               fill
               className={`object-cover transition-transform duration-300 ${isHovered ? "scale-105" : "scale-100"}`}
             />
 
-            {/* Overlay badges */}
-            <div className="absolute top-3 left-3 flex flex-col gap-2">
-            
-              {!isAvailable && (
-                <Badge variant="destructive" className="shadow-md">
-                  Out of Stock
-                </Badge>
-              )}
+            {/* Price Badge */}
+            <div className="absolute top-3 right-3">
+              <Badge className="bg-white/90 text-gray-900 font-semibold">
+                {currency}
+                {basePrice.toFixed(2)}
+              </Badge>
             </div>
 
-            {/* Price badge */}
-            {selectedPrice && (
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="absolute bottom-3 right-3"
-              >
-                <Badge className="text-sm font-semibold px-3 py-1 bg-white/90 text-gray-900 shadow-md border">
-                  {currency}
-                  {selectedPrice.price.toFixed(2)}
-                </Badge>
-              </motion.div>
-            )}
-
-            {/* Gradient overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-          </div>
-        </CardHeader>
-
-        <CardContent className="p-4 flex-1 flex flex-col">
-          {/* Item details */}
-          <div className="space-y-3 flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold text-lg text-gray-900 line-clamp-1 flex-1">{item.name}</h3>
-              <div className="flex items-center gap-1 text-sm text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
+            {/* Rating Badge */}
+            <div className="absolute top-3 left-3">
+              <Badge className="bg-amber-500 text-white flex items-center gap-1">
                 <Star className="h-3 w-3 fill-current" />
-                <span className="font-medium">{rating}</span>
-              </div>
+                {rating}
+              </Badge>
             </div>
 
-            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.5rem]">
+            {!isAvailable && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <Badge variant="destructive">Out of Stock</Badge>
+              </div>
+            )}
+          </div>
+
+          {/* Content */}
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-1">{item.name}</h3>
+            <p className="text-sm text-gray-600 line-clamp-2 mb-3">
               {item.description || "Delicious menu item prepared with fresh ingredients"}
             </p>
 
-            <div className="flex items-center gap-4 text-xs text-gray-500">
-              <div className="flex items-center gap-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-xs text-gray-500">
                 <Clock className="h-3 w-3" />
-                <span>{prepTime}</span>
+                <span>15-20 min</span>
+              </div>
+              <Button size="sm" className="bg-primary hover:bg-primary/90">
+                View Options
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Selection Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>{item.name}</span>
+              <Button variant="ghost" size="icon" onClick={() => setIsModalOpen(false)} className="h-6 w-6">
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Item Image & Info */}
+            <div className="flex gap-4">
+              <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                <Image
+                  src={item.imageUrl || "/placeholder.svg?height=80&width=80"}
+                  alt={item.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg">{item.name}</h3>
+                <p className="text-sm text-gray-600 line-clamp-2">{item.description || "Delicious menu item"}</p>
+                <div className="flex items-center gap-1 mt-1">
+                  <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                  <span className="text-sm text-gray-600">{rating}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <Separator className="my-4" />
-
-          {/* Price options */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-700">Size & Price:</h4>
-            <div className="grid gap-2">
-              {item.price.map((price) => (
-                <motion.div key={price.id} whileTap={{ scale: 0.98 }} transition={{ duration: 0.1 }}>
-                  <Button
-                    variant={selectedPrice?.id === price.id ? "default" : "outline"}
-                    size="sm"
-                    className={`w-full justify-between h-10 transition-all duration-200 ${
-                      selectedPrice?.id === price.id
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "hover:bg-gray-50 hover:border-gray-300"
-                    }`}
+            {/* Price Selection */}
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900">Select Size</h4>
+              <div className="space-y-2">
+                {itemPrices.map((price: PriceType) => (
+                  <div
+                    key={price.id}
+                    className={`
+                      flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-all
+                      ${
+                        selectedPrice?.id === price.id
+                          ? "border-primary bg-primary/5"
+                          : "border-gray-200 hover:border-gray-300"
+                      }
+                    `}
                     onClick={() => setSelectedPrice(price)}
-                    disabled={!isAvailable}
                   >
-                    <span className="font-medium">{price.name}</span>
-                    <span className="font-semibold">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`
+                        w-4 h-4 rounded-full border-2 flex items-center justify-center
+                        ${selectedPrice?.id === price.id ? "border-primary" : "border-gray-300"}
+                      `}
+                      >
+                        {selectedPrice?.id === price.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                      </div>
+                      <span className="font-medium">{price.name}</span>
+                    </div>
+                    <span className="font-semibold text-primary">
                       {currency}
                       {price.price.toFixed(2)}
                     </span>
-                  </Button>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-
-        <CardFooter className="p-4 pt-0 border-t bg-gray-50/50">
-          <div className="flex items-center justify-between w-full gap-3">
-            {/* Quantity controls */}
-            <div className="flex items-center border rounded-lg bg-white shadow-sm">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-l-lg hover:bg-gray-100"
-                onClick={decrementQuantity}
-                disabled={quantity <= 1 || !isAvailable}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <div className="w-12 h-10 flex items-center justify-center border-x bg-gray-50">
-                <span className="font-semibold text-gray-900">{quantity}</span>
+                  </div>
+                ))}
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-r-lg hover:bg-gray-100"
-                onClick={incrementQuantity}
-                disabled={quantity >= 99 || !isAvailable}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
             </div>
 
-            {/* Add to cart button */}
-            <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }} className="flex-1">
+            {/* Quantity Selection */}
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900">Quantity</h4>
+              <div className="flex items-center justify-center gap-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={decrementQuantity}
+                  disabled={quantity <= 1}
+                  className="h-10 w-10 bg-transparent"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <div className="w-16 h-10 flex items-center justify-center bg-gray-50 rounded-md border">
+                  <span className="font-semibold text-lg">{quantity}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={incrementQuantity}
+                  disabled={quantity >= 99}
+                  className="h-10 w-10"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Total & Add to Cart */}
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-medium">Total:</span>
+                <span className="text-xl font-bold text-primary">
+                  {currency}
+                  {selectedPrice ? (selectedPrice.price * quantity).toFixed(2) : "0.00"}
+                </span>
+              </div>
+
               <Button
                 onClick={handleAddToCart}
                 disabled={!selectedPrice || !isAvailable}
-                className="w-full h-10 gap-2 bg-primary hover:bg-primary/90 text-white font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                className="w-full h-12 bg-primary hover:bg-primary/90 flex items-center gap-2"
               >
-                <ShoppingBag className="h-4 w-4" />
+                <ShoppingBag className="h-5 w-5" />
                 Add to Cart
               </Button>
-            </motion.div>
+            </div>
           </div>
-
-          {/* Total price preview */}
-          {selectedPrice && quantity > 1 && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="w-full mt-2 pt-2 border-t"
-            >
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-600">Total:</span>
-                <span className="font-semibold text-gray-900">
-                  {currency}
-                  {(selectedPrice.price * quantity).toFixed(2)}
-                </span>
-              </div>
-            </motion.div>
-          )}
-        </CardFooter>
-      </Card>
-    </motion.div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

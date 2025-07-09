@@ -7,22 +7,20 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingCart, Search, MenuIcon, ChevronRight, Coffee, Utensils } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-
 import MenuItemCard from "./menu_item_card"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import type { PriceType, MenuCategory } from "../lib/types/types"
 import type { MenuItem } from "@/lib/types/types"
-import { getMenuItemsPerCompany, updateMenuItemData } from "@/redux/companyMenuSlice"
+import { getMenuItemsPerCompany } from "@/redux/companyMenuSlice"
 import { fetchUserFromToken, selectUser } from "@/redux/authSlice"
 import { useSelector, useDispatch } from "react-redux"
 import type { RootState } from "@reduxjs/toolkit"
 import { fetchMenuCategoriesOfCompany } from "@/redux/CompanyCategoryMenuSlice"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { getCompanyDetails } from "@/redux/companySlice"
-import { selectOrderById } from "@/redux/orderSlice"
 import OrderSummary from "./orderSummary"
-import { uploadBase64Image } from "@/lib/cloudnary"
+import { selectOrderById } from "@/redux/orderSlice"
 
 // Types
 type CartItem = {
@@ -31,35 +29,33 @@ type CartItem = {
   quantity: number
   notes?: string
 }
-
 type OrderScreenProp = {
   orderId?: string
 }
 
 export default function OrderScreen({ orderId }: OrderScreenProp) {
   const [activeCategory, setActiveCategory] = useState<string>("")
-  const [isEditingExistingOrder, setIsEditingExistingOrder] = useState(false)
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(true)
+  
   const [orderNumber, setOrderNumber] = useState("")
+  const [isEditingExistingOrder, setIsEditingExistingOrder] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [uploadStarted, setUploadStarted] = useState(false);
 
   const { toast } = useToast()
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
-
   const { categories } = useSelector((state: any) => state.menuCategories)
   const { menuItems, isLoading } = useSelector((state: RootState) => state.menu)
   const { company } = useSelector((state: RootState) => state.company)
+  
   const existingOrder = useSelector((state: RootState) => (orderId ? selectOrderById(state, orderId) : null))
 
   useEffect(() => {
     if (user?.companyId) {
       setIsLoadingData(true)
-
       Promise.all([
         dispatch(fetchUserFromToken()),
         dispatch(getCompanyDetails(user.companyId)),
@@ -71,8 +67,36 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
     }
   }, [dispatch, user?.companyId])
 
- 
   useEffect(() => {
+    if (categories.length > 0 && !activeCategory) {
+      setActiveCategory(categories[0].id)
+    }
+  }, [categories, activeCategory])
+
+  const addToCart = (menuItem: MenuItem, selectedPrice: PriceType, quantity: number, notes = "") => {
+    setCart((prevCart) => {
+      const existingItemIndex = prevCart.findIndex(
+        (item) => item.menuItem.id === menuItem.id && item.selectedPrice.id === selectedPrice.id,
+      )
+
+      if (existingItemIndex !== -1) {
+        const updatedCart = [...prevCart]
+        updatedCart[existingItemIndex].quantity += quantity
+        if (notes) {
+          updatedCart[existingItemIndex].notes = notes
+        }
+        return updatedCart
+      } else {
+        return [...prevCart, { menuItem, selectedPrice, quantity, notes }]
+      }
+    })
+
+    toast({
+      title: "Added to order",
+      description: `${quantity} × ${menuItem.name} (${selectedPrice.name})`,
+    })
+  }
+   useEffect(() => {
     if (orderId && existingOrder && menuItems && menuItems.length > 0) {
       setIsEditingExistingOrder(true)
       setOrderNumber(existingOrder.orderNumber || "")
@@ -104,36 +128,6 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
       setIsLoadingData(false)
     }
   }, [orderId, existingOrder, menuItems])
-
-  useEffect(() => {
-    if (categories.length > 0 && !activeCategory) {
-      setActiveCategory(categories[0].id)
-    }
-  }, [categories, activeCategory])
-
-  const addToCart = (menuItem: MenuItem, selectedPrice: PriceType, quantity: number, notes = "") => {
-    setCart((prevCart) => {
-      const existingItemIndex = prevCart.findIndex(
-        (item) => item.menuItem.id === menuItem.id && item.selectedPrice.id === selectedPrice.id,
-      )
-
-      if (existingItemIndex !== -1) {
-        const updatedCart = [...prevCart]
-        updatedCart[existingItemIndex].quantity += quantity
-        if (notes) {
-          updatedCart[existingItemIndex].notes = notes
-        }
-        return updatedCart
-      } else {
-        return [...prevCart, { menuItem, selectedPrice, quantity, notes }]
-      }
-    })
-
-    toast({
-      title: "Added to order",
-      description: `${quantity} × ${menuItem.name} (${selectedPrice.name})`,
-    })
-  }
 
   const updateCartItemQuantity = (index: number, newQuantity: number) => {
     setCart((prevCart) => {
@@ -168,7 +162,6 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
 
   const CategoryList = () => {
     const getCategoryIcon = (categoryName: string) => {
-      // You can expand this with more icons based on category names
       if (categoryName.toLowerCase().includes("drink") || categoryName.toLowerCase().includes("beverage")) {
         return <Coffee className="h-4 w-4 mr-2" />
       }
@@ -213,12 +206,12 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 bg-gray-50 min-h-screen">
+    <div className="flex flex-col lg:flex-row gap-6 bg-gray-50 h-full">
       {/* Mobile category menu */}
-      <div className="lg:hidden flex items-center justify-between mb-4 px-4 py-3 bg-white shadow-sm  top-0 z-20">
+      <div className="lg:hidden flex items-center justify-between mb-4 px-4 py-3 bg-white shadow-sm">
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="mr-2">
+            <Button variant="outline" size="icon" className="mr-2 bg-transparent">
               <MenuIcon className="h-5 w-5" />
             </Button>
           </SheetTrigger>
@@ -247,13 +240,13 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
       </div>
 
       {/* Desktop category sidebar */}
-      <div className="hidden lg:block w-72 border-r border-gray-200 bg-white rounded-lg shadow-sm p-4 h-[calc(100vh-150px)]  top-24">
+      <div className="hidden lg:block w-72 border-r border-gray-200 bg-white rounded-lg shadow-sm p-4 h-full">
         <CategoryList />
       </div>
 
       {/* Main menu section */}
       <div className="flex-1 px-4 lg:px-0">
-        <div className=" top-0 lg:top-24 z-10 bg-gray-50 pt-4 pb-2">
+        <div className="bg-gray-50 pt-4 pb-2">
           <div className="hidden lg:flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
               {categories && categories.length > 0 && activeCategory
@@ -314,7 +307,12 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <MenuItemCard key={item.id} item={item} onAddToCart={addToCart} currency={company?.currency ?? "GHS"} />
+                    <MenuItemCard
+                      key={item.id}
+                      item={item}
+                      onAddToCart={addToCart}
+                      currency={company?.currency ?? "GHS"}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>
