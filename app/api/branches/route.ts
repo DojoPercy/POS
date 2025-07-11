@@ -34,6 +34,9 @@ export async function POST(req: NextRequest) {
         status: body.status || 'active',
         managerId: body.managerId || null,
         createdBy: body.createdBy,
+        imageUrl: body.imageUrl || null,
+        latitude: body.latitude || null,
+        longitude: body.longitude || null,
       },
     });
     return NextResponse.json(newBranch, { status: 201 });

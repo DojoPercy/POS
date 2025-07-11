@@ -95,6 +95,9 @@ model Branch {
   companyId   String   @db.ObjectId       // Foreign key linking the branch to a company
   createdAt   DateTime? @default(now())    // Timestamp when the branch was created
   updatedAt   DateTime? @updatedAt         // Timestamp for the last update
+  imageUrl    String?  // URL for the branch image/logo
+  latitude    Float?   // Latitude for geolocation
+  longitude   Float?   // Longitude for geolocation
 
   company     Company  @relation(fields: [companyId], references: [id])
 

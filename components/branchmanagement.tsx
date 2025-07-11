@@ -14,6 +14,8 @@ import axios from "axios"
 import { Branch } from '@/app/owner/branches/page';
 import { LocationSearch } from "./location_form"
 import { GoogleMapsLoader } from "./google_map"
+import Image from 'next/image';
+import { uploadBase64Image } from "@/lib/cloudnary"
 
 interface BranchFormProps {
   branch?: Branch
@@ -34,6 +36,10 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
     country: branch?.country || "",
     openingHours: branch?.openingHours || "",
     status: branch?.status || "active",
+    imageUrl: branch?.imageUrl || "",
+    latitude: branch?.latitude || null,
+    longitude: branch?.longitude || null,
+    imageBase64: branch?.imageUrl || "",
   })
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -56,14 +62,27 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setFormData((prev) => ({ ...prev, imageBase64: reader.result as string }))
+        }
+        reader.readAsDataURL(file)
+      }
+    }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
+     const url = await uploadBase64Image(formData.imageBase64)
+
     try {
       const payload = {
         ...formData,
+        imageUrl: url,
         
         createdBy: userId,
         companyId: companyId,
@@ -105,6 +124,26 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
               className="focus:border-purple-500 focus:ring-purple-500"
             />
           </div>
+                <div className="space-y-2">
+                          <Label htmlFor="image">Image</Label>
+                          <Input
+                            id="image"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="border-slate-300"
+                            required
+                          />
+                          {formData.imageBase64 && (
+                            <div className="mt-2 relative w-32 h-32 rounded-md overflow-hidden border border-slate-300">
+                              <Image
+                                src={formData.imageBase64 || "/placeholder.svg"}
+                                alt="Preview"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                        </div>
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
@@ -133,6 +172,8 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
       onSelect={({ lat, lng }) => {
         console.log("Latitude:", lat, "Longitude:", lng)
         // Use in parent state or form
+        formData.latitude = lat
+        formData.longitude = lng
       }}
     />
   </GoogleMapsLoader>

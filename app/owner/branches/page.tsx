@@ -29,6 +29,9 @@ export interface Branch {
   rating?: number
   image?: string
   createdAt?: string
+  imageUrl?: string
+  latitude?: number | null
+  longitude?: number | null
 }
 
 interface DecodedToken {
