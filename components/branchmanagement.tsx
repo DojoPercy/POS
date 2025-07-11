@@ -127,14 +127,17 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
           <MapPin className="h-4 w-4" />
           Location Details
         </div>
-         <GoogleMapsLoader>
-     
-        <LocationSearch onSelect={({ lat, lng }) => {
-  console.log("Latitude:", lat, "Longitude:", lng)
-  // Use in parent state or form
-}} />
-     
-    </GoogleMapsLoader>
+      <div className="relative z-50 overflow-visible">
+  <GoogleMapsLoader>
+    <LocationSearch
+      onSelect={({ lat, lng }) => {
+        console.log("Latitude:", lat, "Longitude:", lng)
+        // Use in parent state or form
+      }}
+    />
+  </GoogleMapsLoader>
+</div>
+
     
 
         <div className="space-y-2">
