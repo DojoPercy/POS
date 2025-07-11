@@ -133,7 +133,7 @@ export function AddressAutocomplete({
         <p className="text-xs text-red-500 mt-1">{error}</p>
       ) : (
         <p className="text-xs text-slate-500 mt-1">
-          {isLoaded ? "Search for places, landmarks, malls, hospitals, schools, etc." : "Loading place suggestions..."}
+          {isLoaded ? "Search for places, landmarks, malls, hospitals, schools, etc." : "Loading place suggestion..."}
         </p>
       )}
     </div>
