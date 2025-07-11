@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, MapPin, Clock, Building2 } from "lucide-react"
 import axios from "axios"
 import { Branch } from '@/app/owner/branches/page';
+import { LocationSearch } from "./location_form"
 
 interface BranchFormProps {
   branch?: Branch
@@ -125,6 +126,10 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
           <MapPin className="h-4 w-4" />
           Location Details
         </div>
+    <LocationSearch onSelect={({ lat, lng }) => {
+  console.log("Latitude:", lat, "Longitude:", lng)
+  // Use in parent state or form
+}} />
 
         <div className="space-y-2">
           <Label htmlFor="location">Address *</Label>
