@@ -48,6 +48,7 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
     fetchUsers()
   }, [])
 
+
   const fetchUsers = async () => {
     try {
       const response = await axios.get("/api/users")
@@ -78,12 +79,13 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
     setError(null)
 
      const url = await uploadBase64Image(formData.imageBase64)
-
+if(formData.latitude === null || formData.longitude === null) {
+      setError("Please select a location on the map.")}
     try {
       const payload = {
         ...formData,
         imageUrl: url,
-        
+
         createdBy: userId,
         companyId: companyId,
       }
@@ -140,6 +142,10 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
                                 src={formData.imageBase64 || "/placeholder.svg"}
                                 alt="Preview"
                                 className="w-full h-full object-cover"
+                                width={128
+                              
+                                }
+                                height={128}
                               />
                             </div>
                           )}
@@ -166,18 +172,7 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
           <MapPin className="h-4 w-4" />
           Location Details
         </div>
-      <div className="relative z-50 overflow-visible">
-  <GoogleMapsLoader>
-    <LocationSearch
-      onSelect={({ lat, lng }) => {
-        console.log("Latitude:", lat, "Longitude:", lng)
-        // Use in parent state or form
-        formData.latitude = lat
-        formData.longitude = lng
-      }}
-    />
-  </GoogleMapsLoader>
-</div>
+  
 
     
 
@@ -231,6 +226,18 @@ export default function BranchForm({ branch, onSuccess, companyId, userId, isEdi
           </div>
         </div>
       </div>
+          <div className="relative z-50 overflow-visible">
+  <GoogleMapsLoader>
+    <LocationSearch
+      onSelect={({ lat, lng }) => {
+        console.log("Latitude:", lat, "Longitude:", lng)
+        // Use in parent state or form
+        formData.latitude = lat
+        formData.longitude = lng
+      }}
+    />
+  </GoogleMapsLoader>
+</div>
 
       {/* Operations */}
       <div className="space-y-4">

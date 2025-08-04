@@ -102,3 +102,9 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+.pac-container {
+  pointer-events: auto !important;
+  position: absolute !important;
+  z-index: 9999 !important;
+}

@@ -14,6 +14,7 @@ import {
   User,
   Users,
   BarChart3,
+  Bell,
 } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchUserFromToken, logoutUser, selectUser } from "@/redux/authSlice"
@@ -42,6 +43,7 @@ const businessNavItems = [
   { icon: ClipboardList, text: "Orders", href: "/owner/orders" },
   { icon: Package, text: "Inventory", href: "/owner/inventory" },
   { icon: Users, text: "Staff", href: "/owner/staffs" },
+  { icon: Bell, text: "Notifications", href: "/owner/notifications" },
   { icon: User, text: "Profile", href: "/owner/profile" },
 ]
 

@@ -15,24 +15,22 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
   const [selectedPlace, setSelectedPlace] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-const handlePlaceChange = (place: any) => {
-  setSelectedPlace(place)
+  const handlePlaceChange = (place: any) => {
+    setSelectedPlace(place)
 
-  // Extract displayable address
-  let displayValue = ""
-  if (place.name && place.formatted_address) {
-    displayValue = `${place.name}, ${place.formatted_address}`
-  } else if (place.name) {
-    displayValue = place.name
-  } else if (place.formatted_address) {
-    displayValue = place.formatted_address
+    let displayValue = ""
+    if (place.name && place.formatted_address) {
+      displayValue = `${place.name}, ${place.formatted_address}`
+    } else if (place.name) {
+      displayValue = place.name
+    } else if (place.formatted_address) {
+      displayValue = place.formatted_address
+    }
+console.log("Selected place:", place)
+    if (displayValue) {
+      setAddress(displayValue) // ✅ Update input when user selects a suggestion
+    }
   }
-
-  if (displayValue) {
-    setAddress(displayValue) // ✅ This updates the input field
-  }
-}
-
 
   const getCoordinates = async () => {
     if (!selectedPlace || !window.google?.maps) return
@@ -46,7 +44,6 @@ const handlePlaceChange = (place: any) => {
           lng: selectedPlace.geometry.location.lng(),
         }
         onSelect(coords)
-        setIsLoading(false)
         return
       }
 

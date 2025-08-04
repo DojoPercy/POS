@@ -57,6 +57,12 @@ model Company {
   Expense Expense[]
 
   Notification Notification[]
+
+  ShiftTemplate ShiftTemplate[]
+
+  Shift Shift[]
+
+  Attendance Attendance[]
 }
 
 model User {
@@ -78,6 +84,10 @@ model User {
   Notification Notification[] @relation("NotificationUser")
 
   
+
+  Shift Shift[]
+
+  Attendance Attendance[]
 }
 
 
@@ -107,6 +117,12 @@ model Branch {
   InventoryStock InventoryStock[]
 
   Notification Notification[]
+
+  ShiftTemplate ShiftTemplate[]
+
+  Shift Shift[]
+
+  Attendance Attendance[]
 }
 
 model Notification {
@@ -282,8 +298,129 @@ enum OrderStatus {
     CANCELED 
     PAID
   }
-  
 
+model Shift {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  branchId    String      @db.ObjectId
+  companyId   String      @db.ObjectId
+  templateId  String?     @db.ObjectId
+  title       String
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+  date        DateTime?
+  status      ShiftStatus @default(SCHEDULED)
+  shiftState  ShiftState  @default(INACTIVE) // New field for active/assist states
+  role        String
+  notes       String?
+  isRecurring Boolean     @default(true)
+  
+  // Color coding
+  color       String?     @default("#3B82F6") // Default blue color
+  
+  // Relationships
+  user        User        @relation(fields: [userId], references: [id])
+  branch      Branch      @relation(fields: [branchId], references: [id])
+  company     Company     @relation(fields: [companyId], references: [id])
+  template    ShiftTemplate? @relation(fields: [templateId], references: [id])
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([userId])
+  @@index([branchId])
+  @@index([companyId])
+  @@index([dayOfWeek])
+  @@map("shifts")
+}
+
+enum ShiftState {
+  INACTIVE    // Gray - Not active
+  ACTIVE      // Blue - Currently active
+  ASSIST      // Yellow - Assisting/Optional
+  BREAK       // Orange - On break
+  COMPLETED   // Green - Completed
+}
+
+enum ShiftStatus {
+  SCHEDULED   // Shift is scheduled
+  IN_PROGRESS // Shift is currently in progress
+  COMPLETED   // Shift has been completed
+  CANCELED    // Shift has been canceled
+}
+
+model ShiftTemplate {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   // e.g., "Morning Shift Template"
+  branchId    String   @db.ObjectId
+  companyId   String   @db.ObjectId
+  dayOfWeek   Int      // 0 = Sunday, 1 = Monday, etc.
+  startTime   String   // e.g., "09:00"
+  endTime     String   // e.g., "17:00"
+  role        String   // Required role for this shift
+  maxStaff    Int      @default(1)  // Maximum staff for this time slot
+  isActive    Boolean  @default(true)
+  
+  // Relationships
+  branch      Branch   @relation(fields: [branchId], references: [id])
+  company     Company  @relation(fields: [companyId], references: [id])
+  shifts      Shift[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([branchId, dayOfWeek, startTime, endTime])
+  @@map("shift_templates")
+}
+
+model Attendance {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  branchId    String      @db.ObjectId
+  companyId   String      @db.ObjectId
+  email       String      // User email for verification
+  signInTime  DateTime?   // When user signed in
+  signOutTime DateTime?   // When user signed out
+  date        DateTime    @default(now()) // Date of attendance (for daily tracking)
+  totalHours  Float?      // Total hours worked (calculated on sign out)
+  status      AttendanceStatus @default(SIGNED_OUT)
+  
+  // Location data for verification
+  signInLatitude   Float?
+  signInLongitude  Float?
+  signOutLatitude  Float?
+  signOutLongitude Float?
+  
+  // Distance from branch (in meters)
+  signInDistance   Float?
+  signOutDistance  Float?
+  
+  notes       String?     // Optional notes
+  
+  // Relationships
+  user        User        @relation(fields: [userId], references: [id])
+  branch      Branch      @relation(fields: [branchId], references: [id])
+  company     Company     @relation(fields: [companyId], references: [id])
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Ensure one attendance record per user per day per branch
+  @@unique([userId, branchId, date])
+  @@index([userId])
+  @@index([branchId])
+  @@index([companyId])
+  @@index([date])
+  @@map("attendance")
+}
+
+enum AttendanceStatus {
+  SIGNED_IN
+  SIGNED_OUT
+  BREAK
+  OVERTIME
+}
 
 model OrderCounter {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId 

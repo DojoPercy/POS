@@ -3,7 +3,7 @@ import { clearAllIndexedDB } from "@/lib/dexie/actions";
 import { DecodedToken } from "@/lib/types/types";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 interface AuthState {
     user: DecodedToken | null;

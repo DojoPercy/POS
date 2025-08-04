@@ -70,38 +70,41 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-white flex overflow-hidden">
       {/* Left Side - SaaS Platform Image */}
-      <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12">
-        <div className="text-center max-w-lg">
-          {/* Main Dashboard/Analytics Image */}
-          <Image
-            src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-            alt="Restaurant chain management dashboard"
-            className="w-full h-80 object-cover rounded-2xl shadow-lg mb-8"
-            width={800}
-            height={400}
-          />
-
-          {/* Feature Highlights */}
-          <div className="space-y-4 text-left">
-            <div className="flex items-center space-x-3 text-gray-700">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-blue-600" />
+<div className="hidden lg:flex lg:w-1/2 relative items-center justify-center">
+        <Image
+          src="/loginbg.png"
+          alt="Inviting restaurant interior with dining tables"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-12 text-white text-center">
+          <h2 className="text-4xl font-extrabold mb-6 leading-tight">
+            Streamline Your <br /> Restaurant Chain
+          </h2>
+          <p className="text-lg mb-10 max-w-md">
+            Empower your business with comprehensive management tools, real-time insights, and seamless operations across all your locations.
+          </p>
+          <div className="space-y-4 text-left w-full max-w-xs">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Building2 className="w-4 h-4 text-white" />
               </div>
-              <span className="text-sm font-medium">Multi-location Management</span>
+              <span className="text-base font-medium">Multi-location Management</span>
             </div>
-            <div className="flex items-center space-x-3 text-gray-700">
-              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                <Store className="w-4 h-4 text-green-600" />
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Store className="w-4 h-4 text-white" />
               </div>
-              <span className="text-sm font-medium">Centralized Chain Operations</span>
+              <span className="text-base font-medium">Centralized Chain Operations</span>
             </div>
-            <div className="flex items-center space-x-3 text-gray-700">
-              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                <div className="w-4 h-4 bg-purple-600 rounded"></div>
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-4 h-4 bg-white rounded"></div>
               </div>
-              <span className="text-sm font-medium">Real-time Analytics & Reporting</span>
+              <span className="text-base font-medium">Real-time Analytics & Reporting</span>
             </div>
           </div>
         </div>
@@ -170,7 +173,7 @@ const Login = () => {
 
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || isMatch}
               className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-200"
             >
               {loading || isMatch ? <ClipLoader color="#fff" loading={loading || isMatch} size={20} /> : "Sign in to Dashboard"}

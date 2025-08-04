@@ -14,6 +14,7 @@ import { DecodedToken } from "@/lib/types/types"
 import { Branch } from "@/app/owner/branches/page"
 import router from "next/router"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./dropdownMenu"
+import { NotificationBell } from "@/components/notification-bell"
 
 
 // Route name mapping
@@ -104,10 +105,7 @@ export function SidebarHeaderComponent() {
         </div>
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5 text-slate-600" />
-          <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></span>
-        </Button>
+        <NotificationBell />
 
       
         {/* User Profile - Desktop Version */}

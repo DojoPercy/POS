@@ -33,85 +33,69 @@ export function AddressAutocomplete({
 
   useEffect(() => {
     const initializeAutocomplete = () => {
-      if (!inputRef.current || !window.google?.maps?.places) {
-        return
-      }
+      if (!inputRef.current || !window.google?.maps?.places) return
 
       try {
-        // Clear any existing autocomplete
+        // Remove previous listeners if any
         if (autocompleteRef.current) {
-          try {
-            window.google.maps.event.clearInstanceListeners(autocompleteRef.current)
-          } catch (err) {
-            console.warn("Error clearing autocomplete listeners:", err)
-          }
+          window.google.maps.event.clearInstanceListeners(autocompleteRef.current)
         }
 
-        // Create new autocomplete instance
+        // Initialize Autocomplete
         autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
-          types: ["establishment", "geocode"],
+          types: ["geocode", "establishment"],
           componentRestrictions: { country: "gh" },
-          fields: ["formatted_address", "geometry", "name", "address_components", "place_id", "types"],
+          fields: ["formatted_address", "geometry", "name", "place_id", "address_components"],
         })
 
-        // Add listener for place selection
         autocompleteRef.current.addListener("place_changed", () => {
-          try {
-            const place = autocompleteRef.current.getPlace()
+          const place = autocompleteRef.current.getPlace()
+          if (!place) return
 
-            if (!place) return
-
-            let displayValue = ""
-            if (place.name && place.formatted_address) {
-              displayValue = `${place.name}, ${place.formatted_address}`
-            } else if (place.name) {
-              displayValue = place.name
-            } else if (place.formatted_address) {
-              displayValue = place.formatted_address
-            }
-
-            if (displayValue) {
-              onChange(displayValue)
-            }
-
-            // Pass the full place object
-            if (onPlaceChange) {
-              onPlaceChange(place)
-            }
-          } catch (err) {
-            console.error("Error in place_changed listener:", err)
-            setError("Error processing selected place")
+          let displayValue = ""
+          if (place.name && place.formatted_address) {
+            displayValue = `${place.name}, ${place.formatted_address}`
+          } else if (place.formatted_address) {
+            displayValue = place.formatted_address
+          } else if (place.name) {
+            displayValue = place.name
           }
+
+          // Set input manually (bypass React state issues)
+          if (inputRef.current && displayValue) {
+            inputRef.current.value = displayValue
+            onChange(displayValue)
+          }
+
+          if (onPlaceChange) onPlaceChange(place)
         })
 
         setIsLoaded(true)
         setError("")
-        console.log("Google Places Autocomplete initialized successfully")
+        console.log("Google Autocomplete initialized")
       } catch (err) {
-        console.error("Error initializing autocomplete:", err)
-        setError("Failed to initialize address suggestions")
+        console.error("Autocomplete init error:", err)
+        setError("Failed to initialize Google Places Autocomplete.")
       }
     }
 
-    const checkAndInitialize = () => {
+    const waitForGoogleMaps = () => {
       if (window.google?.maps?.places) {
         initializeAutocomplete()
       } else {
-        // Wait a bit and try again
-        const timeout = setTimeout(checkAndInitialize, 500)
-        return () => clearTimeout(timeout)
+        const retry = setTimeout(waitForGoogleMaps, 300)
+        return () => clearTimeout(retry)
       }
     }
 
-    checkAndInitialize()
+    waitForGoogleMaps()
 
-    // Cleanup
     return () => {
       if (autocompleteRef.current && window.google?.maps?.event) {
         try {
           window.google.maps.event.clearInstanceListeners(autocompleteRef.current)
-        } catch (err) {
-          console.warn("Error cleaning up autocomplete:", err)
+        } catch (e) {
+          console.warn("Cleanup failed:", e)
         }
       }
     }
@@ -121,19 +105,20 @@ export function AddressAutocomplete({
     <div>
       <Label htmlFor="address">Pickup Location *</Label>
       <Input
-        ref={inputRef}
         id="address"
+        ref={inputRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder || "Search for a place, landmark, or area..."}
         required={required}
+        autoComplete="off"
         className="w-full"
       />
       {error ? (
         <p className="text-xs text-red-500 mt-1">{error}</p>
       ) : (
         <p className="text-xs text-slate-500 mt-1">
-          {isLoaded ? "Search for places, landmarks, malls, hospitals, schools, etc." : "Loading place suggestion..."}
+          {isLoaded ? "Type a location and select from suggestions." : "Initializing suggestions..."}
         </p>
       )}
     </div>

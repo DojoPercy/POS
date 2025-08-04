@@ -21,6 +21,7 @@ import { fetchUserFromToken, logoutUser, selectUser } from "@/redux/authSlice"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 import router from "next/router"
 import { RootState } from "@/redux"
+import { NotificationBell } from "@/components/notification-bell"
 
 interface WaiterHeaderProps {
   title?: string
@@ -112,10 +113,7 @@ export function WaiterHeader({
       {/* Actions */}
       <div className="flex items-center gap-2">
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <Badge className="absolute -top-1 -right-1 px-1 min-w-[16px] h-4 text-xs">2</Badge>
-        </Button>
+        <NotificationBell />
 
         {/* Cart (Mobile) */}
         {showOrderList && (

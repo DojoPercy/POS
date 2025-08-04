@@ -16,6 +16,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { NotificationBell } from "@/components/notification-bell"
 
 interface BranchHeaderProps {
   title?: string
@@ -68,10 +69,7 @@ export function BranchHeader({ title = "Dashboard", breadcrumbs, showSearch = fa
       {/* Actions */}
       <div className="flex items-center gap-2">
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <Badge className="absolute -top-1 -right-1 px-1 min-w-[16px] h-4 text-xs">3</Badge>
-        </Button>
+        <NotificationBell />
 
         {/* Custom Actions */}
         {actions}
