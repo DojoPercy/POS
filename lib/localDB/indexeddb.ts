@@ -5,7 +5,6 @@
 // const menuCategoriesStoreName = "menuCategories";
 // const companyStoreName = "company";
 
-
 // function openDb(): Promise<IDBDatabase> {
 //     return new Promise((resolve, reject) => {
 //         // Open the database with version 2 to trigger onupgradeneeded for schema updates
@@ -17,22 +16,19 @@
 //         request.onupgradeneeded = (event) => {
 //             const db = (event.target as IDBRequest).result;
 
-           
 //             if (!db.objectStoreNames.contains(menuItemsStoreName)) {
 //                 db.createObjectStore(menuItemsStoreName, { keyPath: "id" });
 //             }
 //             if (!db.objectStoreNames.contains(companyStoreName)) {
 //                 db.createObjectStore(companyStoreName, { keyPath: "id" });
 //             }
-          
+
 //             if (!db.objectStoreNames.contains(menuCategoriesStoreName)) {
 //                 db.createObjectStore(menuCategoriesStoreName, { keyPath: "id" });
 //             }
 //         };
 //     });
 // }
-
-
 
 // export async function getMenuItemsFromIndexedDB(): Promise<MenuItem[]> {
 //     const db = await openDb();
@@ -46,7 +42,6 @@
 //     });
 // }
 
-
 // export async function saveMenuItemsToIndexedDB(menuItems: MenuItem[]): Promise<void> {
 //     const db = await openDb();
 //     console.log("Saving MenuItems to IndexedDB:", menuItems);
@@ -59,7 +54,6 @@
 //         transaction.onerror = (event) => reject(event);
 //     });
 // }
-
 
 // export async function getMenuCategoriesFromIndexedDB(): Promise<MenuCategory[]> {
 //     console.log("Fetching MenuCategories from IndexedDB");
@@ -85,12 +79,11 @@
 //         const transaction = db.transaction(menuCategoriesStoreName, "readwrite");
 //         const store = transaction.objectStore(menuCategoriesStoreName);
 
-        
 //         menuCategories.forEach((menuCategory) => {
-//             store.put(menuCategory); 
+//             store.put(menuCategory);
 //         });
 
-//         transaction.oncomplete = () => resolve(); 
+//         transaction.oncomplete = () => resolve();
 //         transaction.onerror = (event) => reject(event);
 //     });
 // }
@@ -107,7 +100,6 @@
 //     });
 // }
 
-
 // export async function saveCompanyToIndexedDB(company: any[]): Promise<void> {
 //     const db = await openDb();
 //     return new Promise((resolve, reject) => {
@@ -119,4 +111,3 @@
 //         transaction.onerror = (event) => reject(event);
 //     });
 // }
-

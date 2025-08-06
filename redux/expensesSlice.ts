@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
   getExpenseSumByDateRange,
   getTotalExpenseCount,
@@ -13,120 +13,141 @@ import {
   updateFrequentItem,
   getCategories,
   createCategory,
-} from "../lib/expense";
-import { Frequent } from "@/lib/types/types";
+} from '../lib/expense';
+import { Frequent } from '@/lib/types/types';
 import { Expense } from '../lib/types/types';
 
 // Async Thunks
 export const fetchExpenseSumByDateRange = createAsyncThunk(
-  "expenses/fetchExpenseSumByDateRange",
-  async ({ from, to, branchId, companyId }: {from:Date, to:Date, branchId?:string, companyId?:string}) => {
+  'expenses/fetchExpenseSumByDateRange',
+  async ({
+    from,
+    to,
+    branchId,
+    companyId,
+  }: {
+    from: Date;
+    to: Date;
+    branchId?: string;
+    companyId?: string;
+  }) => {
     return await getExpenseSumByDateRange(from, to, branchId, companyId);
   }
 );
 
 export const fetchTotalExpenseCount = createAsyncThunk(
-  "expenses/fetchTotalExpenseCount",
-  async ({ from, to, branchId, companyId }: {from:Date, to:Date, branchId?:string, companyId?:string}) => {
+  'expenses/fetchTotalExpenseCount',
+  async ({
+    from,
+    to,
+    branchId,
+    companyId,
+  }: {
+    from: Date;
+    to: Date;
+    branchId?: string;
+    companyId?: string;
+  }) => {
     return await getTotalExpenseCount(from, to, branchId, companyId);
   }
 );
 
 export const fetchExpenses = createAsyncThunk(
-  "expenses/fetchExpenses",
-  async ({ branchId, companyId }: {branchId:string, companyId?:string}) => {
+  'expenses/fetchExpenses',
+  async ({ branchId, companyId }: { branchId: string; companyId?: string }) => {
     return await getExpenses(branchId, companyId);
   }
 );
 
 export const addExpense = createAsyncThunk(
-  "expenses/addExpense",
+  'expenses/addExpense',
   async (expense: Expense) => {
     return await createExpense(expense);
   }
 );
 
 export const fetchExpenseById = createAsyncThunk(
-  "expenses/fetchExpenseById",
+  'expenses/fetchExpenseById',
   async (id: string) => {
     return await getExpenseById(id);
   }
 );
 
 export const editExpense = createAsyncThunk(
-  "expenses/editExpense",
-  async ({ id, updatedExpense }: { id: string, updatedExpense: Expense }) => {
+  'expenses/editExpense',
+  async ({ id, updatedExpense }: { id: string; updatedExpense: Expense }) => {
     return await updateExpense(id, updatedExpense);
   }
 );
 
 export const removeExpense = createAsyncThunk(
-  "expenses/removeExpense",
+  'expenses/removeExpense',
   async (id: string) => {
     return await deleteExpense(id);
   }
 );
 
 export const fetchFrequentItems = createAsyncThunk(
-  "expenses/fetchFrequentItems",
+  'expenses/fetchFrequentItems',
   async (branchId: string) => {
     return await getFrequentItems(branchId);
   }
 );
 
 export const addFrequentItem = createAsyncThunk(
-  "expenses/addFrequentItem",
-  async (item: Frequent ) => {
+  'expenses/addFrequentItem',
+  async (item: Frequent) => {
     return await createFrequentItem(item);
   }
 );
 
 export const removeFrequentItem = createAsyncThunk(
-  "expenses/removeFrequentItem",
+  'expenses/removeFrequentItem',
   async (id: string) => {
     return await deleteFrequentItem(id);
   }
 );
 
 export const editFrequentItem = createAsyncThunk(
-  "expenses/editFrequentItem",
-  async ({ id, updatedItem }: { id: string, updatedItem: Frequent }) => {
+  'expenses/editFrequentItem',
+  async ({ id, updatedItem }: { id: string; updatedItem: Frequent }) => {
     return await updateFrequentItem(id, updatedItem);
   }
 );
 
 export const fetchCategories = createAsyncThunk(
-  "expenses/fetchCategories",
+  'expenses/fetchCategories',
   async (branchId: string) => {
     return await getCategories(branchId);
   }
 );
 
 export const addCategory = createAsyncThunk(
-  "expenses/addCategory",
-  async (category: {name:string, branchId: string}) => {
+  'expenses/addCategory',
+  async (category: { name: string; branchId: string }) => {
     return await createCategory(category);
   }
 );
 
 export const updateExpenseDetails = createAsyncThunk(
-  "expenses/updateExpense",
-  async (payload: { id: string, expense: Expense }) => {
+  'expenses/updateExpense',
+  async (payload: { id: string; expense: Expense }) => {
     return await updateExpense(payload.id, payload.expense);
-  })
+  }
+);
 const expensesSlice = createSlice({
-  name: "expenses",
+  name: 'expenses',
   initialState: {
     expenses: [],
-    expenseSum:  0,
+    expenseSum: 0,
     totalExpenseCount: 0,
     frequentItems: [],
     categories: [],
-    status: "idle",
+    status: 'idle',
     error: null,
   },
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
       .addCase(fetchExpenseSumByDateRange.fulfilled, (state, action) => {
         state.expenseSum = action.payload;
@@ -144,21 +165,21 @@ const expensesSlice = createSlice({
         state.categories = action.payload;
       })
       .addMatcher(
-        (action) => action.type.endsWith("/pending"),
-        (state) => {
-          state.status = "loading";
+        action => action.type.endsWith('/pending'),
+        state => {
+          state.status = 'loading';
         }
       )
       .addMatcher(
-        (action) => action.type.endsWith("/fulfilled"),
-        (state) => {
-          state.status = "succeeded";
+        action => action.type.endsWith('/fulfilled'),
+        state => {
+          state.status = 'succeeded';
         }
       )
       .addMatcher(
-        (action) => action.type.endsWith("/rejected"),
-        (state, action:any) => {
-          state.status = "failed";
+        action => action.type.endsWith('/rejected'),
+        (state, action: any) => {
+          state.status = 'failed';
           state.error = action.error.message;
         }
       );

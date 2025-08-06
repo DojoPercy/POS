@@ -1,24 +1,24 @@
-import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
-    const companyId = searchParams.get("companyId");
-    const fromDate = searchParams.get("fromDate");
-    const toDate = searchParams.get("toDate");
+    const companyId = searchParams.get('companyId');
+    const fromDate = searchParams.get('fromDate');
+    const toDate = searchParams.get('toDate');
 
     if (!companyId) {
       return NextResponse.json(
-        { error: "Company ID is required" },
-        { status: 400 }
+        { error: 'Company ID is required' },
+        { status: 400 },
       );
     }
 
     if (!fromDate || !toDate) {
       return NextResponse.json(
-        { error: "From and To dates are required" },
-        { status: 400 }
+        { error: 'From and To dates are required' },
+        { status: 400 },
       );
     }
 
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       {
         $match: {
           companyId: { $oid: companyId },
-          orderStatus: { $ne: "PENDING" },
+          orderStatus: { $ne: 'PENDING' },
           createdAt: {
             $gte: { $date: from.toISOString() },
             $lte: { $date: to.toISOString() },
@@ -38,28 +38,28 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: "$branchId",
-          totalRevenue: { $sum: "$totalPrice" },
+          _id: '$branchId',
+          totalRevenue: { $sum: '$totalPrice' },
           totalSales: {
-            $sum: { $size: { $ifNull: ["$orderLines", []] } }
+            $sum: { $size: { $ifNull: ['$orderLines', []] } },
           },
         },
       },
       {
         $lookup: {
-          from: "Branch", // Prisma uses PascalCase collection names
-          localField: "_id",
-          foreignField: "_id",
-          as: "branch",
+          from: 'Branch', // Prisma uses PascalCase collection names
+          localField: '_id',
+          foreignField: '_id',
+          as: 'branch',
         },
       },
-      { $unwind: "$branch" },
+      { $unwind: '$branch' },
       {
         $project: {
           _id: 0,
-          branch: "$branch.name",
-          sales: "$totalSales",
-          revenue: { $round: ["$totalRevenue", 2] },
+          branch: '$branch.name',
+          sales: '$totalSales',
+          revenue: { $round: ['$totalRevenue', 2] },
         },
       },
     ];
@@ -68,10 +68,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
-    console.error("Error in /api/summary/branches:", error);
+    console.error('Error in /api/summary/branches:', error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
+      { error: 'Internal Server Error' },
+      { status: 500 },
     );
   }
 }

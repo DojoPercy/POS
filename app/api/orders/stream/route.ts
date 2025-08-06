@@ -1,14 +1,14 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { getOrders } from "@/lib/order";
+import { type NextRequest, NextResponse } from 'next/server';
+import { getOrders } from '@/lib/order';
 
-export const runtime = "nodejs";
+export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const waiterId = searchParams.get("waiterId");
+  const waiterId = searchParams.get('waiterId');
 
   if (!waiterId) {
-    return new NextResponse("Missing waiterId", { status: 400 });
+    return new NextResponse('Missing waiterId', { status: 400 });
   }
 
   const encoder = new TextEncoder();
@@ -19,9 +19,9 @@ export async function GET(req: NextRequest) {
         const orders = await getOrders(undefined, undefined, waiterId!);
         yield encoder.encode(`data: ${JSON.stringify(orders)}\n\n`);
       } catch (error) {
-        console.error("Error fetchingssd orders:", error);
+        console.error('Error fetchingssd orders:', error);
       }
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
 
@@ -32,15 +32,15 @@ export async function GET(req: NextRequest) {
       }
     },
     cancel() {
-      console.log("SSE connection closed by client");
+      console.log('SSE connection closed by client');
     },
   });
 
   return new NextResponse(stream, {
     headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
     },
   });
 }

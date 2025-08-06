@@ -5,8 +5,15 @@ import bcrypt from 'bcryptjs';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 
-export const generateToken = async (user: { id: string; role: string; branchId: string ; companyId: string}) => {
-  const secretKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY || 'your_secret_key');
+export const generateToken = async (user: {
+  id: string;
+  role: string;
+  branchId: string;
+  companyId: string;
+}) => {
+  const secretKey = new TextEncoder().encode(
+    process.env.JWT_SECRET_KEY || 'your_secret_key'
+  );
   return await new SignJWT({
     userId: user.id,
     role: user.role,
@@ -18,8 +25,6 @@ export const generateToken = async (user: { id: string; role: string; branchId: 
     .setExpirationTime('1h')
     .sign(secretKey);
 };
-
-
 
 interface UserJwtPayload {
   jti: string;
@@ -46,13 +51,14 @@ export const verifyToken = async (token: string) => {
   }
 };
 
-
-
 export const hashPassword = async (password: string) => {
   const salt = await bcrypt.genSalt(10);
   return await bcrypt.hash(password, salt);
 };
 
-export const comparePassword = async (password: string, hashedPassword: string) => {
+export const comparePassword = async (
+  password: string,
+  hashedPassword: string
+) => {
   return await bcrypt.compare(password, hashedPassword);
 };

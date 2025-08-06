@@ -1,8 +1,7 @@
-import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { PrismaClient } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
-
 
 export async function POST(req: Request) {
   try {
@@ -27,7 +26,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ totalAmount: totalAmount._sum.amount || 0 });
   } catch (error) {
-    return NextResponse.json({ error: "Error fetching total amount" }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Error fetching total amount' },
+      { status: 500 },
+    );
   }
 }
 

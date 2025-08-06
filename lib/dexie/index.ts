@@ -1,23 +1,21 @@
-import Dexie, { Table } from "dexie"
-import { MenuItem, MenuCategory, OrderType, Company } from "../types/types"
-
-
+import Dexie, { Table } from 'dexie';
+import { MenuItem, MenuCategory, OrderType, Company } from '../types/types';
 
 class MenuDB extends Dexie {
-  menuItems!: Table<MenuItem, string>
-  menuCategories!: Table<MenuCategory, string>
-  company!: Table<Company, string>
-  posOrderQueue!: Table<OrderType, number>
+  menuItems!: Table<MenuItem, string>;
+  menuCategories!: Table<MenuCategory, string>;
+  company!: Table<Company, string>;
+  posOrderQueue!: Table<OrderType, number>;
 
   constructor() {
-    super("menuDB")
+    super('menuDB');
     this.version(2).stores({
-      menuItems: "id",
-      menuCategories: "id",
-      company: "",
-      posOrderQueue: "++id, orderNumber, requiredDate" 
-    })
+      menuItems: 'id',
+      menuCategories: 'id',
+      company: '',
+      posOrderQueue: '++id, orderNumber, requiredDate',
+    });
   }
 }
 
-export const db = new MenuDB()
+export const db = new MenuDB();

@@ -1,9 +1,7 @@
-import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { PrismaClient } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
-
-
 
 // 🔹 Get total count of expenses in a date range
 export async function POST(req: Request) {
@@ -26,6 +24,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ totalCount });
   } catch (error) {
-    return NextResponse.json({ error: "Error fetching total count" }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Error fetching total count' },
+      { status: 500 },
+    );
   }
 }

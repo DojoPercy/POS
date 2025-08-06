@@ -1,209 +1,251 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import { MapPin, Clock, UserIcon, CheckCircle, XCircle, AlertCircle, Building2, Mail } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { format } from "date-fns"
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import {
+  MapPin,
+  Clock,
+  UserIcon,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Building2,
+  Mail,
+  QrCode,
+  Download,
+  Copy,
+  CheckCircle2,
+  AlertTriangle,
+  Wifi,
+  WifiOff,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { format } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Branch {
-  id: string
-  name: string
-  address: string
-  city: string
-  state?: string
-  country: string
-  status: "active" | "inactive"
-  managerId?: string
-  openingHours?: string
-  employeeCount?: number
-  rating?: number
-  image?: string
-  createdAt?: string
-  imageUrl?: string
-  latitude?: number | null
-  longitude?: number | null
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  state?: string;
+  country: string;
+  status: 'active' | 'inactive';
+  managerId?: string;
+  openingHours?: string;
+  employeeCount?: number;
+  rating?: number;
+  image?: string;
+  createdAt?: string;
+  imageUrl?: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface StaffUser {
-  id: string
-  fullname: string
-  email: string
-  role: string
-  branchId: string | null
+  id: string;
+  fullname: string;
+  email: string;
+  role: string;
+  branchId: string | null;
 }
 
 interface Attendance {
-  id: string
-  userId: string
-  branchId: string
-  email: string
-  signInTime: string | null
-  signOutTime: string | null
-  date: string
-  totalHours: number | null
-  status: "SIGNED_IN" | "SIGNED_OUT" | "BREAK" | "OVERTIME"
-  signInDistance: number | null
-  signOutDistance: number | null
-  notes: string | null
-  user: StaffUser
+  id: string;
+  userId: string;
+  branchId: string;
+  email: string;
+  signInTime: string | null;
+  signOutTime: string | null;
+  date: string;
+  totalHours: number | null;
+  status: 'SIGNED_IN' | 'SIGNED_OUT' | 'BREAK' | 'OVERTIME';
+  signInDistance: number | null;
+  signOutDistance: number | null;
+  notes: string | null;
+  user: StaffUser;
   branch: {
-    id: string
-    name: string
-    city: string
-  }
+    id: string;
+    name: string;
+    city: string;
+  };
 }
 
 const getInitials = (name: string) => {
   return name
-    .split(" ")
-    .map((word) => word.charAt(0))
-    .join("")
+    .split(' ')
+    .map(word => word.charAt(0))
+    .join('')
     .toUpperCase()
-    .slice(0, 2)
-}
+    .slice(0, 2);
+};
 
 const formatTime = (dateString: string) => {
-  return format(new Date(dateString), "HH:mm:ss")
-}
+  return format(new Date(dateString), 'HH:mm:ss');
+};
 
 const formatDuration = (hours: number) => {
-  const wholeHours = Math.floor(hours)
-  const minutes = Math.round((hours - wholeHours) * 60)
-  return `${wholeHours}h ${minutes}m`
-}
+  const wholeHours = Math.floor(hours);
+  const minutes = Math.round((hours - wholeHours) * 60);
+  return `${wholeHours}h ${minutes}m`;
+};
 
 export default function AttendancePage() {
-  const params = useParams()
-  const branchId = params.branchId as string
+  const params = useParams();
+  const branchId = params.branchId as string;
 
-  const [branch, setBranch] = useState<Branch | null>(null)
-  const [email, setEmail] = useState("")
-  const [attendance, setAttendance] = useState<Attendance | null>(null)
-  const [user, setUser] = useState<StaffUser | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null)
-  const [locationError, setLocationError] = useState<string | null>(null)
-  const [notes, setNotes] = useState("")
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [branch, setBranch] = useState<Branch | null>(null);
+  const [email, setEmail] = useState('');
+  const [attendance, setAttendance] = useState<Attendance | null>(null);
+  const [user, setUser] = useState<StaffUser | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [notes, setNotes] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isOnline, setIsOnline] = useState(true);
 
   // Update current time every second
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
+      setCurrentTime(new Date());
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
+
+  // Check online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    setIsOnline(navigator.onLine);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Fetch branch details
   useEffect(() => {
     const fetchBranch = async () => {
       try {
-        const response = await fetch(`/api/branches?branchId=${branchId}`)
+        const response = await fetch(`/api/branches?branchId=${branchId}`);
         if (response.ok) {
-          const branchData = await response.json()
-          setBranch(branchData)
+          const branchData = await response.json();
+          setBranch(branchData);
         } else {
-          setError("Branch not found")
+          setError('Branch not found');
         }
       } catch (err) {
-        setError("Failed to fetch branch details")
+        setError('Failed to fetch branch details');
       }
-    }
+    };
 
     if (branchId) {
-      fetchBranch()
+      fetchBranch();
     }
-  }, [branchId])
+  }, [branchId]);
 
   // Get user location
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        position => {
           setLocation({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-          })
-          setLocationError(null)
+          });
+          setLocationError(null);
         },
-        (error) => {
-          setLocationError("Location access denied. Please enable location services.")
-          console.error("Geolocation error:", error)
+        error => {
+          setLocationError(
+            'Location access denied. Please enable location services.',
+          );
+          console.error('Geolocation error:', error);
         },
         {
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 300000, // 5 minutes
         },
-      )
+      );
     } else {
-      setLocationError("Geolocation is not supported by this browser.")
+      setLocationError('Geolocation is not supported by this browser.');
     }
-  }, [])
+  }, []);
 
   const fetchAttendance = async () => {
     if (!email.trim()) {
-      setError("Please enter your email address")
-      return
+      setError('Please enter your email address');
+      return;
     }
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch(`/api/attendance?branchId=${branchId}&email=${encodeURIComponent(email.trim())}`)
-      const data = await response.json()
+      const response = await fetch(
+        `/api/attendance?branchId=${branchId}&email=${encodeURIComponent(email.trim())}`,
+      );
+      const data = await response.json();
 
       if (response.ok) {
-        setUser(data.user)
-        setAttendance(data.attendance)
-        setSuccess(null)
+        setUser(data.user);
+        setAttendance(data.attendance);
+        setSuccess(null);
       } else {
-        setError(data.error || "Failed to fetch attendance data")
-        setUser(null)
-        setAttendance(null)
+        setError(data.error || 'Failed to fetch attendance data');
+        setUser(null);
+        setAttendance(null);
       }
     } catch (err) {
-      setError("Failed to connect to server")
-      setUser(null)
-      setAttendance(null)
+      setError('Failed to connect to server');
+      setUser(null);
+      setAttendance(null);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleAttendanceAction = async (action: "signin" | "signout") => {
+  const handleAttendanceAction = async (action: 'signin' | 'signout') => {
     if (!location) {
-      setError("Location is required for attendance. Please enable location services.")
-      return
+      setError(
+        'Location is required for attendance. Please enable location services.',
+      );
+      return;
     }
 
     if (!user) {
-      setError("Please verify your email first")
-      return
+      setError('Please verify your email first');
+      return;
     }
 
-    setLoading(true)
-    setError(null)
-    setSuccess(null)
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
     try {
-      const response = await fetch("/api/attendance", {
-        method: "POST",
+      const response = await fetch('/api/attendance', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           branchId,
@@ -213,293 +255,428 @@ export default function AttendancePage() {
           longitude: location.longitude,
           notes: notes.trim() || null,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        setAttendance(data.attendance)
+        setAttendance(data.attendance);
         setSuccess(
-          action === "signin"
-            ? "Successfully signed in!"
+          action === 'signin'
+            ? 'Successfully signed in!'
             : `Successfully signed out! Total hours: ${formatDuration(data.attendance.totalHours || 0)}`,
-        )
-        setNotes("")
-      } else if(response.status === 400) {
-        setError(data.error || `Failed to ${action}`)
+        );
+        setNotes('');
+      } else if (response.status === 400) {
+        setError(data.error || `Failed to ${action}`);
       }
     } catch (err) {
-      setError(`Failed to ${action}. Please try again.`)
+      setError(`Failed to ${action}. Please try again.`);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const calculateWorkingHours = () => {
-    if (!attendance?.signInTime) return null
+    if (!attendance?.signInTime) return null;
 
-    const signInTime = new Date(attendance.signInTime)
-    const endTime = attendance.signOutTime ? new Date(attendance.signOutTime) : currentTime
-    const hours = (endTime.getTime() - signInTime.getTime()) / (1000 * 60 * 60)
+    const signInTime = new Date(attendance.signInTime);
+    const endTime = attendance.signOutTime
+      ? new Date(attendance.signOutTime)
+      : currentTime;
+    const hours = (endTime.getTime() - signInTime.getTime()) / (1000 * 60 * 60);
 
-    return hours
-  }
+    return hours;
+  };
 
-  const workingHours = calculateWorkingHours()
+  const workingHours = calculateWorkingHours();
 
   if (!branch) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-2xl mx-auto space-y-6">
-          <Skeleton className="h-8 w-64" />
+      <div className='min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6'>
+        <div className='max-w-2xl mx-auto space-y-6'>
+          <Skeleton className='h-8 w-64' />
           <Card>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+            <CardContent className='p-6'>
+              <div className='space-y-4'>
+                <Skeleton className='h-4 w-full' />
+                <Skeleton className='h-4 w-3/4' />
+                <Skeleton className='h-4 w-1/2' />
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className='min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6'>
+      <div className='max-w-2xl mx-auto space-y-6'>
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">Staff Attendance</h1>
-          <p className="text-gray-600">Check in and out for your work shift</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className='text-center space-y-2'
+        >
+          <div className='inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl mb-4 shadow-lg'>
+            <QrCode className='w-8 h-8 text-white' />
+          </div>
+          <h1 className='text-3xl font-bold text-gray-900'>Staff Attendance</h1>
+          <p className='text-gray-600'>Check in and out for your work shift</p>
+        </motion.div>
 
         {/* Branch Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Branch Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-500" />
-                <span className="font-medium">{branch.name}</span>
-                <Badge variant={branch.status === "active" ? "default" : "secondary"}>{branch.status}</Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-500" />
-                <span className="text-sm text-gray-600">
-                  {branch.address}, {branch.city}, {branch.country}
-                </span>
-              </div>
-              {branch.openingHours && (
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">{branch.openingHours}</span>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Current Time */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">{format(currentTime, "HH:mm:ss")}</div>
-              <div className="text-sm text-gray-600">{format(currentTime, "EEEE, MMMM d, yyyy")}</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Location Status */}
-        {locationError ? (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{locationError}</AlertDescription>
-          </Alert>
-        ) : location ? (
-          <Alert>
-            <CheckCircle className="h-4 w-4" />
-            <AlertDescription>Location services enabled. You can now check in/out.</AlertDescription>
-          </Alert>
-        ) : (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>Getting your location...</AlertDescription>
-          </Alert>
-        )}
-
-        {/* Email Input */}
-        {!user && (
-          <Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className='overflow-hidden border-0 shadow-lg'>
+            <div className='bg-gradient-to-r from-blue-600 to-purple-600 h-2'></div>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                Verify Your Identity
+              <CardTitle className='flex items-center gap-2'>
+                <Building2 className='h-5 w-5' />
+                Branch Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your registered email"
-                  onKeyPress={(e) => e.key === "Enter" && fetchAttendance()}
-                />
-              </div>
-              <Button onClick={fetchAttendance} disabled={loading || !email.trim()} className="w-full">
-                {loading ? "Verifying..." : "Verify Email"}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* User Info & Attendance */}
-        {user && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserIcon className="h-5 w-5" />
-                Welcome, {user.fullname}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarFallback className="bg-blue-500 text-white">{getInitials(user.fullname)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">{user.fullname}</p>
-                  <p className="text-sm text-gray-600 capitalize">{user.role}</p>
-                  <p className="text-sm text-gray-500">{user.email}</p>
-                </div>
-              </div>
-
-              {/* Attendance Status */}
-              {attendance ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <div className="text-sm text-green-600 font-medium">Sign In</div>
-                      <div className="text-lg font-bold text-green-800">
-                        {attendance.signInTime ? formatTime(attendance.signInTime) : "Not signed in"}
-                      </div>
-                      {attendance.signInDistance && (
-                        <div className="text-xs text-green-600">
-                          {Math.round(attendance.signInDistance)}m from branch
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-center p-3 bg-red-50 rounded-lg">
-                      <div className="text-sm text-red-600 font-medium">Sign Out</div>
-                      <div className="text-lg font-bold text-red-800">
-                        {attendance.signOutTime ? formatTime(attendance.signOutTime) : "Not signed out"}
-                      </div>
-                      {attendance.signOutDistance && (
-                        <div className="text-xs text-red-600">
-                          {Math.round(attendance.signOutDistance)}m from branch
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Working Hours */}
-                  {workingHours && (
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-sm text-blue-600 font-medium">
-                        {attendance.signOutTime ? "Total Hours Worked" : "Current Working Hours"}
-                      </div>
-                      <div className="text-2xl font-bold text-blue-800">{formatDuration(workingHours)}</div>
-                    </div>
-                  )}
-
-                  {/* Status Badge */}
-                  <div className="flex justify-center">
-                    <Badge
-                      variant={attendance.status === "SIGNED_IN" ? "default" : "secondary"}
-                      className="text-sm px-4 py-2"
-                    >
-                      {attendance.status === "SIGNED_IN" ? "Currently Working" : "Not Working"}
-                    </Badge>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <p className="text-gray-600">No attendance record for today</p>
-                </div>
-              )}
-
-              {/* Notes */}
-              <div>
-                <Label htmlFor="notes">Notes (Optional)</Label>
-                <Textarea
-                  id="notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add any notes about your shift..."
-                  rows={3}
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                {!attendance?.signInTime ? (
-                  <Button
-                    onClick={() => handleAttendanceAction("signin")}
-                    disabled={loading || !location}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                    size="lg"
+            <CardContent>
+              <div className='space-y-3'>
+                <div className='flex items-center gap-2'>
+                  <MapPin className='h-4 w-4 text-gray-500' />
+                  <span className='font-medium'>{branch.name}</span>
+                  <Badge
+                    variant={
+                      branch.status === 'active' ? 'default' : 'secondary'
+                    }
                   >
-                    <CheckCircle className="h-5 w-5 mr-2" />
-                    {loading ? "Signing In..." : "Sign In"}
-                  </Button>
-                ) : !attendance?.signOutTime ? (
-                  <Button
-                    onClick={() => handleAttendanceAction("signout")}
-                    disabled={loading || !location}
-                    className="w-full bg-red-600 hover:bg-red-700"
-                    size="lg"
-                  >
-                    <XCircle className="h-5 w-5 mr-2" />
-                    {loading ? "Signing Out..." : "Sign Out"}
-                  </Button>
-                ) : (
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                    <p className="font-medium text-gray-900">Shift Completed</p>
-                    <p className="text-sm text-gray-600">
-                      Total hours: {attendance.totalHours ? formatDuration(attendance.totalHours) : "0h 0m"}
-                    </p>
+                    {branch.status}
+                  </Badge>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <MapPin className='h-4 w-4 text-gray-500' />
+                  <span className='text-sm text-gray-600'>
+                    {branch.address}, {branch.city}, {branch.country}
+                  </span>
+                </div>
+                {branch.openingHours && (
+                  <div className='flex items-center gap-2'>
+                    <Clock className='h-4 w-4 text-gray-500' />
+                    <span className='text-sm text-gray-600'>
+                      {branch.openingHours}
+                    </span>
                   </div>
                 )}
               </div>
             </CardContent>
           </Card>
+        </motion.div>
+
+        {/* Current Time */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className='border-0 shadow-lg'>
+            <CardContent className='p-6'>
+              <div className='text-center'>
+                <div className='text-4xl font-bold text-blue-600 mb-2'>
+                  {format(currentTime, 'HH:mm:ss')}
+                </div>
+                <div className='text-sm text-gray-600'>
+                  {format(currentTime, 'EEEE, MMMM d, yyyy')}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Status Indicators */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className='space-y-3'
+        >
+          {/* Online Status */}
+          <Alert
+            className={
+              isOnline
+                ? 'border-green-200 bg-green-50'
+                : 'border-red-200 bg-red-50'
+            }
+          >
+            {isOnline ? (
+              <Wifi className='h-4 w-4 text-green-600' />
+            ) : (
+              <WifiOff className='h-4 w-4 text-red-600' />
+            )}
+            <AlertDescription
+              className={isOnline ? 'text-green-800' : 'text-red-800'}
+            >
+              {isOnline ? 'Connected to server' : 'No internet connection'}
+            </AlertDescription>
+          </Alert>
+
+          {/* Location Status */}
+          {locationError ? (
+            <Alert variant='destructive'>
+              <AlertTriangle className='h-4 w-4' />
+              <AlertDescription>{locationError}</AlertDescription>
+            </Alert>
+          ) : location ? (
+            <Alert className='border-green-200 bg-green-50'>
+              <CheckCircle2 className='h-4 w-4 text-green-600' />
+              <AlertDescription className='text-green-800'>
+                Location services enabled. You can now check in/out.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <Alert>
+              <AlertCircle className='h-4 w-4' />
+              <AlertDescription>Getting your location...</AlertDescription>
+            </Alert>
+          )}
+        </motion.div>
+
+        {/* Email Input */}
+        {!user && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card className='border-0 shadow-lg'>
+              <CardHeader>
+                <CardTitle className='flex items-center gap-2'>
+                  <Mail className='h-5 w-5' />
+                  Verify Your Identity
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <div>
+                  <Label htmlFor='email'>Email Address</Label>
+                  <Input
+                    id='email'
+                    type='email'
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder='Enter your registered email'
+                    onKeyPress={e => e.key === 'Enter' && fetchAttendance()}
+                    className='h-12'
+                  />
+                </div>
+                <Button
+                  onClick={fetchAttendance}
+                  disabled={loading || !email.trim() || !isOnline}
+                  className='w-full h-12'
+                >
+                  {loading ? 'Verifying...' : 'Verify Email'}
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
+
+        {/* User Info & Attendance */}
+        <AnimatePresence>
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Card className='border-0 shadow-lg'>
+                <CardHeader>
+                  <CardTitle className='flex items-center gap-2'>
+                    <UserIcon className='h-5 w-5' />
+                    Welcome, {user.fullname}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  <div className='flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl'>
+                    <Avatar className='h-16 w-16 border-4 border-white shadow-lg'>
+                      <AvatarFallback className='bg-gradient-to-br from-blue-500 to-purple-600 text-white text-lg font-semibold'>
+                        {getInitials(user.fullname)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className='font-semibold text-lg'>{user.fullname}</p>
+                      <p className='text-sm text-gray-600 capitalize'>
+                        {user.role}
+                      </p>
+                      <p className='text-sm text-gray-500'>{user.email}</p>
+                    </div>
+                  </div>
+
+                  {/* Attendance Status */}
+                  {attendance ? (
+                    <div className='space-y-4'>
+                      <div className='grid grid-cols-2 gap-4'>
+                        <div className='text-center p-4 bg-green-50 rounded-xl border border-green-200'>
+                          <div className='text-sm text-green-600 font-medium mb-1'>
+                            Sign In
+                          </div>
+                          <div className='text-xl font-bold text-green-800'>
+                            {attendance.signInTime
+                              ? formatTime(attendance.signInTime)
+                              : 'Not signed in'}
+                          </div>
+                          {attendance.signInDistance && (
+                            <div className='text-xs text-green-600 mt-1'>
+                              {Math.round(attendance.signInDistance)}m from
+                              branch
+                            </div>
+                          )}
+                        </div>
+                        <div className='text-center p-4 bg-red-50 rounded-xl border border-red-200'>
+                          <div className='text-sm text-red-600 font-medium mb-1'>
+                            Sign Out
+                          </div>
+                          <div className='text-xl font-bold text-red-800'>
+                            {attendance.signOutTime
+                              ? formatTime(attendance.signOutTime)
+                              : 'Not signed out'}
+                          </div>
+                          {attendance.signOutDistance && (
+                            <div className='text-xs text-red-600 mt-1'>
+                              {Math.round(attendance.signOutDistance)}m from
+                              branch
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Working Hours */}
+                      {workingHours && (
+                        <div className='text-center p-4 bg-blue-50 rounded-xl border border-blue-200'>
+                          <div className='text-sm text-blue-600 font-medium mb-1'>
+                            {attendance.signOutTime
+                              ? 'Total Hours Worked'
+                              : 'Current Working Hours'}
+                          </div>
+                          <div className='text-3xl font-bold text-blue-800'>
+                            {formatDuration(workingHours)}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Status Badge */}
+                      <div className='flex justify-center'>
+                        <Badge
+                          variant={
+                            attendance.status === 'SIGNED_IN'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                          className='text-sm px-6 py-2 text-base'
+                        >
+                          {attendance.status === 'SIGNED_IN'
+                            ? 'Currently Working'
+                            : 'Not Working'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className='text-center p-6 bg-gray-50 rounded-xl'>
+                      <Clock className='h-12 w-12 text-gray-400 mx-auto mb-3' />
+                      <p className='text-gray-600 font-medium'>
+                        No attendance record for today
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Notes */}
+                  <div>
+                    <Label htmlFor='notes'>Notes (Optional)</Label>
+                    <Textarea
+                      id='notes'
+                      value={notes}
+                      onChange={e => setNotes(e.target.value)}
+                      placeholder='Add any notes about your shift...'
+                      rows={3}
+                      className='mt-2'
+                    />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className='space-y-3'>
+                    {!attendance?.signInTime ? (
+                      <Button
+                        onClick={() => handleAttendanceAction('signin')}
+                        disabled={loading || !location || !isOnline}
+                        className='w-full h-14 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold text-lg rounded-xl'
+                        size='lg'
+                      >
+                        <CheckCircle className='h-6 w-6 mr-3' />
+                        {loading ? 'Signing In...' : 'Sign In'}
+                      </Button>
+                    ) : !attendance?.signOutTime ? (
+                      <Button
+                        onClick={() => handleAttendanceAction('signout')}
+                        disabled={loading || !location || !isOnline}
+                        className='w-full h-14 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold text-lg rounded-xl'
+                        size='lg'
+                      >
+                        <XCircle className='h-6 w-6 mr-3' />
+                        {loading ? 'Signing Out...' : 'Sign Out'}
+                      </Button>
+                    ) : (
+                      <div className='text-center p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200'>
+                        <CheckCircle className='h-12 w-12 text-green-600 mx-auto mb-3' />
+                        <p className='font-semibold text-green-900 text-lg'>
+                          Shift Completed
+                        </p>
+                        <p className='text-sm text-green-700 mt-1'>
+                          Total hours:{' '}
+                          {attendance.totalHours
+                            ? formatDuration(attendance.totalHours)
+                            : '0h 0m'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Error/Success Messages */}
-        {error && (
-          <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <Alert variant='destructive' className='border-red-200 bg-red-50'>
+                <XCircle className='h-4 w-4' />
+                <AlertDescription className='text-red-800'>
+                  {error}
+                </AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
 
-        {success && (
-          <Alert>
-            <CheckCircle className="h-4 w-4" />
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <Alert className='border-green-200 bg-green-50'>
+                <CheckCircle className='h-4 w-4' />
+                <AlertDescription className='text-green-800'>
+                  {success}
+                </AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
-  )
+  );
 }

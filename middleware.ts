@@ -10,12 +10,20 @@ interface DecodedToken {
   [key: string]: any;
 }
 
-const publicRoutes = ['/login', '/register', '/public', '/start', '/start/business-setup', '/waiter', '/branch'];
+const publicRoutes = [
+  '/login',
+  '/register',
+  '/public',
+  '/start',
+  '/start/business-setup',
+  '/waiter',
+  '/branch',
+];
 interface RolePermissions {
   [key: string]: string[];
 }
 
-const rolePermissions : RolePermissions = {
+const rolePermissions: RolePermissions = {
   owner: ['/owner/*', '/branch/*', '/manager/*', '/kitchen/*', '/waiter/*'],
   manager: ['/branch/*', '/manager/*'],
   waiter: ['/waiter/*'],
@@ -80,5 +88,11 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/owner/:path*', '/branch/:path*', '/waiter/:path*', '/kitchen/:path*'],
+  matcher: [
+    '/',
+    '/owner/:path*',
+    '/branch/:path*',
+    '/waiter/:path*',
+    '/kitchen/:path*',
+  ],
 };

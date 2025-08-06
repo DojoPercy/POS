@@ -4,15 +4,13 @@ import { jwtDecode } from 'jwt-decode';
 import { sendOrderUpdate } from '@/lib/pusher';
 import redis from '@/lib/redis/redis';
 
-
 interface DecodedToken {
-  role: string
-  userId?: string
-  branchId?: string
-  companyId?: string
-  [key: string]: any
+  role: string;
+  userId?: string;
+  branchId?: string;
+  companyId?: string;
+  [key: string]: any;
 }
-
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -24,27 +22,27 @@ export async function GET(req: NextRequest) {
 
   const start = startDate ? new Date(startDate) : undefined;
   const end = endDate ? new Date(endDate) : undefined;
-  console.log("Start Date:", start);
-  console.log("End Date:", end);
+  console.log('Start Date:', start);
+  console.log('End Date:', end);
 
   const id = branchId || companyId || waiterId;
-  const startStr = start ? start.toISOString().split("T")[0] : "any";
-  const endStr = end ? end.toISOString().split("T")[0] : "any";
+  const startStr = start ? start.toISOString().split('T')[0] : 'any';
+  const endStr = end ? end.toISOString().split('T')[0] : 'any';
 
   if (!id) {
     return NextResponse.json(
       { error: 'branchId, companyId, or waiterId is required' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   const cacheKey = `orders-${id}-${startStr}-${endStr}`;
-  console.log("Cache Key:", cacheKey);
+  console.log('Cache Key:', cacheKey);
 
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log("Cache hit:", cacheKey);
+      console.log('Cache hit:', cacheKey);
       return NextResponse.json(JSON.parse(cached), { status: 200 });
     }
 
@@ -73,28 +71,23 @@ export async function GET(req: NextRequest) {
             }, // Include menu item details
           },
         },
-        
       },
     });
-    console.log("Fetched orders:", orders.length);
+    console.log('Fetched orders:', orders.length);
 
     await redis.set(cacheKey, JSON.stringify(orders), 'EX', 60 * 1);
 
     return NextResponse.json(orders, { status: 200 });
-
   } catch (error: any) {
     console.error('Error fetching orders:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-
-
-
 export async function POST(req: NextRequest) {
   try {
-    const token = req.cookies.get("token")?.value;
-    if (!token) return NextResponse.redirect(new URL("/login", req.url));
+    const token = req.cookies.get('token')?.value;
+    if (!token) return NextResponse.redirect(new URL('/login', req.url));
 
     const decodedToken: DecodedToken = jwtDecode(token);
 
@@ -113,7 +106,7 @@ export async function POST(req: NextRequest) {
     } = await req.json();
 
     const status = OrderStatus || orderStatus;
-    const companyId = decodedToken.companyId || "";
+    const companyId = decodedToken.companyId || '';
 
     const orderData = {
       waiterId,
@@ -148,41 +141,46 @@ export async function POST(req: NextRequest) {
       const keys = await redis.keys(`orders-${id}-*`);
       if (keys.length > 0) await redis.del(...keys);
     }
-console.log("sratus", status);
+    console.log('sratus', status);
     // Inventory deduction only if status is COMPLETED
-      if (status === "PAID" && newOrder.orderLines.length > 0) {
+    if (status === 'PAID' && newOrder.orderLines.length > 0) {
       // Group ingredient deductions by ingredientId and branchId
       const ingredientDeductions = new Map<string, number>(); // Key: `${ingredientId}-${branchId}`, Value: totalDeductQty
-console.log("Deducting inventory for order:", newOrder.id);
+      console.log('Deducting inventory for order:', newOrder.id);
       for (const line of newOrder.orderLines) {
         // Fetch menu ingredients once per menuItemId if not already fetched
         const ingredients = await prisma.menuIngredient.findMany({
           where: { menuId: line.menuItemId },
-          select: { ingredientId: true, amount: true } // Select only necessary fields
+          select: { ingredientId: true, amount: true }, // Select only necessary fields
         });
 
         for (const ingredient of ingredients) {
           const deductQty = ingredient.amount * line.quantity;
           const key = `${ingredient.ingredientId}-${branchId}`;
-          ingredientDeductions.set(key, (ingredientDeductions.get(key) || 0) + deductQty);
+          ingredientDeductions.set(
+            key,
+            (ingredientDeductions.get(key) || 0) + deductQty,
+          );
         }
       }
 
       // Prepare a single batch update for inventory
-      const inventoryUpdates = Array.from(ingredientDeductions.entries()).map(([key, totalDeductQty]) => {
-        const [ingredientId, targetBranchId] = key.split('-');
-        return prisma.inventoryStock.updateMany({
-          where: {
-            ingredientId: ingredientId,
-            branchId: targetBranchId,
-          },
-          data: {
-            quantity: {
-              decrement: totalDeductQty,
+      const inventoryUpdates = Array.from(ingredientDeductions.entries()).map(
+        ([key, totalDeductQty]) => {
+          const [ingredientId, targetBranchId] = key.split('-');
+          return prisma.inventoryStock.updateMany({
+            where: {
+              ingredientId: ingredientId,
+              branchId: targetBranchId,
             },
-          },
-        });
-      });
+            data: {
+              quantity: {
+                decrement: totalDeductQty,
+              },
+            },
+          });
+        },
+      );
 
       // Run all inventory updates in a single transaction
       if (inventoryUpdates.length > 0) {
@@ -192,9 +190,8 @@ console.log("Deducting inventory for order:", newOrder.id);
     await sendOrderUpdate(newOrder);
 
     return NextResponse.json(newOrder, { status: 201 });
-
   } catch (error: any) {
-    console.error("Error creating order:", error);
+    console.error('Error creating order:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

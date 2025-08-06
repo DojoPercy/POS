@@ -1,49 +1,65 @@
+import { type NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
 
-import { type NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 // Calculate distance between two coordinates using Haversine formula
-function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371e3 // Earth's radius in meters
-  const φ1 = (lat1 * Math.PI) / 180
-  const φ2 = (lat2 * Math.PI) / 180
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180
+function calculateDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c // Distance in meters
+  return R * c; // Distance in meters
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const branchId = searchParams.get("branchId")
-    const email = searchParams.get("email")
-    const date = searchParams.get("date") || new Date().toISOString().split("T")[0]
+    const { searchParams } = new URL(request.url);
+    const branchId = searchParams.get('branchId');
+    const email = searchParams.get('email');
+    const date =
+      searchParams.get('date') || new Date().toISOString().split('T')[0];
 
     if (!branchId || !email) {
-      return NextResponse.json({ error: "Branch ID and email are required" }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Branch ID and email are required' },
+        { status: 400 },
+      );
     }
 
     // Find user by email
     const user = await prisma.user.findUnique({
       where: { email },
-      select: { id: true, fullname: true, email: true, role: true, branchId: true },
-    })
+      select: {
+        id: true,
+        fullname: true,
+        email: true,
+        role: true,
+        branchId: true,
+      },
+    });
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Get today's attendance record
-    const startOfDay = new Date(date)
-    startOfDay.setHours(0, 0, 0, 0)
-    const endOfDay = new Date(date)
-    endOfDay.setHours(23, 59, 59, 999)
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
 
     const attendance = await prisma.attendance.findFirst({
       where: {
@@ -71,51 +87,75 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-    })
+    });
 
-    return NextResponse.json({ user, attendance })
+    return NextResponse.json({ user, attendance });
   } catch (error) {
-    console.error("Error fetching attendance:", error)
-    return NextResponse.json({ error: "Failed to fetch attendance" }, { status: 500 })
+    console.error('Error fetching attendance:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch attendance' },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { branchId, email, action, latitude, longitude, notes } = body
+    const body = await request.json();
+    const { branchId, email, action, latitude, longitude, notes } = body;
 
     if (!branchId || !email || !action) {
-      return NextResponse.json({ error: "Branch ID, email, and action are required" }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Branch ID, email, and action are required' },
+        { status: 400 },
+      );
     }
 
     // Find user by email
     const user = await prisma.user.findUnique({
       where: { email },
-      select: { id: true, fullname: true, email: true, role: true, branchId: true, companyId: true },
-    })
+      select: {
+        id: true,
+        fullname: true,
+        email: true,
+        role: true,
+        branchId: true,
+        companyId: true,
+      },
+    });
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Get branch details for location verification
     const branch = await prisma.branch.findUnique({
       where: { id: branchId },
-      select: { id: true, name: true, latitude: true, longitude: true, companyId: true },
-    })
+      select: {
+        id: true,
+        name: true,
+        latitude: true,
+        longitude: true,
+        companyId: true,
+      },
+    });
 
     if (!branch) {
-      return NextResponse.json({ error: "Branch not found" }, { status: 404 })
+      return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
     }
 
     // Verify location if branch has coordinates
-    let distance = null
+    let distance = null;
     if (branch.latitude && branch.longitude && latitude && longitude) {
-      distance = calculateDistance(branch.latitude, branch.longitude, latitude, longitude)
+      distance = calculateDistance(
+        branch.latitude,
+        branch.longitude,
+        latitude,
+        longitude,
+      );
 
       // Check if user is within 100 meters of the branch
-      const maxDistance = 5000 // meters
+      const maxDistance = 5000; // meters
       if (distance > maxDistance) {
         return NextResponse.json(
           {
@@ -124,12 +164,12 @@ export async function POST(request: NextRequest) {
             maxDistance,
           },
           { status: 400 },
-        )
+        );
       }
     }
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     // Get or create today's attendance record
     let attendance = await prisma.attendance.findFirst({
@@ -141,11 +181,14 @@ export async function POST(request: NextRequest) {
           lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
         },
       },
-    })
+    });
 
-    if (action === "signin") {
+    if (action === 'signin') {
       if (attendance && attendance.signInTime) {
-        return NextResponse.json({ error: "Already signed in for today" }, { status: 400 })
+        return NextResponse.json(
+          { error: 'Already signed in for today' },
+          { status: 400 },
+        );
       }
 
       const attendanceData = {
@@ -157,32 +200,40 @@ export async function POST(request: NextRequest) {
         signInLatitude: latitude,
         signInLongitude: longitude,
         signInDistance: distance,
-        status: "SIGNED_IN" as const,
+        status: 'SIGNED_IN' as const,
         notes,
         date: today,
-      }
+      };
 
       if (attendance) {
         attendance = await prisma.attendance.update({
           where: { id: attendance.id },
           data: attendanceData,
-        })
+        });
       } else {
         attendance = await prisma.attendance.create({
           data: attendanceData,
-        })
+        });
       }
-    } else if (action === "signout") {
+    } else if (action === 'signout') {
       if (!attendance || !attendance.signInTime) {
-        return NextResponse.json({ error: "Must sign in first" }, { status: 400 })
+        return NextResponse.json(
+          { error: 'Must sign in first' },
+          { status: 400 },
+        );
       }
 
       if (attendance.signOutTime) {
-        return NextResponse.json({ error: "Already signed out for today" }, { status: 400 })
+        return NextResponse.json(
+          { error: 'Already signed out for today' },
+          { status: 400 },
+        );
       }
 
-      const signOutTime = new Date()
-      const totalHours = (signOutTime.getTime() - attendance.signInTime.getTime()) / (1000 * 60 * 60)
+      const signOutTime = new Date();
+      const totalHours =
+        (signOutTime.getTime() - attendance.signInTime.getTime()) /
+        (1000 * 60 * 60);
 
       attendance = await prisma.attendance.update({
         where: { id: attendance.id },
@@ -192,10 +243,10 @@ export async function POST(request: NextRequest) {
           signOutLongitude: longitude,
           signOutDistance: distance,
           totalHours,
-          status: "SIGNED_OUT",
+          status: 'SIGNED_OUT',
           notes: notes || attendance.notes,
         },
-      })
+      });
     }
 
     // Fetch updated attendance with relations
@@ -218,11 +269,14 @@ export async function POST(request: NextRequest) {
           },
         },
       },
-    })
+    });
 
-    return NextResponse.json({ attendance: updatedAttendance })
+    return NextResponse.json({ attendance: updatedAttendance });
   } catch (error) {
-    console.error("Error processing attendance:", error)
-    return NextResponse.json({ error: "Failed to process attendance" }, { status: 500 })
+    console.error('Error processing attendance:', error);
+    return NextResponse.json(
+      { error: 'Failed to process attendance' },
+      { status: 500 },
+    );
   }
 }

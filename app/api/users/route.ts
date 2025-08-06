@@ -6,13 +6,12 @@ import { jwtDecode } from 'jwt-decode';
 import { Console } from 'console';
 import redis from '@/lib/redis/redis';
 
-
 interface DecodedToken {
-  role: string
-  userId?: string
-  branchId?: string
-  companyId?: string
-  [key: string]: any
+  role: string;
+  userId?: string;
+  branchId?: string;
+  companyId?: string;
+  [key: string]: any;
 }
 type UserRole = 'owner' | 'admin' | 'user';
 
@@ -26,57 +25,56 @@ interface CreateUserRequestBody {
   companyId?: string | null;
 }
 
-
-
 export async function GET(req: NextRequest) {
-  try{
-     const { searchParams } = new URL(req.url);
-              const id = searchParams.get('id');
-              const companyId = searchParams.get('companyId');
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    const companyId = searchParams.get('companyId');
 
-            
-              if (id) {
-                const branch = await prisma.user.findUnique({
-                  where: { id },
-                });
-                if (!branch) {
-                  return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
-                }
-                
-                return NextResponse.json(branch, { status: 200 });
-              }else if(companyId){
-                const branches = await prisma.user.findMany({
-                  where: { companyId },
-                });
-                console.log('branches:', branches);
-             
-                return NextResponse.json(branches, { status: 200 });
-              }
+    if (id) {
+      const branch = await prisma.user.findUnique({
+        where: { id },
+      });
+      if (!branch) {
+        return NextResponse.json(
+          { error: 'Branch not found' },
+          { status: 404 },
+        );
+      }
 
-    const user = await prisma.user.findMany({
+      return NextResponse.json(branch, { status: 200 });
+    } else if (companyId) {
+      const branches = await prisma.user.findMany({
+        where: { companyId },
+      });
+      console.log('branches:', branches);
 
-    });
-   
+      return NextResponse.json(branches, { status: 200 });
+    }
+
+    const user = await prisma.user.findMany({});
+
     return NextResponse.json(user, { status: 200 });
-  }catch{
-    return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { error: 'Failed to fetch user' },
+      { status: 500 },
+    );
   }
 }
 
-
-
 export async function POST(req: NextRequest) {
   try {
-      
     const body: CreateUserRequestBody = await req.json();
 
-    const { email, password, role, branchId, fullname, status, companyId } = body;
+    const { email, password, role, branchId, fullname, status, companyId } =
+      body;
 
     // Validate input
     if (!email || !password || !role) {
       return NextResponse.json(
         { error: 'Missing required fields: email, password, or role' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -92,10 +90,10 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         role,
         branchId: branchId || null,
-        companyId:  companyId || null,
+        companyId: companyId || null,
       },
     });
-      console.log('User created:', user);
+    console.log('User created:', user);
     return NextResponse.json(
       {
         message: 'User created successfully',
@@ -109,13 +107,13 @@ export async function POST(req: NextRequest) {
           companyId: user.companyId,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error('Error creating user:', error);
     return NextResponse.json(
       { error: 'User creation failed due to a server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

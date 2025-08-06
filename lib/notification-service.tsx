@@ -1,6 +1,10 @@
-import { PrismaClient, NotificationType, NotificationPriority } from "@prisma/client"
+import {
+  PrismaClient,
+  NotificationType,
+  NotificationPriority,
+} from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export class NotificationService {
   // Get notifications based on user role and permissions
@@ -8,90 +12,88 @@ export class NotificationService {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { company: true },
-    })
+    });
 
     if (!user) {
-      throw new Error("User not found")
+      throw new Error('User not found');
     }
 
-    let notifications = []
+    let notifications = [];
 
     switch (user.role) {
-      case "owner":
-        // Company owner sees company-wide and their personal notifications
-        notifications = await prisma.notification.findMany({
-          where: {
-            OR: [
-              { companyId: user.companyId, type: NotificationType.COMPANY },
-              { userId: userId, type: NotificationType.USER },
-              { expiresAt: null }, { expiresAt: { gte: new Date() } }
-            ],
-          },
-          include: {
-            company: true,
-            branch: true,
-            user: true,
-          },
-          orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
-        })
-        break
+    case 'owner':
+      // Company owner sees company-wide and their personal notifications
+      notifications = await prisma.notification.findMany({
+        where: {
+          OR: [
+            { companyId: user.companyId, type: NotificationType.COMPANY },
+            { userId: userId, type: NotificationType.USER },
+            { expiresAt: null },
+            { expiresAt: { gte: new Date() } },
+          ],
+        },
+        include: {
+          company: true,
+          branch: true,
+          user: true,
+        },
+        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+      });
+      break;
 
-      case "manager":
-        // Branch manager sees branch and their personal notifications
-        notifications = await prisma.notification.findMany({
-          where: {
-            OR: [
-              { branchId: user.branchId, type: NotificationType.BRANCH },
-              { userId: userId, type: NotificationType.USER },
-              { expiresAt: null }, { expiresAt: { gte: new Date() } }
-            ],
-            
-          },
-          include: {
-            company: true,
-            branch: true,
-            user: true,
-            
-          },
-          orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
-        })
-        break
+    case 'manager':
+      // Branch manager sees branch and their personal notifications
+      notifications = await prisma.notification.findMany({
+        where: {
+          OR: [
+            { branchId: user.branchId, type: NotificationType.BRANCH },
+            { userId: userId, type: NotificationType.USER },
+            { expiresAt: null },
+            { expiresAt: { gte: new Date() } },
+          ],
+        },
+        include: {
+          company: true,
+          branch: true,
+          user: true,
+        },
+        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+      });
+      break;
 
-      case "waiter":
-      case "kitchen":
-      default:
-        // Regular users only see their personal notifications
-        notifications = await prisma.notification.findMany({
-          where: {
-            userId: userId,
-            type: NotificationType.USER,
-           
-          },
-          include: {
-            company: true,
-            branch: true,
-            user: true,
-            
-          },
-          orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
-        })
-        break
+    case 'waiter':
+    case 'kitchen':
+    default:
+      // Regular users only see their personal notifications
+      notifications = await prisma.notification.findMany({
+        where: {
+          userId: userId,
+          type: NotificationType.USER,
+        },
+        include: {
+          company: true,
+          branch: true,
+          user: true,
+        },
+        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+      });
+      break;
     }
 
-    return notifications
+    return notifications;
   }
 
   // Create a new notification
   static async createNotification(data: {
-    title: string
-    message: string
-    type: NotificationType
-    priority?: NotificationPriority
-    companyId?: string
-    branchId?: string
-    userId?: string
-    createdBy: string
-    expiresAt?: Date
+    title: string;
+    message: string;
+    type: NotificationType;
+    priority?: NotificationPriority;
+    companyId?: string;
+    branchId?: string;
+    userId?: string;
+    createdBy: string;
+    expiresAt?: Date;
   }) {
     return await prisma.notification.create({
       data: {
@@ -109,9 +111,8 @@ export class NotificationService {
         company: true,
         branch: true,
         user: true,
-        
       },
-    })
+    });
   }
 
   // Mark notification as read
@@ -123,49 +124,51 @@ export class NotificationService {
         readAt: new Date(),
         readBy: userId,
       },
-    })
+    });
   }
 
   // Mark all notifications as read for a user
   static async markAllAsRead(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-    })
+    });
 
     if (!user) {
-      throw new Error("User not found")
+      throw new Error('User not found');
     }
 
-    let whereClause = {}
+    let whereClause = {};
 
     switch (user.role) {
-      case "owner":
-        whereClause = {
-          OR: [
-            { companyId: user.companyId, type: NotificationType.COMPANY },
-            { userId: userId, type: NotificationType.USER },
-            { expiresAt: null }, { expiresAt: { gte: new Date() } }
-          ],
-          isRead: false,
-        }
-        break
-      case "manager":
-        whereClause = {
-          OR: [
-            { branchId: user.branchId, type: NotificationType.BRANCH },
-            { userId: userId, type: NotificationType.USER },
-            { expiresAt: null }, { expiresAt: { gte: new Date() } }
-          ],
-          isRead: false,
-        }
-        break
-      default:
-        whereClause = {
-          userId: userId,
-          type: NotificationType.USER,
-          isRead: false,
-        }
-        break
+    case 'owner':
+      whereClause = {
+        OR: [
+          { companyId: user.companyId, type: NotificationType.COMPANY },
+          { userId: userId, type: NotificationType.USER },
+          { expiresAt: null },
+          { expiresAt: { gte: new Date() } },
+        ],
+        isRead: false,
+      };
+      break;
+    case 'manager':
+      whereClause = {
+        OR: [
+          { branchId: user.branchId, type: NotificationType.BRANCH },
+          { userId: userId, type: NotificationType.USER },
+          { expiresAt: null },
+          { expiresAt: { gte: new Date() } },
+        ],
+        isRead: false,
+      };
+      break;
+    default:
+      whereClause = {
+        userId: userId,
+        type: NotificationType.USER,
+        isRead: false,
+      };
+      break;
     }
 
     return await prisma.notification.updateMany({
@@ -175,80 +178,79 @@ export class NotificationService {
         readAt: new Date(),
         readBy: userId,
       },
-    })
+    });
   }
 
   // Delete notification (only creator or admin can delete)
   static async deleteNotification(notificationId: string, userId: string) {
     const notification = await prisma.notification.findUnique({
       where: { id: notificationId },
-    })
+    });
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-    })
+    });
 
     if (!notification || !user) {
-      throw new Error("Notification or user not found")
+      throw new Error('Notification or user not found');
     }
 
     // Check if user has permission to delete
-    if (notification.createdBy !== userId && user.role !== "owner") {
-      throw new Error("Unauthorized to delete this notification")
+    if (notification.createdBy !== userId && user.role !== 'owner') {
+      throw new Error('Unauthorized to delete this notification');
     }
 
     return await prisma.notification.delete({
       where: { id: notificationId },
-    })
+    });
   }
 
   // Get unread count for user
   static async getUnreadCount(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-    })
+    });
 
     if (!user) {
-      throw new Error("User not found")
+      throw new Error('User not found');
     }
 
-    let whereClause = {}
+    let whereClause = {};
 
     switch (user.role) {
-      case "owner":
-        whereClause = {
-          OR: [
-            { companyId: user.companyId, type: NotificationType.COMPANY },
-            { userId: userId, type: NotificationType.USER },
-            { expiresAt: null }, { expiresAt: { gte: new Date() } }
-          ],
-          isRead: false,
-         
-        }
-        break
-      case "manager":
-        whereClause = {
-          OR: [
-            { branchId: user.branchId, type: NotificationType.BRANCH },
-            { userId: userId, type: NotificationType.USER },
-            { expiresAt: null }, { expiresAt: { gte: new Date() } }
-          ],
-          isRead: false,
-         
-        }
-        break
-      default:
-        whereClause = {
-          userId: userId,
-          type: NotificationType.USER,
-          isRead: false,
-         
-        }
-        break
+    case 'owner':
+      whereClause = {
+        OR: [
+          { companyId: user.companyId, type: NotificationType.COMPANY },
+          { userId: userId, type: NotificationType.USER },
+          { expiresAt: null },
+          { expiresAt: { gte: new Date() } },
+        ],
+        isRead: false,
+      };
+      break;
+    case 'manager':
+      whereClause = {
+        OR: [
+          { branchId: user.branchId, type: NotificationType.BRANCH },
+          { userId: userId, type: NotificationType.USER },
+          { expiresAt: null },
+          { expiresAt: { gte: new Date() } },
+        ],
+        isRead: false,
+      };
+      break;
+    default:
+      whereClause = {
+        userId: userId,
+        type: NotificationType.USER,
+        isRead: false,
+      };
+      break;
     }
 
     return await prisma.notification.count({
       where: whereClause,
-    })
+    });
   }
 }

@@ -83,54 +83,58 @@ export async function PUT(req: NextRequest, { params }: any) {
       },
       include: {
         orderLines: true, // Include orderLines in the response
-        payment: true,   
+        payment: true,
       },
     });
 
-    
     const cacheKeys = [
       body.branchId ? `orders-${body.branchId}` : null,
       body.companyId ? `orders-${body.companyId}` : null,
       body.waiterId ? `orders-${body.waiterId}` : null,
     ].filter(Boolean);
 
-    console.log("sratus", body.orderStatus === OrderStatus.PAID);
-    console.log("status", body.OrderStatus);
-    console.log("updatedOrder", updatedOrder);
+    console.log('sratus', body.orderStatus === OrderStatus.PAID);
+    console.log('status', body.OrderStatus);
+    console.log('updatedOrder', updatedOrder);
     // Inventory deduction only if status is COMPLETED
-      if (body.orderStatus === "PAID" ) {
+    if (body.orderStatus === 'PAID') {
       // Group ingredient deductions by ingredientId and branchId
       const ingredientDeductions = new Map<string, number>(); // Key: `${ingredientId}-${branchId}`, Value: totalDeductQty
-console.log("Deducting inventory for order:", updatedOrder.id);
+      console.log('Deducting inventory for order:', updatedOrder.id);
       for (const line of updatedOrder.orderLines) {
         // Fetch menu ingredients once per menuItemId if not already fetched
         const ingredients = await prisma.menuIngredient.findMany({
           where: { menuId: line.menuItemId },
-          select: { ingredientId: true, amount: true } // Select only necessary fields
+          select: { ingredientId: true, amount: true }, // Select only necessary fields
         });
 
         for (const ingredient of ingredients) {
           const deductQty = ingredient.amount * line.quantity;
           const key = `${ingredient.ingredientId}-${body.branchId}`;
-          ingredientDeductions.set(key, (ingredientDeductions.get(key) || 0) + deductQty);
+          ingredientDeductions.set(
+            key,
+            (ingredientDeductions.get(key) || 0) + deductQty,
+          );
         }
       }
 
       // Prepare a single batch update for inventory
-      const inventoryUpdates = Array.from(ingredientDeductions.entries()).map(([key, totalDeductQty]) => {
-        const [ingredientId, targetBranchId] = key.split('-');
-        return prisma.inventoryStock.updateMany({
-          where: {
-            ingredientId: ingredientId,
-            branchId: targetBranchId,
-          },
-          data: {
-            quantity: {
-              decrement: totalDeductQty,
+      const inventoryUpdates = Array.from(ingredientDeductions.entries()).map(
+        ([key, totalDeductQty]) => {
+          const [ingredientId, targetBranchId] = key.split('-');
+          return prisma.inventoryStock.updateMany({
+            where: {
+              ingredientId: ingredientId,
+              branchId: targetBranchId,
             },
-          },
-        });
-      });
+            data: {
+              quantity: {
+                decrement: totalDeductQty,
+              },
+            },
+          });
+        },
+      );
 
       // Run all inventory updates in a single transaction
       if (inventoryUpdates.length > 0) {
@@ -139,20 +143,20 @@ console.log("Deducting inventory for order:", updatedOrder.id);
     }
     await sendOrderUpdate(updatedOrder);
 
-   
-    console.log(`Deleting cache for branchId: ${body.branchId}, companyId: ${body.companyId}, waiterId: ${body.waiterId}`);
-    console.log("Cache keys to delete:", cacheKeys);
+    console.log(
+      `Deleting cache for branchId: ${body.branchId}, companyId: ${body.companyId}, waiterId: ${body.waiterId}`,
+    );
+    console.log('Cache keys to delete:', cacheKeys);
 
-    for (let key of cacheKeys) {
-      console.log("Deleting cache key:", key);
+    for (const key of cacheKeys) {
+      console.log('Deleting cache key:', key);
       await redis.del(key as string);
     }
 
     // Return the updated order as the response
     return NextResponse.json(updatedOrder, { status: 200 });
   } catch (error: any) {
-    console.error("Update Order Error:", error);
+    console.error('Update Order Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

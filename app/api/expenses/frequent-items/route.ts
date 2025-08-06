@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import {prisma} from "../../../../lib/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '../../../../lib/prisma';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -7,9 +7,9 @@ export async function GET(request: NextRequest) {
   const items = await prisma.frequentItem.findMany({
     where: {
       branchId: branchId ? { equals: branchId } : undefined,
-    }
+    },
   });
-  console.log(items)
+  console.log(items);
   return NextResponse.json(items, { status: 200 });
 }
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       branchId,
       categoryId: categoryId || undefined,
       quantity: qty || 1,
-      itemName
+      itemName,
     },
   });
   return Response.json(item);

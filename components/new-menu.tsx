@@ -1,9 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 const NewMenu = () => {
-  return (
-    <div>NewMenu</div>
-  )
-}
+  return <div>NewMenu</div>;
+};
 
-export default NewMenu
+export default NewMenu;

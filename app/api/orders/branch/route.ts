@@ -31,7 +31,11 @@ interface OrderSummary {
     amount: number;
   }>;
   topPerformers: {
-    topWaiter: { waiterId: string; waiterName?: string | null; amount: number } | null;
+    topWaiter: {
+      waiterId: string;
+      waiterName?: string | null;
+      amount: number;
+    } | null;
     busiestDay: { date: string; orders: number } | null;
     highestSalesDay: { date: string; amount: number } | null;
   };
@@ -46,7 +50,10 @@ export async function GET(req: NextRequest) {
 
   // 1) branchId is mandatory
   if (!branchId) {
-    return NextResponse.json({ error: 'branchId is required' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'branchId is required' },
+      { status: 400 },
+    );
   }
 
   // 2) Parse & validate dates
@@ -55,13 +62,22 @@ export async function GET(req: NextRequest) {
     start = startDate ? new Date(startDate) : undefined;
     end = endDate ? new Date(endDate) : undefined;
     if (start && isNaN(start.getTime())) {
-      return NextResponse.json({ error: 'Invalid start date format' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid start date format' },
+        { status: 400 },
+      );
     }
     if (end && isNaN(end.getTime())) {
-      return NextResponse.json({ error: 'Invalid end date format' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid end date format' },
+        { status: 400 },
+      );
     }
     if (start && end && start > end) {
-      return NextResponse.json({ error: 'Start date must be before end date' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Start date must be before end date' },
+        { status: 400 },
+      );
     }
     if (end) {
       end.setHours(23, 59, 59, 999);
@@ -123,13 +139,19 @@ export async function GET(req: NextRequest) {
     // 7) Compute totals & averages
     const totalOrders = orders.length;
     const totalItems = orders.reduce((oAcc, o) => {
-      return oAcc + o.orderLines.reduce((lAcc, line) => lAcc + (line.quantity || 0), 0);
+      return (
+        oAcc +
+        o.orderLines.reduce((lAcc, line) => lAcc + (line.quantity || 0), 0)
+      );
     }, 0);
 
     const totalAmount = orders.reduce((oAcc, o) => {
       return (
         oAcc +
-        o.orderLines.reduce((lAcc, line) => lAcc + (line.quantity || 0) * (line.price || 0), 0)
+        o.orderLines.reduce(
+          (lAcc, line) => lAcc + (line.quantity || 0) * (line.price || 0),
+          0,
+        )
       );
     }, 0);
 
@@ -150,8 +172,14 @@ export async function GET(req: NextRequest) {
             averageOrderValue: 0,
           };
         }
-        const itemsInOrder = o.orderLines.reduce((sum, line) => sum + (line.quantity || 0), 0);
-        const amtInOrder = o.orderLines.reduce((sum, line) => sum + (line.quantity || 0) * (line.price || 0), 0);
+        const itemsInOrder = o.orderLines.reduce(
+          (sum, line) => sum + (line.quantity || 0),
+          0,
+        );
+        const amtInOrder = o.orderLines.reduce(
+          (sum, line) => sum + (line.quantity || 0) * (line.price || 0),
+          0,
+        );
 
         map[wId].orders += 1;
         map[wId].items += itemsInOrder;
@@ -170,15 +198,24 @@ export async function GET(req: NextRequest) {
           amount: number;
           averageOrderValue: number;
         }
-      >
+      >,
     );
 
     // 9) Daily breakdown
-    const dailyMap = new Map<string, { orders: number; items: number; amount: number }>();
+    const dailyMap = new Map<
+      string,
+      { orders: number; items: number; amount: number }
+    >();
     for (const o of orders) {
       const dateKey = o.createdAt.toISOString().split('T')[0];
-      const itemsInOrder = o.orderLines.reduce((sum, line) => sum + (line.quantity || 0), 0);
-      const amtInOrder = o.orderLines.reduce((sum, line) => sum + (line.quantity || 0) * (line.price || 0), 0);
+      const itemsInOrder = o.orderLines.reduce(
+        (sum, line) => sum + (line.quantity || 0),
+        0,
+      );
+      const amtInOrder = o.orderLines.reduce(
+        (sum, line) => sum + (line.quantity || 0) * (line.price || 0),
+        0,
+      );
 
       if (!dailyMap.has(dateKey)) {
         dailyMap.set(dateKey, { orders: 0, items: 0, amount: 0 });
@@ -196,17 +233,23 @@ export async function GET(req: NextRequest) {
     const waiterEntries = Object.values(byWaiter);
     const topWaiter =
       waiterEntries.length > 0
-        ? waiterEntries.reduce((top, curr) => (curr.amount > top.amount ? curr : top))
+        ? waiterEntries.reduce((top, curr) =>
+          curr.amount > top.amount ? curr : top,
+        )
         : null;
 
     const busiestDay =
       dailyBreakdown.length > 0
-        ? dailyBreakdown.reduce((b, curr) => (curr.orders > b.orders ? curr : b))
+        ? dailyBreakdown.reduce((b, curr) =>
+          curr.orders > b.orders ? curr : b,
+        )
         : null;
 
     const highestSalesDay =
       dailyBreakdown.length > 0
-        ? dailyBreakdown.reduce((h, curr) => (curr.amount > h.amount ? curr : h))
+        ? dailyBreakdown.reduce((h, curr) =>
+          curr.amount > h.amount ? curr : h,
+        )
         : null;
 
     // 11) Build final summary object
@@ -226,22 +269,22 @@ export async function GET(req: NextRequest) {
       topPerformers: {
         topWaiter: topWaiter
           ? {
-              waiterId: topWaiter.waiterId,
-              waiterName: topWaiter.waiterName,
-              amount: Number(topWaiter.amount.toFixed(2)),
-            }
+            waiterId: topWaiter.waiterId,
+            waiterName: topWaiter.waiterName,
+            amount: Number(topWaiter.amount.toFixed(2)),
+          }
           : null,
         busiestDay: busiestDay
           ? {
-              date: busiestDay.date,
-              orders: busiestDay.orders,
-            }
+            date: busiestDay.date,
+            orders: busiestDay.orders,
+          }
           : null,
         highestSalesDay: highestSalesDay
           ? {
-              date: highestSalesDay.date,
-              amount: Number(highestSalesDay.amount.toFixed(2)),
-            }
+            date: highestSalesDay.date,
+            amount: Number(highestSalesDay.amount.toFixed(2)),
+          }
           : null,
       },
       lastUpdated: new Date().toISOString(),
@@ -256,9 +299,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to generate branch summary',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        details:
+          process.env.NODE_ENV === 'development' ? error.message : undefined,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

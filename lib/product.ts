@@ -1,104 +1,107 @@
-import { orderOperations } from "./order"
+import { orderOperations } from './order';
 
-export enum productOperations{
-    getProductNames,
+export enum productOperations {
+  getProductNames,
 }
 
 type orderProductsSummaryResponse = {
-    discount: number
-    rounding: number
-    orderLine: {
-        quantity: number
-        buyUnitPrice: number
-        sellUnitPrice: number
-        product: {
-            name: string
-        }
-    }[]
-}
+  discount: number;
+  rounding: number;
+  orderLine: {
+    quantity: number;
+    buyUnitPrice: number;
+    sellUnitPrice: number;
+    product: {
+      name: string;
+    };
+  }[];
+};
 
 type productName = {
-    name: string
-}
+  name: string;
+};
 
 export type orderProductsSummary = {
-    name: string
-    revenue: number
-    income: number
-    sold: number
-    orders: number
-}
+  name: string;
+  revenue: number;
+  income: number;
+  sold: number;
+  orders: number;
+};
 
 export async function getProducts() {
-    const res = await fetch(`api/products`, {
-    }).then((res) => res.json())
+  const res = await fetch('api/products', {}).then(res => res.json());
 
-    return res
+  return res;
 }
 
 export async function getProductNames() {
-    const query = {
-        queryType: productOperations.getProductNames,
-    }
-    const res = await fetch(`api/products`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(query),
-        cache: 'no-store',
-    }).then((res) => res.json())
+  const query = {
+    queryType: productOperations.getProductNames,
+  };
+  const res = await fetch('api/products', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(query),
+    cache: 'no-store',
+  }).then(res => res.json());
 
-    return res
+  return res;
 }
 
 export async function getProductOrderSummaryByDateRange(from: Date, to: Date) {
-    const query = {
-        queryType: orderOperations.getOrderProductsByDateRange,
-        from: from,
-        to: to,
+  const query = {
+    queryType: orderOperations.getOrderProductsByDateRange,
+    from: from,
+    to: to,
+  };
+  const orderRes: orderProductsSummaryResponse[] = await fetch('api/orders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(query),
+    cache: 'no-store',
+  }).then(orderRes => orderRes.json());
+
+  const productRes: productName[] = await getProductNames();
+
+  const productOrderSummaryObject: { [key: string]: orderProductsSummary } = {};
+  for (const product of productRes) {
+    productOrderSummaryObject[product.name] = {
+      name: product.name,
+      revenue: 0,
+      income: 0,
+      sold: 0,
+      orders: 0,
+    };
+  }
+
+  for (const order of orderRes) {
+    // let orderTotal = 0
+    // for (let orderLine of order.orderLine) {
+    //     orderTotal += orderLine.sellUnitPrice * orderLine.quantity
+    // }
+
+    // let discountRounding = order.rounding - order.discount
+    for (const orderLine of order.orderLine) {
+      const revenue = orderLine.sellUnitPrice * orderLine.quantity;
+      const income =
+        (orderLine.sellUnitPrice - orderLine.buyUnitPrice) * orderLine.quantity;
+
+      productOrderSummaryObject[orderLine.product.name].revenue += revenue;
+      productOrderSummaryObject[orderLine.product.name].income += income;
+      productOrderSummaryObject[orderLine.product.name].sold +=
+        orderLine.quantity;
+      productOrderSummaryObject[orderLine.product.name].orders += 1;
     }
-    const orderRes: orderProductsSummaryResponse[] = await fetch(`api/orders`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(query),
-        cache: 'no-store'
-    }).then((orderRes) => orderRes.json())
+  }
 
-    const productRes: productName[] = await getProductNames()
+  const productOrderSummaryArray: orderProductsSummary[] = Object.values(
+    productOrderSummaryObject,
+  );
 
-    const productOrderSummaryObject: {[key: string]: orderProductsSummary} = {}
-    for (let product of productRes) {
-        productOrderSummaryObject[product.name] = {
-            name: product.name,
-            revenue: 0,
-            income: 0,
-            sold: 0,
-            orders: 0,
-        }
-    }
-
-    for (let order of orderRes) {
-        // let orderTotal = 0
-        // for (let orderLine of order.orderLine) {
-        //     orderTotal += orderLine.sellUnitPrice * orderLine.quantity
-        // }
-
-        // let discountRounding = order.rounding - order.discount
-        for (let orderLine of order.orderLine) {
-            let revenue = orderLine.sellUnitPrice * orderLine.quantity
-            let income = (orderLine.sellUnitPrice - orderLine.buyUnitPrice) * orderLine.quantity
-
-            productOrderSummaryObject[orderLine.product.name].revenue += revenue
-            productOrderSummaryObject[orderLine.product.name].income += income
-            productOrderSummaryObject[orderLine.product.name].sold += orderLine.quantity
-            productOrderSummaryObject[orderLine.product.name].orders += 1
-        }
-    }
-
-    const productOrderSummaryArray: orderProductsSummary[] = Object.values(productOrderSummaryObject)
-
-    return productOrderSummaryArray
+  return productOrderSummaryArray;
 }

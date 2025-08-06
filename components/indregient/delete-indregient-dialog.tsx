@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Loader2 } from "lucide-react"
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -10,61 +10,66 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface Ingredient {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface DeleteIngredientDialogProps {
-  ingredient: Ingredient
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSuccess: () => void
+  ingredient: Ingredient;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
 }
 
-export function DeleteIngredientDialog({ ingredient, open, onOpenChange, onSuccess }: DeleteIngredientDialogProps) {
-  const [isDeleting, setIsDeleting] = useState(false)
-  const { toast } = useToast()
+export function DeleteIngredientDialog({
+  ingredient,
+  open,
+  onOpenChange,
+  onSuccess,
+}: DeleteIngredientDialogProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
 
   const handleDelete = async () => {
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
-      const response = await fetch("/api/ingredient", {
-        method: "DELETE",
+      const response = await fetch('/api/ingredient', {
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           id: ingredient.id,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to delete ingredient")
+        throw new Error('Failed to delete ingredient');
       }
 
       toast({
-        title: "Success",
-        description: "Ingredient has been deleted",
-      })
+        title: 'Success',
+        description: 'Ingredient has been deleted',
+      });
 
-      onOpenChange(false)
-      onSuccess()
+      onOpenChange(false);
+      onSuccess();
     } catch (error) {
-      console.error("Error deleting ingredient:", error)
+      console.error('Error deleting ingredient:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete ingredient",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to delete ingredient',
+        variant: 'destructive',
+      });
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -72,18 +77,23 @@ export function DeleteIngredientDialog({ ingredient, open, onOpenChange, onSucce
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete <span className="font-medium">{ingredient.name}</span> from your ingredients.
-            This action cannot be undone.
+            This will permanently delete{' '}
+            <span className='font-medium'>{ingredient.name}</span> from your
+            ingredients. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
-            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button
+            variant='destructive'
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
             Delete
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

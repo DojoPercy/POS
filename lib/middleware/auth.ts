@@ -7,7 +7,10 @@ interface DecodedToken {
   role?: string; // Optional field, if applicable
 }
 
-type Handler = (req: NextApiRequest & { user?: DecodedToken }, res: NextApiResponse) => Promise<void>;
+type Handler = (
+  req: NextApiRequest & { user?: DecodedToken },
+  res: NextApiResponse
+) => Promise<void>;
 
 export const protectRoute = (handler: Handler): Handler => {
   return async (req, res) => {
@@ -33,15 +36,24 @@ export const protectRoute = (handler: Handler): Handler => {
   };
 };
 export const roleBasedAccess = (allowedRoles: string | any[]) => {
-    return (handler: (arg0: any, arg1: any) => any) => {
-      return async (req: { user: { role: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { error: string; }): any; new(): any; }; }; }) => {
-        const { role } = req.user;
-  
-        if (!allowedRoles.includes(role)) {
-          return res.status(403).json({ error: 'Access denied' });
-        }
-  
-        return handler(req, res);
-      };
+  return (handler: (arg0: any, arg1: any) => any) => {
+    return async (
+      req: { user: { role: any } },
+      res: {
+        status: (arg0: number) => {
+          (): any;
+          new (): any;
+          json: { (arg0: { error: string }): any; new (): any };
+        };
+      },
+    ) => {
+      const { role } = req.user;
+
+      if (!allowedRoles.includes(role)) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      return handler(req, res);
     };
   };
+};

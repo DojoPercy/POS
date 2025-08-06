@@ -14,8 +14,6 @@ interface User {
   branchId?: string;
 }
 
-
-
 export const getJwtSecretKey = () => {
   const secret = process.env.JWT_SECRET_KEY;
 
@@ -28,46 +26,45 @@ export const getJwtSecretKey = () => {
 
 export const fetchUsers = async () => {
   try {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
-      console.error("Token not found");
-      return; 
+      console.error('Token not found');
+      return;
     }
     const decodedToken: DecodedToken = jwtDecode(token);
     return decodedToken;
   } catch (error) {
     console.error(error);
-  }}
-
-  export const fetchUser = async (id: string) => {
-    try {
-      console.log("Fetching user with ID:", id);
-      const user = await axios.get(`/api/users/${id}`);
-      console.log("User fetched:", user.data);
-      return user.data;
-
-    }catch{
-      console.error("Error fetching user");
-    }
   }
-export async function getUserById(id: string) {
-    
-    const response = await fetch(`/api/users?id=${id}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        cache: 'no-store',
-    }).then((res) => res.json());
+};
 
-    return response;
+export const fetchUser = async (id: string) => {
+  try {
+    console.log('Fetching user with ID:', id);
+    const user = await axios.get(`/api/users/${id}`);
+    console.log('User fetched:', user.data);
+    return user.data;
+  } catch {
+    console.error('Error fetching user');
+  }
+};
+export async function getUserById(id: string) {
+  const response = await fetch(`/api/users?id=${id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  }).then(res => res.json());
+
+  return response;
 }
 
 export const verifyToken = async (token: string) => {
   try {
     const verified = await jwtVerify(
       token,
-      new TextEncoder().encode(getJwtSecretKey())
+      new TextEncoder().encode(getJwtSecretKey()),
     );
     return verified.payload as UserJwtPayload;
   } catch (error) {

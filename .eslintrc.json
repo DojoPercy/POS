@@ -1,3 +1,71 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": ["next/core-web-vitals"],
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    // TypeScript specific rules
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-non-null-assertion": "warn",
+
+    // General code quality rules
+    "no-console": "warn",
+    "no-debugger": "error",
+    "no-alert": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-unused-expressions": "error",
+    "no-duplicate-imports": "error",
+
+    // React specific rules
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
+
+    // Formatting rules
+    "indent": ["error", 2],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "comma-dangle": ["error", "always-multiline"],
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "never"],
+    "max-len": [
+      "warn",
+      {
+        "code": 80,
+        "tabWidth": 2,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true
+      }
+    ]
+  },
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    "out/",
+    "build/",
+    "dist/",
+    "*.config.js",
+    "*.config.ts"
+  ]
 }

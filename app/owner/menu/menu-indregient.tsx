@@ -1,64 +1,82 @@
-"use client"
+'use client';
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from '@/components/ui/badge';
 
 interface IngredientItem {
-  id: string
-  menuId: string
-  ingredientId: string
-  amount: number
+  id: string;
+  menuId: string;
+  ingredientId: string;
+  amount: number;
   ingredient?: {
-    name: string
-  }
+    name: string;
+  };
 }
 
 interface IngredientDisplayProps {
-  ingredients: (IngredientItem | string)[]
-  maxDisplay?: number
-  className?: string
+  ingredients: (IngredientItem | string)[];
+  maxDisplay?: number;
+  className?: string;
 }
 
-export default function IngredientDisplay({ ingredients, maxDisplay = 3, className = "" }: IngredientDisplayProps) {
+export default function IngredientDisplay({
+  ingredients,
+  maxDisplay = 3,
+  className = '',
+}: IngredientDisplayProps) {
   if (!ingredients || ingredients.length === 0) {
-    return null
+    return null;
   }
 
- const getIngredientName = (ingredient: IngredientItem | string, index: number): string => {
-  console.log("getIngredientName", ingredient, index)
-  
-  if (typeof ingredient === "string") {
-    return ingredient
-  }
+  const getIngredientName = (
+    ingredient: IngredientItem | string,
+    index: number,
+  ): string => {
+    console.log('getIngredientName', ingredient, index);
 
-  if (ingredient && typeof ingredient === "object") {
-    if (ingredient.ingredient && typeof ingredient.ingredient.name === "string") {
-      return ingredient.ingredient.name
+    if (typeof ingredient === 'string') {
+      return ingredient;
     }
-  }
 
-  return `Ingredient ${index + 1}`
-}
+    if (ingredient && typeof ingredient === 'object') {
+      if (
+        ingredient.ingredient &&
+        typeof ingredient.ingredient.name === 'string'
+      ) {
+        return ingredient.ingredient.name;
+      }
+    }
 
-  const displayIngredients = ingredients.slice(0, maxDisplay)
-  const remainingCount = ingredients.length - maxDisplay
+    return `Ingredient ${index + 1}`;
+  };
+
+  const displayIngredients = ingredients.slice(0, maxDisplay);
+  const remainingCount = ingredients.length - maxDisplay;
 
   return (
     <div className={`flex flex-wrap gap-1 ${className}`}>
-     {displayIngredients.map((ingredient, index) => {
-  const name = getIngredientName(ingredient, index)
-  console.log("Rendering badge for:", name)
-  return (
-    <Badge key={typeof ingredient === 'string' ? ingredient : ingredient.id ?? index} variant="secondary" className="text-xs">
-      {name}
-    </Badge>
-  )
-})}
+      {displayIngredients.map((ingredient, index) => {
+        const name = getIngredientName(ingredient, index);
+        console.log('Rendering badge for:', name);
+        return (
+          <Badge
+            key={
+              typeof ingredient === 'string'
+                ? ingredient
+                : (ingredient.id ?? index)
+            }
+            variant='secondary'
+            className='text-xs'
+          >
+            {name}
+          </Badge>
+        );
+      })}
 
       {remainingCount > 0 && (
-        <Badge variant="secondary" className="text-xs">
+        <Badge variant='secondary' className='text-xs'>
           +{remainingCount}
         </Badge>
       )}
     </div>
-  )
+  );
 }

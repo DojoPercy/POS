@@ -1,27 +1,30 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
+import { type NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const companyId = searchParams.get("companyId")
-    const branchId = searchParams.get("branchId")
-    const userId = searchParams.get("userId")
+    const { searchParams } = new URL(request.url);
+    const companyId = searchParams.get('companyId');
+    const branchId = searchParams.get('branchId');
+    const userId = searchParams.get('userId');
 
     if (!companyId) {
-      return NextResponse.json({ error: "Company ID is required" }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Company ID is required' },
+        { status: 400 },
+      );
     }
 
-    const whereClause: any = { companyId }
+    const whereClause: any = { companyId };
 
-    if (branchId && branchId !== "all") {
-      whereClause.branchId = branchId
+    if (branchId && branchId !== 'all') {
+      whereClause.branchId = branchId;
     }
 
     if (userId) {
-      whereClause.userId = userId
+      whereClause.userId = userId;
     }
 
     const shifts = await prisma.shift.findMany({
@@ -42,19 +45,22 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-    })
+      orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
+    });
 
-    return NextResponse.json(shifts)
+    return NextResponse.json(shifts);
   } catch (error) {
-    console.error("Error fetching shifts:", error)
-    return NextResponse.json({ error: "Failed to fetch shifts" }, { status: 500 })
+    console.error('Error fetching shifts:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch shifts' },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
     const {
       userId,
       branchId,
@@ -64,10 +70,10 @@ export async function POST(request: NextRequest) {
       startTime,
       endTime,
       role,
-      shiftState = "INACTIVE",
-      color = "#6B7280",
-      notes = "",
-    } = body
+      shiftState = 'INACTIVE',
+      color = '#6B7280',
+      notes = '',
+    } = body;
 
     const shift = await prisma.shift.create({
       data: {
@@ -82,7 +88,7 @@ export async function POST(request: NextRequest) {
         shiftState,
         color,
         notes,
-        status: "SCHEDULED",
+        status: 'SCHEDULED',
       },
       include: {
         user: {
@@ -100,11 +106,14 @@ export async function POST(request: NextRequest) {
           },
         },
       },
-    })
+    });
 
-    return NextResponse.json(shift)
+    return NextResponse.json(shift);
   } catch (error) {
-    console.error("Error creating shift:", error)
-    return NextResponse.json({ error: "Failed to create shift" }, { status: 500 })
+    console.error('Error creating shift:', error);
+    return NextResponse.json(
+      { error: 'Failed to create shift' },
+      { status: 500 },
+    );
   }
 }

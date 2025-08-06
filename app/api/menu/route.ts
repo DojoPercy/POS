@@ -15,8 +15,16 @@ interface DecodedToken {
 // **Create a New Menu Item with PriceType**
 export async function POST(req: NextRequest) {
   try {
-   
-    const { name, description, prices, categoryId, imageBase64, companyId, imageUrl, ingredientId } = await req.json();
+    const {
+      name,
+      description,
+      prices,
+      categoryId,
+      imageBase64,
+      companyId,
+      imageUrl,
+      ingredientId,
+    } = await req.json();
 
     const newMenuItem = await prisma.menu.create({
       data: {
@@ -24,7 +32,7 @@ export async function POST(req: NextRequest) {
         description,
         imageBase64,
         imageUrl,
-        
+
         company: { connect: { id: companyId } },
         category: { connect: { id: categoryId } },
         price: {
@@ -35,7 +43,7 @@ export async function POST(req: NextRequest) {
         },
       },
       include: {
-        price: true, 
+        price: true,
       },
     });
     const singleItemCacheKey = `menu-${newMenuItem.id}`;
@@ -45,7 +53,6 @@ export async function POST(req: NextRequest) {
 
     if (companyMenuCacheKey) {
       await redis.del(companyMenuCacheKey);
-      
     }
     return NextResponse.json(newMenuItem, { status: 201 });
   } catch (error: any) {
@@ -58,13 +65,12 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
-    const companyId = searchParams.get('companyId') || "";
+    const companyId = searchParams.get('companyId') || '';
 
     const cachedKey = companyId ? `companyMenu-${companyId}` : `menu-${id}`;
     const cachedData = await redis.get(cachedKey);
     if (cachedData) {
-     
-      return NextResponse.json(JSON.parse(cachedData), { status: 200 })
+      return NextResponse.json(JSON.parse(cachedData), { status: 200 });
     }
     if (id) {
       const menu = await prisma.menu.findUnique({
@@ -72,7 +78,10 @@ export async function GET(req: NextRequest) {
         include: { price: true, category: true, ingredients: true },
       });
       if (!menu) {
-        return NextResponse.json({ error: 'Menu item not found' }, { status: 404 });
+        return NextResponse.json(
+          { error: 'Menu item not found' },
+          { status: 404 },
+        );
       }
       await redis.set(cachedKey, JSON.stringify(menu), 'EX', 60 * 60);
 
@@ -80,25 +89,29 @@ export async function GET(req: NextRequest) {
     } else if (companyId) {
       const menus = await prisma.menu.findMany({
         where: { companyId },
-        include: { price: true, category: true, ingredients: {
-          include:{
-            ingredient: {
-              select: {
-                id: true,
-                name: true,
-                unit: true,
+        include: {
+          price: true,
+          category: true,
+          ingredients: {
+            include: {
+              ingredient: {
+                select: {
+                  id: true,
+                  name: true,
+                  unit: true,
+                },
               },
             },
-          }
-        }  },
+          },
+        },
       });
       await redis.set(cachedKey, JSON.stringify(menus), 'EX', 60 * 60);
-      console.log("Company Menu Cache Key:", cachedKey, menus);
+      console.log('Company Menu Cache Key:', cachedKey, menus);
       return NextResponse.json(menus, { status: 200 });
     }
 
     const menuItems = await prisma.menu.findMany({
-      include: { price: true, category: true, ingredients: true  },
+      include: { price: true, category: true, ingredients: true },
     });
     await redis.set(cachedKey, JSON.stringify(menuItems), 'EX', 60 * 60);
     return NextResponse.json(menuItems, { status: 200 });
@@ -106,9 +119,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
-
-
 
 export async function PUT(req: NextRequest) {
   try {
@@ -127,10 +137,8 @@ export async function PUT(req: NextRequest) {
     const updatedMenuItem = await prisma.menu.update({
       where: { id },
       data: {
-       
         imageUrl,
-        imageBase64
-       
+        imageBase64,
       },
       include: {
         price: true,
@@ -149,11 +157,10 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json(updatedMenuItem, { status: 200 });
   } catch (error: any) {
-    console.error("Update Menu Error:", error);
+    console.error('Update Menu Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
 
 // **Delete Menu Item with Prices**
 export async function DELETE(req: NextRequest) {
