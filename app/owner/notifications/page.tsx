@@ -48,6 +48,9 @@ import {
 import { jwtDecode } from 'jwt-decode';
 import { NotificationTest } from '@/components/notification-test';
 
+// Force dynamic rendering to prevent SSR issues with localStorage
+export const dynamic = 'force-dynamic';
+
 interface DecodedToken {
   userId: string;
   companyId: string;
@@ -112,9 +115,12 @@ export default function NotificationsPage() {
     useNotifications();
 
   const getToken = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
     const token = localStorage.getItem('token');
     if (!token) {
-      throw new Error('No authentication token found');
+      return null;
     }
     return jwtDecode<DecodedToken>(token);
   }, []);
@@ -122,6 +128,9 @@ export default function NotificationsPage() {
   const fetchBranches = useCallback(async () => {
     try {
       const decodedToken = getToken();
+      if (!decodedToken) {
+        return;
+      }
       const response = await fetch(
         `/api/branches?companyId=${decodedToken.companyId}`,
       );
@@ -137,6 +146,9 @@ export default function NotificationsPage() {
   const fetchUsers = useCallback(async () => {
     try {
       const decodedToken = getToken();
+      if (!decodedToken) {
+        return;
+      }
       const response = await fetch(
         `/api/users?companyId=${decodedToken.companyId}`,
       );
@@ -150,8 +162,10 @@ export default function NotificationsPage() {
   }, [getToken]);
 
   useEffect(() => {
-    fetchBranches();
-    fetchUsers();
+    if (typeof window !== 'undefined') {
+      fetchBranches();
+      fetchUsers();
+    }
   }, [fetchBranches, fetchUsers]);
 
   const handleCreateNotification = async () => {
@@ -166,6 +180,14 @@ export default function NotificationsPage() {
       }
 
       const decodedToken = getToken();
+      if (!decodedToken) {
+        toast({
+          title: 'Error',
+          description: 'Authentication required',
+          variant: 'destructive',
+        });
+        return;
+      }
       const notificationData: any = {
         title: formData.title,
         message: formData.message,
@@ -357,7 +379,7 @@ export default function NotificationsPage() {
       </div>
 
       {/* Notification Test Component */}
-      <NotificationTest companyId={getToken().companyId} />
+      {getToken() && <NotificationTest companyId={getToken()!.companyId} />}
 
       {/* Statistics */}
       <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>

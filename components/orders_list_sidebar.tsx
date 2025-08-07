@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -141,7 +141,7 @@ export default function LiveOrdersMain() {
   const [showReceipt, setShowReceipt] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderDetailsOpen, setOrderDetailsOpen] = useState(false);
-  const [audioRef] = useState<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // Payment states
   const [paymentMethod, setPaymentMethod] = useState('Cash');
@@ -200,7 +200,7 @@ export default function LiveOrdersMain() {
 
     channel.bind('new-order', (data: any) => {
       // Only show notification if it's for this waiter
-      if (data.waiterId === user?.userId) {
+      if (data.waiterId === user?.userId && user?.userId) {
         dispatch(fetchOrders(user.userId));
         toast({
           title: 'New Order!',
@@ -208,8 +208,8 @@ export default function LiveOrdersMain() {
         });
 
         // Play notification sound
-        if (audioRef) {
-          audioRef.play().catch(console.error);
+        if (audioRef?.current) {
+          audioRef.current.play().catch(console.error);
         }
       }
     });

@@ -139,7 +139,7 @@ export default function WaiterDashboard() {
     const channel = pusher.subscribe('orders');
 
     channel.bind('order-update', (data: any) => {
-      if (data.waiterId === userRedux?.userId) {
+      if (data.waiterId === userRedux?.userId && userRedux?.userId) {
         dispatch(fetchOrders(userRedux.userId));
         toast({
           title: 'Order Updated',
@@ -149,7 +149,7 @@ export default function WaiterDashboard() {
     });
 
     channel.bind('new-order', (data: any) => {
-      if (data.waiterId === userRedux?.userId) {
+      if (data.waiterId === userRedux?.userId && userRedux?.userId) {
         setNewOrderAlert(true);
         setLatestOrder(data);
         dispatch(fetchOrders(userRedux.userId));
@@ -242,7 +242,7 @@ export default function WaiterDashboard() {
     const channel = pusher.subscribe('orders');
 
     channel.bind('order-update', (data: any) => {
-      if (data.waiterId === userRedux?.userId) {
+      if (data.waiterId === userRedux?.userId && userRedux?.userId) {
         dispatch(fetchOrders(userRedux.userId));
         toast({
           title: 'Order Updated',
@@ -252,7 +252,7 @@ export default function WaiterDashboard() {
     });
 
     channel.bind('new-order', (data: any) => {
-      if (data.waiterId === userRedux?.userId) {
+      if (data.waiterId === userRedux?.userId && userRedux?.userId) {
         setNewOrderAlert(true);
         setLatestOrder(data);
         dispatch(fetchOrders(userRedux.userId));

@@ -198,11 +198,12 @@ export default function OrderHistory() {
 
                 <div className='space-y-2'>
                   <label className='text-sm font-medium'>Date Range</label>
-                  <DatePickerWithRange
-                    date={dateRange}
-                    onDateChange={setDateRange}
-                    placeholder='Select date range'
-                  />
+                  {/* <DatePickerWithRange
+                    setParentDate={setDateRange}
+                  /> */}
+                  <div className="p-2 border rounded">
+                    <p className="text-sm text-gray-500">Date picker temporarily disabled</p>
+                  </div>
                 </div>
 
                 <div className='space-y-2'>
@@ -335,9 +336,9 @@ export default function OrderHistory() {
                 </div>
               ) : (
                 <DataTable
-                  columns={columns}
+                  columns={columns('USD')}
                   data={filteredOrders}
-                  searchKey='orderNumber'
+                  searchColumn='orderNumber'
                 />
               )}
             </CardContent>

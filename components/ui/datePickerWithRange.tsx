@@ -18,17 +18,24 @@ import {
 
 interface DatePickerWithRangeProps {
   className?: string;
-  setParentDate: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
+  setParentDate?: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
+  date?: DateRange | undefined;
+  onDateChange?: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
+  placeholder?: string;
 }
 
 export function DatePickerWithRange({
   className,
   setParentDate,
+  date: externalDate,
+  onDateChange,
 }: DatePickerWithRangeProps) {
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: addDays(new Date(), -7),
-    to: new Date(),
-  });
+  const [date, setDate] = useState<DateRange | undefined>(
+    externalDate || {
+      from: addDays(new Date(), -7),
+      to: new Date(),
+    }
+  );
   const [selectedDate, setSelectedDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
     to: new Date(),
@@ -39,20 +46,26 @@ export function DatePickerWithRange({
       return;
     }
 
-    if (date.from !== undefined && date.to !== undefined) {
-      setParentDate({
-        from: new Date(date.from.setHours(0, 0, 0, 0)),
-        to: new Date(date.to.setHours(23, 59, 59, 999)),
-      });
-    } else if (date.from !== undefined) {
-      setParentDate({
-        from: new Date(date.from.setHours(0, 0, 0, 0)),
-        to: new Date(date.from.setHours(23, 59, 59, 999)),
-      });
-    }
+    const updateParent = (newDate: DateRange | undefined) => {
+      if (newDate?.from !== undefined && newDate?.to !== undefined) {
+        const updatedDate = {
+          from: new Date(newDate.from.setHours(0, 0, 0, 0)),
+          to: new Date(newDate.to.setHours(23, 59, 59, 999)),
+        };
+        setParentDate?.(updatedDate);
+        onDateChange?.(updatedDate);
+      } else if (newDate?.from !== undefined) {
+        const updatedDate = {
+          from: new Date(newDate.from.setHours(0, 0, 0, 0)),
+          to: new Date(newDate.from.setHours(23, 59, 59, 999)),
+        };
+        setParentDate?.(updatedDate);
+        onDateChange?.(updatedDate);
+      }
+    };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date]);
+    updateParent(date);
+  }, [date, setParentDate, onDateChange]);
 
   return (
     <div className={cn('grid gap-2', className)}>
