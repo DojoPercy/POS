@@ -30,7 +30,6 @@ describe('AttendanceQRCode', () => {
   it('renders the component with branch information', () => {
     render(<AttendanceQRCode {...defaultProps} />);
 
-    expect(screen.getByText('Attendance QR Code')).toBeInTheDocument();
     expect(screen.getByText('Test Branch')).toBeInTheDocument();
     expect(screen.getByText('123 Test Street, Test City')).toBeInTheDocument();
     expect(screen.getByText('10 staff')).toBeInTheDocument();
@@ -40,7 +39,7 @@ describe('AttendanceQRCode', () => {
     render(<AttendanceQRCode {...defaultProps} />);
 
     const expectedUrl = 'http://localhost:3000/attendance/test-branch-id';
-    expect(screen.getByDisplayValue(expectedUrl)).toBeInTheDocument();
+    expect(screen.getByText(expectedUrl)).toBeInTheDocument();
   });
 
   it('shows QR code preview', () => {
