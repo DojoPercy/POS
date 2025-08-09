@@ -116,7 +116,7 @@ export async function PUT(req: NextRequest, { params }: any) {
         } else {
           // Menu item order - deduct ingredients based on recipe
           const ingredients = await prisma.menuIngredient.findMany({
-            where: { menuId: line.menuItemId },
+            where: { menuId: line.menuItemId ?? undefined },
             select: { ingredientId: true, amount: true },
           });
 

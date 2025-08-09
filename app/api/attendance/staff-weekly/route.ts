@@ -53,12 +53,36 @@ export async function GET(request: NextRequest) {
     });
 
     // Create weekly schedule with attendance status
-    const weeklySchedule = weekDays.map((day, index) => {
+    const weeklySchedule: Array<{
+      date: string;
+      dayName: string;
+      dayOfWeek: number;
+      shift: {
+        id: string;
+        title: string;
+        startTime: string;
+        endTime: string;
+        status: string;
+        shiftState: string;
+        role: string;
+      } | null;
+      attendance: {
+        id: string;
+        signInTime: string | null;
+        signOutTime: string | null;
+        status: string;
+        totalHours: number | null;
+      } | null;
+      hasShift: boolean;
+      hasAttendance: boolean;
+      isCompleted: boolean;
+    }> = weekDays.map((day, index) => {
       const dayOfWeek = index; // 0 = Sunday, 1 = Monday, etc.
-      const shift = shifts.find(s => s.dayOfWeek === dayOfWeek);
+      const shift = shifts.find((s: { dayOfWeek: number }) => s.dayOfWeek === dayOfWeek);
       const attendance = attendanceRecords.find(
-        a => format(a.date, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'),
+        (a: { date: Date }) => format(a.date, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
       );
+      
 
       return {
         date: format(day, 'yyyy-MM-dd'),
@@ -70,25 +94,23 @@ export async function GET(request: NextRequest) {
             title: shift.title,
             startTime: shift.startTime,
             endTime: shift.endTime,
-            status: shift.status,
-            shiftState: shift.shiftState,
+            status: shift.status.toString(),
+            shiftState: shift.shiftState.toString(),
             role: shift.role,
           }
           : null,
         attendance: attendance
           ? {
             id: attendance.id,
-            signInTime: attendance.signInTime,
-            signOutTime: attendance.signOutTime,
-            status: attendance.status,
+            signInTime: attendance.signInTime ? attendance.signInTime.toISOString() : null,
+            signOutTime: attendance.signOutTime ? attendance.signOutTime.toISOString() : null,
+            status: attendance.status.toString(),
             totalHours: attendance.totalHours,
           }
           : null,
         hasShift: !!shift,
         hasAttendance: !!attendance,
-        isCompleted:
-          attendance?.status === 'SIGNED_OUT' ||
-          attendance?.status === 'COMPLETED',
+        isCompleted: attendance?.status === 'SIGNED_OUT',
       };
     });
 
@@ -101,7 +123,7 @@ export async function GET(request: NextRequest) {
       weeklySchedule,
       summary: {
         totalShifts: shifts.length,
-        completedShifts: weeklySchedule.filter(day => day.isCompleted).length,
+        completedShifts: weeklySchedule.filter((day) => day.isCompleted).length,
         totalHours: attendanceRecords.reduce(
           (sum, record) => sum + (record.totalHours || 0),
           0,
