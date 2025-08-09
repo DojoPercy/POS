@@ -91,7 +91,9 @@ export function OrderForm() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [selectedItem, setSelectedItem] = useState<string>('');
   const [selectedIngredient, setSelectedIngredient] = useState<string>('');
-  const [orderType, setOrderType] = useState<'MENU_ITEM' | 'INGREDIENT'>('MENU_ITEM');
+  const [orderType, setOrderType] = useState<'MENU_ITEM' | 'INGREDIENT'>(
+    'MENU_ITEM',
+  );
   const [quantity, setQuantity] = useState<number>(1);
   const [orderLines, setOrderLines] = useState<OrderLine[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -118,10 +120,12 @@ export function OrderForm() {
         const decodedToken = await fetchUsers();
         const [menuItems, ingredients, company] = await Promise.all([
           getMenuItems(decodedToken!.companyId || ''),
-          fetch(`/api/ingredient?companyId=${decodedToken!.companyId}&branchId=${decodedToken!.branchId}`).then(res => res.json()),
-          getCompany(decodedToken!.companyId || '')
+          fetch(
+            `/api/ingredient?companyId=${decodedToken!.companyId}&branchId=${decodedToken!.branchId}`,
+          ).then(res => res.json()),
+          getCompany(decodedToken!.companyId || ''),
         ]);
-        
+
         setCompany(company);
         setDecodedToken(decodedToken as DecodedToken);
         setLoadingMenu(false);
@@ -268,17 +272,25 @@ export function OrderForm() {
             <CardTitle>Create New Order</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs value={orderType} onValueChange={(value) => setOrderType(value as 'MENU_ITEM' | 'INGREDIENT')}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="MENU_ITEM">Menu Items</TabsTrigger>
-                <TabsTrigger value="INGREDIENT">Ingredients</TabsTrigger>
+            <Tabs
+              value={orderType}
+              onValueChange={value =>
+                setOrderType(value as 'MENU_ITEM' | 'INGREDIENT')
+              }
+            >
+              <TabsList className='grid w-full grid-cols-2'>
+                <TabsTrigger value='MENU_ITEM'>Menu Items</TabsTrigger>
+                <TabsTrigger value='INGREDIENT'>Ingredients</TabsTrigger>
               </TabsList>
-              
-              <TabsContent value="MENU_ITEM">
+
+              <TabsContent value='MENU_ITEM'>
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                   <div>
                     <Label htmlFor='menu-item'>Menu Item</Label>
-                    <Select value={selectedItem} onValueChange={setSelectedItem}>
+                    <Select
+                      value={selectedItem}
+                      onValueChange={setSelectedItem}
+                    >
                       <SelectTrigger id='menu-item'>
                         <SelectValue placeholder='Select a menu item' />
                       </SelectTrigger>
@@ -319,12 +331,15 @@ export function OrderForm() {
                   </div>
                 </div>
               </TabsContent>
-              
-              <TabsContent value="INGREDIENT">
+
+              <TabsContent value='INGREDIENT'>
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                   <div>
                     <Label htmlFor='ingredient'>Ingredient</Label>
-                    <Select value={selectedIngredient} onValueChange={setSelectedIngredient}>
+                    <Select
+                      value={selectedIngredient}
+                      onValueChange={setSelectedIngredient}
+                    >
                       <SelectTrigger id='ingredient'>
                         <SelectValue placeholder='Select an ingredient' />
                       </SelectTrigger>
@@ -340,8 +355,12 @@ export function OrderForm() {
                           />
                         ) : (
                           ingredients.map(ingredient => (
-                            <SelectItem key={ingredient.id} value={ingredient.id}>
-                              {ingredient.name} ({ingredient.unit}) - ${ingredient.price}
+                            <SelectItem
+                              key={ingredient.id}
+                              value={ingredient.id}
+                            >
+                              {ingredient.name} ({ingredient.unit}) - $
+                              {ingredient.price}
                             </SelectItem>
                           ))
                         )}

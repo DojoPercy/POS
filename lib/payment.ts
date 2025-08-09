@@ -2,7 +2,6 @@ import {
   CreatePaymentRequest,
   UpdatePaymentStatusRequest,
 } from '@/lib/types/types';
-import { get } from 'http';
 
 const API_BASE_URL = '/api/payments';
 
@@ -157,6 +156,7 @@ export const paymentService = {
     companyId: string,
   ) {
     try {
+      console.log(from, to, companyId)
     } catch (error) {
       console.error('Error fetching payment type summary:', error);
       throw error;

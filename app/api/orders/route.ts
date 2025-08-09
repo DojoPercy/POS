@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
       // Group ingredient deductions by ingredientId and branchId
       const ingredientDeductions = new Map<string, number>(); // Key: `${ingredientId}-${branchId}`, Value: totalDeductQty
       console.log('Deducting inventory for order:', newOrder.id);
-      
+
       for (const line of newOrder.orderLines) {
         // Since orderLines from Prisma do not include orderType or ingredientId,
         // we infer orderType based on the presence of ingredientId.

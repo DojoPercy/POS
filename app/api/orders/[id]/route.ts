@@ -103,7 +103,7 @@ export async function PUT(req: NextRequest, { params }: any) {
       // Group ingredient deductions by ingredientId and branchId
       const ingredientDeductions = new Map<string, number>(); // Key: `${ingredientId}-${branchId}`, Value: totalDeductQty
       console.log('Deducting inventory for order:', updatedOrder.id);
-      
+
       for (const line of updatedOrder.orderLines) {
         if (line.orderType === 'INGREDIENT') {
           // Direct ingredient order - deduct the ingredient directly

@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Bell, Building2, LogOut, Menu, Search, User } from 'lucide-react';
+import {  Building2, LogOut, Menu, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -10,12 +10,10 @@ import {
   fetchUserFromToken,
   logoutUser,
   selectUser,
-  setUser,
 } from '@/redux/authSlice';
 import type { RootState } from '@/redux';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { DecodedToken } from '@/lib/types/types';
 import { Branch } from '@/app/owner/branches/page';
 import router from 'next/router';
 import {

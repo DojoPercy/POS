@@ -436,9 +436,7 @@ export default function WaiterDashboard() {
     },
     {
       title: 'Avg Order Value',
-      value: summaryLoading
-        ? '...'
-        : ``,
+      value: summaryLoading ? '...' : '',
       icon: Target,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
@@ -514,12 +512,14 @@ export default function WaiterDashboard() {
                             New Order
                           </Button>
                         </Link>
-                        <Button 
-                          variant='outline' 
+                        <Button
+                          variant='outline'
                           size='sm'
                           onClick={() => {
                             // Scroll to ingredient order form
-                            const element = document.getElementById('ingredient-order-form');
+                            const element = document.getElementById(
+                              'ingredient-order-form',
+                            );
                             if (element) {
                               element.scrollIntoView({ behavior: 'smooth' });
                             }
@@ -897,7 +897,6 @@ export default function WaiterDashboard() {
           >
             <IngredientOrderForm />
           </motion.div>
-
         </div>
       </div>
     </div>

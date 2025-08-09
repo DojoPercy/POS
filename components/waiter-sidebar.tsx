@@ -10,12 +10,12 @@ import {
   User,
   Settings,
   LogOut,
-  Building2,
-  ChevronRight,
+  
+  
   Utensils,
   Clock,
   Star,
-  Zap,
+  
   Package,
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';

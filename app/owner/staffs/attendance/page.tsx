@@ -945,12 +945,29 @@ export default function AttendanceManagement() {
           {selectedStaff ? (
             <StaffWeeklyAttendance
               userId={selectedStaff}
-              branchId={selectedBranch === 'all' ? branches[0]?.id || '' : selectedBranch}
+              branchId={
+                selectedBranch === 'all'
+                  ? branches[0]?.id || ''
+                  : selectedBranch
+              }
               companyId={decodedToken?.companyId || ''}
-              staffName={attendanceData?.userStats.find(u => u.userId === selectedStaff)?.userName || ''}
-              staffEmail={attendanceData?.userStats.find(u => u.userId === selectedStaff)?.userEmail || ''}
-              staffRole={attendanceData?.userStats.find(u => u.userId === selectedStaff)?.userRole || ''}
-              branchName={branches.find(b => b.id === selectedBranch)?.name || branches[0]?.name || ''}
+              staffName={
+                attendanceData?.userStats.find(u => u.userId === selectedStaff)
+                  ?.userName || ''
+              }
+              staffEmail={
+                attendanceData?.userStats.find(u => u.userId === selectedStaff)
+                  ?.userEmail || ''
+              }
+              staffRole={
+                attendanceData?.userStats.find(u => u.userId === selectedStaff)
+                  ?.userRole || ''
+              }
+              branchName={
+                branches.find(b => b.id === selectedBranch)?.name ||
+                branches[0]?.name ||
+                ''
+              }
             />
           ) : (
             <Card>
@@ -958,24 +975,28 @@ export default function AttendanceManagement() {
                 <CardTitle>Select Staff Member</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {attendanceData?.userStats.map((user) => (
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                  {attendanceData?.userStats.map(user => (
                     <Card
                       key={user.userId}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      className='cursor-pointer hover:shadow-md transition-shadow'
                       onClick={() => setSelectedStaff(user.userId)}
                     >
-                      <CardContent className="p-4">
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-10 w-10">
+                      <CardContent className='p-4'>
+                        <div className='flex items-center space-x-3'>
+                          <Avatar className='h-10 w-10'>
                             <AvatarFallback>
                               {getInitials(user.userName)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{user.userName}</p>
-                            <p className="text-sm text-gray-600">{user.userRole}</p>
-                            <p className="text-xs text-gray-500">{user.totalShifts} shifts</p>
+                            <p className='font-medium'>{user.userName}</p>
+                            <p className='text-sm text-gray-600'>
+                              {user.userRole}
+                            </p>
+                            <p className='text-xs text-gray-500'>
+                              {user.totalShifts} shifts
+                            </p>
                           </div>
                         </div>
                       </CardContent>

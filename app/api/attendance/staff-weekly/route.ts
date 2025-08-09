@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     if (!userId || !branchId || !companyId) {
       return NextResponse.json(
         { error: 'userId, branchId, and companyId are required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -56,33 +56,39 @@ export async function GET(request: NextRequest) {
     const weeklySchedule = weekDays.map((day, index) => {
       const dayOfWeek = index; // 0 = Sunday, 1 = Monday, etc.
       const shift = shifts.find(s => s.dayOfWeek === dayOfWeek);
-      const attendance = attendanceRecords.find(a => 
-        format(a.date, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
+      const attendance = attendanceRecords.find(
+        a => format(a.date, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'),
       );
 
       return {
         date: format(day, 'yyyy-MM-dd'),
         dayName: format(day, 'EEEE'),
         dayOfWeek,
-        shift: shift ? {
-          id: shift.id,
-          title: shift.title,
-          startTime: shift.startTime,
-          endTime: shift.endTime,
-          status: shift.status,
-          shiftState: shift.shiftState,
-          role: shift.role,
-        } : null,
-        attendance: attendance ? {
-          id: attendance.id,
-          signInTime: attendance.signInTime,
-          signOutTime: attendance.signOutTime,
-          status: attendance.status,
-          totalHours: attendance.totalHours,
-        } : null,
+        shift: shift
+          ? {
+            id: shift.id,
+            title: shift.title,
+            startTime: shift.startTime,
+            endTime: shift.endTime,
+            status: shift.status,
+            shiftState: shift.shiftState,
+            role: shift.role,
+          }
+          : null,
+        attendance: attendance
+          ? {
+            id: attendance.id,
+            signInTime: attendance.signInTime,
+            signOutTime: attendance.signOutTime,
+            status: attendance.status,
+            totalHours: attendance.totalHours,
+          }
+          : null,
         hasShift: !!shift,
         hasAttendance: !!attendance,
-        isCompleted: attendance?.status === 'SIGNED_OUT' || attendance?.status === 'COMPLETED',
+        isCompleted:
+          attendance?.status === 'SIGNED_OUT' ||
+          attendance?.status === 'COMPLETED',
       };
     });
 
@@ -96,14 +102,17 @@ export async function GET(request: NextRequest) {
       summary: {
         totalShifts: shifts.length,
         completedShifts: weeklySchedule.filter(day => day.isCompleted).length,
-        totalHours: attendanceRecords.reduce((sum, record) => sum + (record.totalHours || 0), 0),
+        totalHours: attendanceRecords.reduce(
+          (sum, record) => sum + (record.totalHours || 0),
+          0,
+        ),
       },
     });
   } catch (error) {
     console.error('Error fetching staff weekly attendance:', error);
     return NextResponse.json(
       { error: 'Failed to fetch staff weekly attendance' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,7 +1,7 @@
 import IORedis, { Redis } from 'ioredis';
 
 declare global {
-  var redis: Redis | undefined;
+  let redis: Redis | undefined;
 }
 
 // Extend globalThis to hold the Redis instance

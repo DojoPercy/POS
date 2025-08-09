@@ -493,10 +493,12 @@ export default function StaffManagement() {
     } else {
       const selectedBranchData = branches.find(b => b.id === selectedBranch);
       if (selectedBranchData) {
-        return [{
-          ...selectedBranchData,
-          users: users.filter(user => user.branchId === selectedBranch),
-        }];
+        return [
+          {
+            ...selectedBranchData,
+            users: users.filter(user => user.branchId === selectedBranch),
+          },
+        ];
       }
       return [];
     }
@@ -587,10 +589,11 @@ export default function StaffManagement() {
 
   // Statistics - now branch-specific
   const stats = useMemo(() => {
-    const relevantUsers = selectedBranch === 'all' 
-      ? users 
-      : users.filter(user => user.branchId === selectedBranch);
-    
+    const relevantUsers =
+      selectedBranch === 'all'
+        ? users
+        : users.filter(user => user.branchId === selectedBranch);
+
     const totalStaff = relevantUsers.length;
     const activeStaff = relevantUsers.filter(u => u.status === 'active').length;
     const avgPerformance =
@@ -600,9 +603,10 @@ export default function StaffManagement() {
             relevantUsers.filter(u => u.performance).length
         ).toFixed(1)
         : '0.0';
-    const branchesWithStaff = selectedBranch === 'all' 
-      ? branches.filter(b => users.some(u => u.branchId === b.id)).length
-      : 1;
+    const branchesWithStaff =
+      selectedBranch === 'all'
+        ? branches.filter(b => users.some(u => u.branchId === b.id)).length
+        : 1;
 
     return { totalStaff, activeStaff, avgPerformance, branchesWithStaff };
   }, [users, branches, selectedBranch]);

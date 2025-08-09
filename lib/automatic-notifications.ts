@@ -16,13 +16,7 @@ interface OrderData {
   createdAt: string;
 }
 
-interface AttendanceData {
-  userId: string;
-  user: { fullname: string };
-  totalHours: number;
-  branchId: string;
-  date: string;
-}
+
 
 interface PerformanceSummary {
   totalRevenue: number;

@@ -1,4 +1,4 @@
-import { OrderType } from './types/types';
+
 
 export async function sendOrderUpdate(order: any) {
   console.log('Sending order update:', order, process.env.NEXT_PUBLIC_BASE_URL);

@@ -201,8 +201,10 @@ export default function OrderHistory() {
                   {/* <DatePickerWithRange
                     setParentDate={setDateRange}
                   /> */}
-                  <div className="p-2 border rounded">
-                    <p className="text-sm text-gray-500">Date picker temporarily disabled</p>
+                  <div className='p-2 border rounded'>
+                    <p className='text-sm text-gray-500'>
+                      Date picker temporarily disabled
+                    </p>
                   </div>
                 </div>
 

@@ -28,9 +28,7 @@ export async function createMenuItem(data: Omit<MenuItem, 'id'>) {
 }
 
 export async function getMenuItems(companyId: String) {
-  const query = {
-    queryType: menuOperations.getMenu,
-  };
+ 
 
   const response = await fetch(`/api/menu?companyId=${companyId}`, {
     method: 'GET',
@@ -44,10 +42,7 @@ export async function getMenuItems(companyId: String) {
 }
 
 export async function getMenuItemById(id: string) {
-  const query = {
-    queryType: menuOperations.getMenuById,
-    id,
-  };
+ 
   const response = await fetch(`/api/menu?id=${id}`, {
     method: 'GET',
     headers: {
@@ -61,10 +56,7 @@ export async function getMenuItemById(id: string) {
 
 export async function updateMenuItem(data: MenuItem) {
   try {
-    const query = {
-      queryType: menuOperations.updateMenu,
-      data,
-    };
+   
     const response = await fetch('/api/menu', {
       method: 'PUT',
       headers: {

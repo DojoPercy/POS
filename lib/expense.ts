@@ -1,10 +1,7 @@
 import { Expense } from './types/types';
 
 const API_URL = '/api/expenses';
-type ExpenseSummaryResponse = {
-  date: string;
-  amount: number;
-};
+
 
 export type ExpenseSummaryByDate = {
   date: string;
@@ -26,11 +23,7 @@ export async function getExpenseSumByDateRange(
   branchId?: string,
   companyId?: string,
 ): Promise<number> {
-  const query = {
-    queryType: expenseOperations.getExpenseSumByDateRange,
-    from: from,
-    to: to,
-  };
+ 
   if (companyId) {
     const res = await fetch(`/api/expenses?companyId=${companyId}`, {
       method: 'GET',

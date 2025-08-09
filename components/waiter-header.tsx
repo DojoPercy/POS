@@ -6,9 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   ShoppingCart,
-  Bell,
   Search,
-  Building2,
+
   LogOut,
   User,
 } from 'lucide-react';
@@ -21,7 +20,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserFromToken, logoutUser, selectUser } from '@/redux/authSlice';

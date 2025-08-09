@@ -34,7 +34,7 @@ export function DatePickerWithRange({
     externalDate || {
       from: addDays(new Date(), -7),
       to: new Date(),
-    }
+    },
   );
   const [selectedDate, setSelectedDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),

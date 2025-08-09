@@ -98,7 +98,7 @@ export async function getHighestOrderInBranch(
   branchId?: string,
 ) {
   const orders = await getOrders(companyId, undefined);
-
+console.log(branchId)
   const branchOrderCount = orders.reduce((acc: any, order: any) => {
     if (!acc[order.branchId]) {
       acc[order.branchId] = 0;
@@ -329,12 +329,7 @@ export async function getOrderSummaryByDateRangeOwner(
   to: Date,
   companyId?: string,
 ): Promise<any[]> {
-  const query = {
-    queryType: orderOperations.getOrderSummaryByDateRange,
-    from,
-    to,
-    companyId,
-  };
+
 
   const queryParams = new URLSearchParams();
   queryParams.append('from', from.toISOString());
@@ -369,6 +364,7 @@ export async function getOrderSummaryByDateRangeOwner(
     }
 
     for (const orderLine of order.orderLines) {
+      console.log(orderLine)
       summary[orderDate].sales += 1; // Increment sales count
     }
     summary[orderDate].revenue += order.totalPrice;
@@ -387,12 +383,7 @@ export async function getSalesSummaryOfBranches(
   companyId: string,
 ) {
   try {
-    const query = {
-      queryType: orderOperations.getOrderSummaryByDateRange,
-      from,
-      to,
-      companyId,
-    };
+   
 
     const queryParams = new URLSearchParams();
     queryParams.append('from', from.toISOString());
@@ -488,6 +479,7 @@ export async function getTodaySalesSummaryOfBranches(companyId: string) {
       }
 
       for (const orderLine of order.orderLines) {
+        console.log(orderLine)
         summary[branch].sales += 1;
       }
 
@@ -621,16 +613,7 @@ export async function getOrdersByDateRange(from: Date, to: Date) {
   return res.json();
 }
 
-type OrderLine = {
-  id: string;
-  orderId: string;
-  menuItemId: string;
-  quantity: number;
-  price: number;
-  totalPrice: number;
-  createdAt: string;
-  updatedAt: string;
-};
+
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'

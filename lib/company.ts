@@ -23,6 +23,7 @@ export async function updateCompanyDetails(
   companyId: string,
   updatedCompany: Company,
 ) {
+  console.log(companyId, updatedCompany)
   let url: string;
   if (typeof window !== 'undefined') {
     url = '/api/company';
