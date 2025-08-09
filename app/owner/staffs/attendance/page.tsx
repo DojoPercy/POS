@@ -57,6 +57,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { jwtDecode } from 'jwt-decode';
 import type { DateRange } from 'react-day-picker';
+import { StaffWeeklyAttendance } from '@/components/staff-weekly-attendance';
 
 interface DecodedToken {
   companyId: string;
@@ -342,8 +343,10 @@ export default function AttendanceManagement() {
     to: new Date(),
   });
   const [viewMode, setViewMode] = useState<
-    'overview' | 'details' | 'analytics'
+    'overview' | 'details' | 'analytics' | 'weekly'
   >('overview');
+  const [selectedStaff, setSelectedStaff] = useState<string | null>(null);
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
   // Fetch data with error handling
   const fetchData = useCallback(
@@ -417,8 +420,9 @@ export default function AttendanceManagement() {
     }
 
     try {
-      const decodedToken: DecodedToken = jwtDecode(token);
-      fetchData(decodedToken.companyId);
+      const decoded: DecodedToken = jwtDecode(token);
+      setDecodedToken(decoded);
+      fetchData(decoded.companyId);
     } catch (err) {
       handleError(new Error('Invalid authentication token'));
     }
@@ -426,24 +430,16 @@ export default function AttendanceManagement() {
 
   // Refetch data when filters change
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decodedToken: DecodedToken = jwtDecode(token);
-        fetchData(decodedToken.companyId);
-      } catch (err) {
-        // Token error already handled in main useEffect
-      }
-    }
-  }, [dateRange, selectedBranch, fetchData]);
-
-  const handleRefresh = useCallback(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decodedToken: DecodedToken = jwtDecode(token);
+    if (decodedToken) {
       fetchData(decodedToken.companyId);
     }
-  }, [fetchData]);
+  }, [dateRange, selectedBranch, fetchData, decodedToken]);
+
+  const handleRefresh = useCallback(() => {
+    if (decodedToken) {
+      fetchData(decodedToken.companyId);
+    }
+  }, [fetchData, decodedToken]);
 
   const exportData = useCallback(() => {
     if (!attendanceData?.records) {
@@ -687,9 +683,17 @@ export default function AttendanceManagement() {
               variant={viewMode === 'analytics' ? 'default' : 'ghost'}
               size='sm'
               onClick={() => setViewMode('analytics')}
-              className='rounded-l-none'
+              className='rounded-none'
             >
               <TrendingUp className='h-4 w-4' />
+            </Button>
+            <Button
+              variant={viewMode === 'weekly' ? 'default' : 'ghost'}
+              size='sm'
+              onClick={() => setViewMode('weekly')}
+              className='rounded-l-none'
+            >
+              <Calendar className='h-4 w-4' />
             </Button>
           </div>
         </div>
@@ -935,6 +939,52 @@ export default function AttendanceManagement() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value='weekly' className='space-y-6'>
+          {selectedStaff ? (
+            <StaffWeeklyAttendance
+              userId={selectedStaff}
+              branchId={selectedBranch === 'all' ? branches[0]?.id || '' : selectedBranch}
+              companyId={decodedToken?.companyId || ''}
+              staffName={attendanceData?.userStats.find(u => u.userId === selectedStaff)?.userName || ''}
+              staffEmail={attendanceData?.userStats.find(u => u.userId === selectedStaff)?.userEmail || ''}
+              staffRole={attendanceData?.userStats.find(u => u.userId === selectedStaff)?.userRole || ''}
+              branchName={branches.find(b => b.id === selectedBranch)?.name || branches[0]?.name || ''}
+            />
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Select Staff Member</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {attendanceData?.userStats.map((user) => (
+                    <Card
+                      key={user.userId}
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => setSelectedStaff(user.userId)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback>
+                              {getInitials(user.userName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{user.userName}</p>
+                            <p className="text-sm text-gray-600">{user.userRole}</p>
+                            <p className="text-xs text-gray-500">{user.totalShifts} shifts</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>

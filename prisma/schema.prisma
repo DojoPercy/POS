@@ -212,7 +212,8 @@ model Ingredient {
   updatedAt   DateTime          @updatedAt
 
   stocks      InventoryStock[]
-  menuLinks   MenuIngredient[] 
+  menuLinks   MenuIngredient[]
+  orderLines  OrderLine[]       // New relation for ingredient orders
 }
 
 model InventoryStock {
@@ -254,12 +255,15 @@ model OrderLine {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   orderId     String   @db.ObjectId
   order       Order    @relation(fields: [orderId], references: [id]) 
-  menuItemId  String   @db.ObjectId
-  menuItem    Menu     @relation(fields: [menuItemId], references: [id]) 
+  menuItemId  String?  @db.ObjectId  // Optional - for menu item orders
+  ingredientId String? @db.ObjectId  // Optional - for ingredient orders
+  menuItem    Menu?    @relation(fields: [menuItemId], references: [id]) 
+  ingredient  Ingredient? @relation(fields: [ingredientId], references: [id])
   quantity    Int      @default(1)
   price       Float    @default(0.0)
   totalPrice  Float    @default(0.0) 
   notes       String?
+  orderType   OrderLineType @default(MENU_ITEM) // New field to distinguish order types
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -291,6 +295,12 @@ model Order {
   @@index([branchId])
   @@index([companyId])
 }
+
+enum OrderLineType {
+  MENU_ITEM
+  INGREDIENT
+}
+
 enum OrderStatus {
     PENDING       
     PROCESSING 

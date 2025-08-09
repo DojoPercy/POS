@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createOrder, getOrderCounter } from '@/lib/order';
 import { getMenuItems } from '@/lib/menu';
 
@@ -39,25 +40,41 @@ interface MenuItem {
   name: string;
   price: number;
 }
+
+interface Ingredient {
+  id: string;
+  name: string;
+  unit: string;
+  price: number;
+  stocks?: Array<{
+    quantity: number;
+    branchId: string;
+  }>;
+}
+
 interface User {
   id: string;
   email: string;
   role: string;
   branchId?: string;
 }
+
 interface DecodedToken {
   role: string;
   branchId?: string;
-  userId?: string; // Additional properties if available
+  userId?: string;
+  companyId?: string;
   [key: string]: any;
 }
 
 interface OrderLine {
-  menuItemId: string;
+  menuItemId?: string;
+  ingredientId?: string;
   name: string;
   quantity: number;
   price: number;
   totalPrice: number;
+  orderType: 'MENU_ITEM' | 'INGREDIENT';
 }
 
 type PaymentType = 'Cash' | 'Mobile Money' | 'Cash and Mobile Money';
@@ -71,7 +88,10 @@ const dummyMenuItems: MenuItem[] = [
 
 export function OrderForm() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [selectedItem, setSelectedItem] = useState<string>('');
+  const [selectedIngredient, setSelectedIngredient] = useState<string>('');
+  const [orderType, setOrderType] = useState<'MENU_ITEM' | 'INGREDIENT'>('MENU_ITEM');
   const [quantity, setQuantity] = useState<number>(1);
   const [orderLines, setOrderLines] = useState<OrderLine[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -90,19 +110,25 @@ export function OrderForm() {
   const receiptRef = useRef<HTMLDivElement | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const dispatch = useDispatch();
+
   useEffect(() => {
     setLoadingMenu(true);
     (async () => {
       try {
         const decodedToken = await fetchUsers();
-        const menuItems = await getMenuItems(decodedToken!.companyId || '');
-        const company = await getCompany(decodedToken!.companyId || '');
+        const [menuItems, ingredients, company] = await Promise.all([
+          getMenuItems(decodedToken!.companyId || ''),
+          fetch(`/api/ingredient?companyId=${decodedToken!.companyId}&branchId=${decodedToken!.branchId}`).then(res => res.json()),
+          getCompany(decodedToken!.companyId || '')
+        ]);
+        
         setCompany(company);
         setDecodedToken(decodedToken as DecodedToken);
         setLoadingMenu(false);
         setMenuItems(menuItems);
+        setIngredients(ingredients);
       } catch {
-        console.log('Failed to fetch menu items');
+        console.log('Failed to fetch data');
       }
     })();
   }, []);
@@ -126,18 +152,36 @@ export function OrderForm() {
   };
 
   const handleAddItem = () => {
-    const item = menuItems.find(item => item.id === selectedItem);
-    if (item) {
-      const newOrderLine: OrderLine = {
-        menuItemId: item.id,
-        name: item.name,
-        quantity: quantity,
-        price: item.price,
-        totalPrice: item.price * quantity,
-      };
-      setOrderLines([...orderLines, newOrderLine]);
-      setSelectedItem('');
-      setQuantity(1);
+    if (orderType === 'MENU_ITEM') {
+      const item = menuItems.find(item => item.id === selectedItem);
+      if (item) {
+        const newOrderLine: OrderLine = {
+          menuItemId: item.id,
+          name: item.name,
+          quantity: quantity,
+          price: item.price,
+          totalPrice: item.price * quantity,
+          orderType: 'MENU_ITEM',
+        };
+        setOrderLines([...orderLines, newOrderLine]);
+        setSelectedItem('');
+        setQuantity(1);
+      }
+    } else {
+      const ingredient = ingredients.find(ing => ing.id === selectedIngredient);
+      if (ingredient) {
+        const newOrderLine: OrderLine = {
+          ingredientId: ingredient.id,
+          name: `${ingredient.name} (${ingredient.unit})`,
+          quantity: quantity,
+          price: ingredient.price,
+          totalPrice: ingredient.price * quantity,
+          orderType: 'INGREDIENT',
+        };
+        setOrderLines([...orderLines, newOrderLine]);
+        setSelectedIngredient('');
+        setQuantity(1);
+      }
     }
   };
 
@@ -192,7 +236,8 @@ export function OrderForm() {
         waiterId: decodedToken?.userId,
         branchId: decodedToken?.branchId,
         orderLines: orderLines.map(line => ({
-          menuItemId: line.menuItemId,
+          menuItemId: line.menuItemId || null,
+          ingredientId: line.ingredientId || null,
           quantity: line.quantity,
           price: line.price,
           totalPrice: line.totalPrice,
@@ -223,49 +268,104 @@ export function OrderForm() {
             <CardTitle>Create New Order</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              <div>
-                <Label htmlFor='menu-item'>Menu Item</Label>
-                <Select value={selectedItem} onValueChange={setSelectedItem}>
-                  <SelectTrigger id='menu-item'>
-                    <SelectValue placeholder='Select a menu item' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {loadingMenu ? (
-                      <ClipLoader
-                        color={'#000'}
-                        loading={loading}
-                        cssOverride={{}}
-                        size={20}
-                        aria-label='Loading Spinner'
-                        data-testid='loader'
-                      />
-                    ) : (
-                      menuItems.map(item => (
-                        <SelectItem key={item.id} value={item.id}>
-                          {item.name} - ${item.price}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor='quantity'>Quantity</Label>
-                <Input
-                  id='quantity'
-                  type='number'
-                  min='1'
-                  value={quantity}
-                  onChange={e =>
-                    setQuantity(Number.parseInt(e.target.value) || 1)
-                  }
-                />
-              </div>
-              <div className='flex items-end'>
-                <Button onClick={handleAddItem}>Add to Order</Button>
-              </div>
-            </div>
+            <Tabs value={orderType} onValueChange={(value) => setOrderType(value as 'MENU_ITEM' | 'INGREDIENT')}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="MENU_ITEM">Menu Items</TabsTrigger>
+                <TabsTrigger value="INGREDIENT">Ingredients</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="MENU_ITEM">
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                  <div>
+                    <Label htmlFor='menu-item'>Menu Item</Label>
+                    <Select value={selectedItem} onValueChange={setSelectedItem}>
+                      <SelectTrigger id='menu-item'>
+                        <SelectValue placeholder='Select a menu item' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {loadingMenu ? (
+                          <ClipLoader
+                            color={'#000'}
+                            loading={loading}
+                            cssOverride={{}}
+                            size={20}
+                            aria-label='Loading Spinner'
+                            data-testid='loader'
+                          />
+                        ) : (
+                          menuItems.map(item => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.name} - ${item.price}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor='quantity'>Quantity</Label>
+                    <Input
+                      id='quantity'
+                      type='number'
+                      min='1'
+                      value={quantity}
+                      onChange={e =>
+                        setQuantity(Number.parseInt(e.target.value) || 1)
+                      }
+                    />
+                  </div>
+                  <div className='flex items-end'>
+                    <Button onClick={handleAddItem}>Add to Order</Button>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="INGREDIENT">
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                  <div>
+                    <Label htmlFor='ingredient'>Ingredient</Label>
+                    <Select value={selectedIngredient} onValueChange={setSelectedIngredient}>
+                      <SelectTrigger id='ingredient'>
+                        <SelectValue placeholder='Select an ingredient' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {loadingMenu ? (
+                          <ClipLoader
+                            color={'#000'}
+                            loading={loading}
+                            cssOverride={{}}
+                            size={20}
+                            aria-label='Loading Spinner'
+                            data-testid='loader'
+                          />
+                        ) : (
+                          ingredients.map(ingredient => (
+                            <SelectItem key={ingredient.id} value={ingredient.id}>
+                              {ingredient.name} ({ingredient.unit}) - ${ingredient.price}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor='quantity-ingredient'>Quantity</Label>
+                    <Input
+                      id='quantity-ingredient'
+                      type='number'
+                      min='1'
+                      value={quantity}
+                      onChange={e =>
+                        setQuantity(Number.parseInt(e.target.value) || 1)
+                      }
+                    />
+                  </div>
+                  <div className='flex items-end'>
+                    <Button onClick={handleAddItem}>Add to Order</Button>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 

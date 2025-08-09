@@ -74,10 +74,12 @@ export async function PUT(req: NextRequest, { params }: any) {
 
           // Create new orderLines
           create: newOrderLines?.map((line: any) => ({
-            menuItemId: line.menuItemId,
+            menuItemId: line.menuItemId || null,
+            ingredientId: line.ingredientId || null,
             quantity: line.quantity,
             price: line.price,
             totalPrice: line.totalPrice,
+            orderType: line.ingredientId ? 'INGREDIENT' : 'MENU_ITEM',
           })),
         },
       },
@@ -96,25 +98,36 @@ export async function PUT(req: NextRequest, { params }: any) {
     console.log('sratus', body.orderStatus === OrderStatus.PAID);
     console.log('status', body.OrderStatus);
     console.log('updatedOrder', updatedOrder);
-    // Inventory deduction only if status is COMPLETED
+    // Inventory deduction only if status is PAID
     if (body.orderStatus === 'PAID') {
       // Group ingredient deductions by ingredientId and branchId
       const ingredientDeductions = new Map<string, number>(); // Key: `${ingredientId}-${branchId}`, Value: totalDeductQty
       console.log('Deducting inventory for order:', updatedOrder.id);
+      
       for (const line of updatedOrder.orderLines) {
-        // Fetch menu ingredients once per menuItemId if not already fetched
-        const ingredients = await prisma.menuIngredient.findMany({
-          where: { menuId: line.menuItemId },
-          select: { ingredientId: true, amount: true }, // Select only necessary fields
-        });
-
-        for (const ingredient of ingredients) {
-          const deductQty = ingredient.amount * line.quantity;
-          const key = `${ingredient.ingredientId}-${body.branchId}`;
+        if (line.orderType === 'INGREDIENT') {
+          // Direct ingredient order - deduct the ingredient directly
+          const deductQty = line.quantity;
+          const key = `${line.ingredientId}-${body.branchId}`;
           ingredientDeductions.set(
             key,
             (ingredientDeductions.get(key) || 0) + deductQty,
           );
+        } else {
+          // Menu item order - deduct ingredients based on recipe
+          const ingredients = await prisma.menuIngredient.findMany({
+            where: { menuId: line.menuItemId },
+            select: { ingredientId: true, amount: true },
+          });
+
+          for (const ingredient of ingredients) {
+            const deductQty = ingredient.amount * line.quantity;
+            const key = `${ingredient.ingredientId}-${body.branchId}`;
+            ingredientDeductions.set(
+              key,
+              (ingredientDeductions.get(key) || 0) + deductQty,
+            );
+          }
         }
       }
 

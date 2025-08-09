@@ -64,7 +64,7 @@ const Login = () => {
       setIsValidEmail(emailRegex.test(value));
     }
     if (name === 'password') {
-      setIsValidPassword(value.length >= 6);
+      setIsValidPassword(value.length >= 2);
     }
   };
 

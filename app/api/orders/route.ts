@@ -103,6 +103,7 @@ export async function POST(req: NextRequest) {
       orderStatus,
       requiredDate,
       orderNumber,
+      payment, // New payment data for automatic payment creation
     } = await req.json();
 
     const status = OrderStatus || orderStatus;
@@ -121,11 +122,13 @@ export async function POST(req: NextRequest) {
       orderNumber,
       orderLines: {
         create: orderLines.map((line: any) => ({
-          menuItemId: line.menuItemId,
+          menuItemId: line.menuItemId || null,
+          ingredientId: line.ingredientId || null,
           quantity: line.quantity,
           price: line.price,
           totalPrice: line.totalPrice,
           notes: line.notes,
+          orderType: line.ingredientId ? 'INGREDIENT' : 'MENU_ITEM',
         })),
       },
     };
@@ -135,6 +138,23 @@ export async function POST(req: NextRequest) {
       include: { orderLines: true },
     });
 
+    // If order is PAID, automatically create payment record
+    if (status === 'PAID' && payment) {
+      await prisma.payment.create({
+        data: {
+          orderId: newOrder.id,
+          date: new Date(),
+          amount: payment.amount || finalPrice,
+          paymentDate: new Date(),
+          currency: payment.currency || 'GHS',
+          paymentStatus: payment.paymentStatus || 'Completed',
+          companyId: companyId,
+          branchId: branchId,
+          paymentMethod: payment.paymentMethod || 'cash',
+        },
+      });
+    }
+
     // Invalidate cache
     const idsToInvalidate = [branchId, companyId, waiterId].filter(Boolean);
     for (const id of idsToInvalidate) {
@@ -142,25 +162,39 @@ export async function POST(req: NextRequest) {
       if (keys.length > 0) await redis.del(...keys);
     }
     console.log('sratus', status);
-    // Inventory deduction only if status is COMPLETED
+    // Inventory deduction only if status is PAID
     if (status === 'PAID' && newOrder.orderLines.length > 0) {
       // Group ingredient deductions by ingredientId and branchId
       const ingredientDeductions = new Map<string, number>(); // Key: `${ingredientId}-${branchId}`, Value: totalDeductQty
       console.log('Deducting inventory for order:', newOrder.id);
+      
       for (const line of newOrder.orderLines) {
-        // Fetch menu ingredients once per menuItemId if not already fetched
-        const ingredients = await prisma.menuIngredient.findMany({
-          where: { menuId: line.menuItemId },
-          select: { ingredientId: true, amount: true }, // Select only necessary fields
-        });
-
-        for (const ingredient of ingredients) {
-          const deductQty = ingredient.amount * line.quantity;
-          const key = `${ingredient.ingredientId}-${branchId}`;
+        // Since orderLines from Prisma do not include orderType or ingredientId,
+        // we infer orderType based on the presence of ingredientId.
+        const isIngredientOrder = !!line.ingredientId;
+        if (isIngredientOrder) {
+          // Direct ingredient order - deduct the ingredient directly
+          const deductQty = line.quantity;
+          const key = `${line.ingredientId}-${branchId}`;
           ingredientDeductions.set(
             key,
             (ingredientDeductions.get(key) || 0) + deductQty,
           );
+        } else {
+          // Menu item order - deduct ingredients based on recipe
+          const ingredients = await prisma.menuIngredient.findMany({
+            where: { menuId: line.menuItemId },
+            select: { ingredientId: true, amount: true },
+          });
+
+          for (const ingredient of ingredients) {
+            const deductQty = ingredient.amount * line.quantity;
+            const key = `${ingredient.ingredientId}-${branchId}`;
+            ingredientDeductions.set(
+              key,
+              (ingredientDeductions.get(key) || 0) + deductQty,
+            );
+          }
         }
       }
 

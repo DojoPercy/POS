@@ -16,6 +16,7 @@ import {
   Clock,
   Star,
   Zap,
+  Package,
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser, selectUser, fetchUserFromToken } from '@/redux/authSlice';
@@ -66,6 +67,12 @@ const orderNavItems = [
     text: 'New Order',
     href: '/waiter/order/new',
     badge: 'Hot',
+  },
+  {
+    icon: Package,
+    text: 'Ingredient Order',
+    href: '/waiter#ingredient-order-form',
+    badge: 'New',
   },
   {
     icon: ClipboardList,

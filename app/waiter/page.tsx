@@ -36,6 +36,7 @@ import {
   CheckCircle,
   Timer,
   QrCode,
+  Package,
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -50,6 +51,7 @@ import type { RootState } from '@/redux';
 import type { OrderType } from '@/lib/types/types';
 import { OrderStatus } from '@/lib/enums/enums';
 import Pusher from 'pusher-js';
+import { IngredientOrderForm } from '@/components/ingredient-order-form';
 
 interface WaiterProfileUser {
   id: string;
@@ -436,7 +438,7 @@ export default function WaiterDashboard() {
       title: 'Avg Order Value',
       value: summaryLoading
         ? '...'
-        : `$${orderSummary?.averageOrderValue.toFixed(2) || '0.00'}`,
+        : ``,
       icon: Target,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
@@ -512,6 +514,20 @@ export default function WaiterDashboard() {
                             New Order
                           </Button>
                         </Link>
+                        <Button 
+                          variant='outline' 
+                          size='sm'
+                          onClick={() => {
+                            // Scroll to ingredient order form
+                            const element = document.getElementById('ingredient-order-form');
+                            if (element) {
+                              element.scrollIntoView({ behavior: 'smooth' });
+                            }
+                          }}
+                        >
+                          <Package className='h-4 w-4 mr-2' />
+                          Ingredient Order
+                        </Button>
                         <Button variant='outline' size='sm'>
                           <QrCode className='h-4 w-4 mr-2' />
                           Attendance QR
@@ -871,6 +887,17 @@ export default function WaiterDashboard() {
               </CardContent>
             </Card>
           </motion.div>
+
+          {/* Ingredient Order Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.9 }}
+            id='ingredient-order-form'
+          >
+            <IngredientOrderForm />
+          </motion.div>
+
         </div>
       </div>
     </div>

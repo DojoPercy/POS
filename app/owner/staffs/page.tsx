@@ -467,7 +467,7 @@ export default function StaffManagement() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  // Memoized filtered users
+  // Memoized filtered users - now filtered by selected branch
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
       const matchesSearch =
@@ -483,13 +483,24 @@ export default function StaffManagement() {
     });
   }, [users, searchTerm, selectedBranch, selectedRole]);
 
-  // Memoized users by branch
+  // Memoized users by branch - only show selected branch if not 'all'
   const usersByBranch = useMemo(() => {
-    return branches.map(branch => ({
-      ...branch,
-      users: users.filter(user => user.branchId === branch.id),
-    }));
-  }, [branches, users]);
+    if (selectedBranch === 'all') {
+      return branches.map(branch => ({
+        ...branch,
+        users: users.filter(user => user.branchId === branch.id),
+      }));
+    } else {
+      const selectedBranchData = branches.find(b => b.id === selectedBranch);
+      if (selectedBranchData) {
+        return [{
+          ...selectedBranchData,
+          users: users.filter(user => user.branchId === selectedBranch),
+        }];
+      }
+      return [];
+    }
+  }, [branches, users, selectedBranch]);
 
   // Fetch data with error handling
   const fetchData = useCallback(async () => {
@@ -574,23 +585,27 @@ export default function StaffManagement() {
     [toast],
   );
 
-  // Statistics
+  // Statistics - now branch-specific
   const stats = useMemo(() => {
-    const totalStaff = users.length;
-    const activeStaff = users.filter(u => u.status === 'active').length;
+    const relevantUsers = selectedBranch === 'all' 
+      ? users 
+      : users.filter(user => user.branchId === selectedBranch);
+    
+    const totalStaff = relevantUsers.length;
+    const activeStaff = relevantUsers.filter(u => u.status === 'active').length;
     const avgPerformance =
-      users.length > 0
+      relevantUsers.length > 0
         ? (
-          users.reduce((sum, u) => sum + (u.performance || 0), 0) /
-            users.filter(u => u.performance).length
+          relevantUsers.reduce((sum, u) => sum + (u.performance || 0), 0) /
+            relevantUsers.filter(u => u.performance).length
         ).toFixed(1)
         : '0.0';
-    const branchesWithStaff = branches.filter(b =>
-      users.some(u => u.branchId === b.id),
-    ).length;
+    const branchesWithStaff = selectedBranch === 'all' 
+      ? branches.filter(b => users.some(u => u.branchId === b.id)).length
+      : 1;
 
     return { totalStaff, activeStaff, avgPerformance, branchesWithStaff };
-  }, [users, branches]);
+  }, [users, branches, selectedBranch]);
 
   if (error) {
     return (
