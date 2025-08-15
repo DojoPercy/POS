@@ -73,7 +73,7 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
   const tryPlaceDetails = (placeId: string): Promise<boolean> => {
     return new Promise(resolve => {
       const service = new window.google.maps.places.PlacesService(
-        document.createElement('div'),
+        document.createElement('div')
       );
 
       service.getDetails(
@@ -95,7 +95,7 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
           } else {
             resolve(false);
           }
-        },
+        }
       );
     });
   };
@@ -121,7 +121,7 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
           } else {
             resolve(false);
           }
-        },
+        }
       );
     });
   };

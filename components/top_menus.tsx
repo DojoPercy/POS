@@ -41,7 +41,7 @@ export default function TopMenusChart({ companyId }: TopMenusChartProps) {
         dateRange.from,
         dateRange.to,
         undefined,
-        companyId,
+        companyId
       );
 
       const chartData = topMenus
@@ -143,7 +143,7 @@ export default function TopMenusChart({ companyId }: TopMenusChartProps) {
                     borderRadius: '8px',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                   }}
-                  formatter={(value: any, name: string) => [
+                  formatter={(value: any) => [
                     `${value.toLocaleString()} orders`,
                     'Total Orders',
                   ]}

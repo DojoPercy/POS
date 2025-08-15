@@ -92,7 +92,7 @@ export function OrderForm() {
   const [selectedItem, setSelectedItem] = useState<string>('');
   const [selectedIngredient, setSelectedIngredient] = useState<string>('');
   const [orderType, setOrderType] = useState<'MENU_ITEM' | 'INGREDIENT'>(
-    'MENU_ITEM',
+    'MENU_ITEM'
   );
   const [quantity, setQuantity] = useState<number>(1);
   const [orderLines, setOrderLines] = useState<OrderLine[]>([]);
@@ -121,7 +121,7 @@ export function OrderForm() {
         const [menuItems, ingredients, company] = await Promise.all([
           getMenuItems(decodedToken!.companyId || ''),
           fetch(
-            `/api/ingredient?companyId=${decodedToken!.companyId}&branchId=${decodedToken!.branchId}`,
+            `/api/ingredient?companyId=${decodedToken!.companyId}&branchId=${decodedToken!.branchId}`
           ).then(res => res.json()),
           getCompany(decodedToken!.companyId || ''),
         ]);
@@ -140,7 +140,7 @@ export function OrderForm() {
   useEffect(() => {
     const newTotalPrice = orderLines.reduce(
       (sum, line) => sum + line.totalPrice,
-      0,
+      0
     );
     setTotalPrice(newTotalPrice);
     updateFinalPrice(newTotalPrice, discount, rounding);
@@ -236,28 +236,28 @@ export function OrderForm() {
     setLoading(true);
     try {
       const orderNumber = await getOrderCounter(decodedToken?.branchId || '');
-      const order = {
-        waiterId: decodedToken?.userId,
-        branchId: decodedToken?.branchId,
-        orderLines: orderLines.map(line => ({
-          menuItemId: line.menuItemId || null,
-          ingredientId: line.ingredientId || null,
-          quantity: line.quantity,
-          price: line.price,
-          totalPrice: line.totalPrice,
-        })),
-        totalPrice,
-        discount,
-        rounding,
-        finalPrice,
-        paymentType,
-        receivedAmount,
-        balance,
-        isCompleted: false,
-        isCheckedOut: false,
-        requiredDate: new Date().toISOString(),
-        orderNumber: orderNumber,
-      };
+      // const order = {
+      //   waiterId: decodedToken?.userId,
+      //   branchId: decodedToken?.branchId,
+      //   orderLines: orderLines.map(line => ({
+      //     menuItemId: line.menuItemId || null,
+      //     ingredientId: line.ingredientId || null,
+      //     quantity: line.quantity,
+      //     price: line.price,
+      //     totalPrice: line.totalPrice,
+      //   })),
+      //   totalPrice,
+      //   discount,
+      //   rounding,
+      //   finalPrice,
+      //   paymentType,
+      //   receivedAmount,
+      //   balance,
+      //   isCompleted: false,
+      //   isCheckedOut: false,
+      //   requiredDate: new Date().toISOString(),
+      //   orderNumber: orderNumber,
+      // };
     } catch (error) {
       console.error('Failed to create order:', error);
       // Here you would typically show an error message to the user

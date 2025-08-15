@@ -27,25 +27,25 @@ export async function getMenuItemsFromIndexedDB(): Promise<MenuItem[]> {
 }
 
 export async function saveMenuItemsToIndexedDB(
-  menuItems: MenuItem[],
+  menuItems: MenuItem[]
 ): Promise<void> {
   await db.menuItems.bulkPut(menuItems);
 }
 
 export async function getMenuCategoriesFromIndexedDB(): Promise<
   MenuCategory[]
-  > {
+> {
   return await db.menuCategories.toArray();
 }
 
 export async function saveMenuCategoryToIndexedDB(
-  menuCategories: MenuCategory[],
+  menuCategories: MenuCategory[]
 ): Promise<void> {
   await db.menuCategories.bulkPut(menuCategories);
 }
 
 export async function getCompanyFromIndexedDB(
-  key: string,
+  key: string
 ): Promise<Company | undefined> {
   return await db.company.get(key);
 }

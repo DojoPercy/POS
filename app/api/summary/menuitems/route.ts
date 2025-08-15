@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (!companyId || !fromDate || !toDate) {
       return NextResponse.json(
         { error: 'Company ID, From date, and To date are required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     if (!topMenus || topMenus.length === 0) {
       return NextResponse.json(
         { error: 'No menu items found' },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching menu items:', error);
     return NextResponse.json(
       { error: 'Failed to fetch menu items' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

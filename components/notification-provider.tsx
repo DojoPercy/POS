@@ -21,14 +21,14 @@ interface NotificationContextType {
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export function useNotificationContext() {
   const context = useContext(NotificationContext);
   if (context === undefined) {
     throw new Error(
-      'useNotificationContext must be used within a NotificationProvider',
+      'useNotificationContext must be used within a NotificationProvider'
     );
   }
   return context;
@@ -58,7 +58,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
         console.error('Failed to mark notification as read:', error);
       }
     },
-    [markAsRead],
+    [markAsRead]
   );
 
   const markAllNotificationsAsRead = useCallback(async () => {
@@ -85,7 +85,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
         throw error;
       }
     },
-    [createNotificationHook, toast],
+    [createNotificationHook, toast]
   );
 
   const refreshNotifications = useCallback(async () => {
@@ -105,7 +105,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
 
         const decodedToken: any = jwtDecode(token);
         const response = await fetch(
-          `/api/notification/unread-count?userId=${decodedToken.userId}`,
+          `/api/notification/unread-count?userId=${decodedToken.userId}`
         );
 
         if (response.ok) {

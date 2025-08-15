@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       if (!category) {
         return NextResponse.json(
           { error: 'Category not found' },
-          { status: 404 },
+          { status: 404 }
         );
       }
       await redis.set(cachedKey, JSON.stringify(category), 'EX', 60 * 60);
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       if (!categories) {
         return NextResponse.json(
           { error: 'Category not found' },
-          { status: 404 },
+          { status: 404 }
         );
       }
       await redis.set(cachedKey, JSON.stringify(categories), 'EX', 60 * 60);

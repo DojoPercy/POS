@@ -56,12 +56,12 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
   const user = useSelector(selectUser);
   const { categories } = useSelector((state: any) => state.menuCategories);
   const { menuItems, isLoading } = useSelector(
-    (state: RootState) => state.menu,
+    (state: RootState) => state.menu
   );
   const { company } = useSelector((state: RootState) => state.company);
 
   const existingOrder = useSelector((state: RootState) =>
-    orderId ? selectOrderById(state, orderId) : null,
+    orderId ? selectOrderById(state, orderId) : null
   );
 
   useEffect(() => {
@@ -88,13 +88,13 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
     menuItem: MenuItem,
     selectedPrice: PriceType,
     quantity: number,
-    notes = '',
+    notes = ''
   ) => {
     setCart(prevCart => {
       const existingItemIndex = prevCart.findIndex(
         item =>
           item.menuItem.id === menuItem.id &&
-          item.selectedPrice.id === selectedPrice.id,
+          item.selectedPrice.id === selectedPrice.id
       );
 
       if (existingItemIndex !== -1) {
@@ -122,7 +122,7 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
 
       for (const line of existingOrder.orderLines || []) {
         const menuItem = menuItems.find(
-          (item: MenuItem) => item.id === line.menuItemId,
+          (item: MenuItem) => item.id === line.menuItemId
         );
         if (menuItem) {
           const priceOption =
@@ -179,11 +179,11 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
   const filteredMenuItems =
     menuItems && menuItems.length > 0
       ? menuItems.filter(
-        (item: MenuItem) =>
-          item.categoryId === activeCategory &&
+          (item: MenuItem) =>
+            item.categoryId === activeCategory &&
             (searchQuery === '' ||
-              item.name.toLowerCase().includes(searchQuery.toLowerCase())),
-      )
+              item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
       : [];
 
   const CategoryList = () => {
@@ -274,7 +274,7 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
         <h2 className='text-xl font-semibold text-gray-800'>
           {categories && categories.length > 0 && activeCategory
             ? categories.find((c: MenuCategory) => c.id === activeCategory)
-              ?.name || 'Menu'
+                ?.name || 'Menu'
             : 'Menu'}
         </h2>
 
@@ -305,7 +305,7 @@ export default function OrderScreen({ orderId }: OrderScreenProp) {
             <h2 className='text-2xl font-bold text-gray-800'>
               {categories && categories.length > 0 && activeCategory
                 ? categories.find((c: MenuCategory) => c.id === activeCategory)
-                  ?.name || 'Menu'
+                    ?.name || 'Menu'
                 : 'Menu'}
             </h2>
 

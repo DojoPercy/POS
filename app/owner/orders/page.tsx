@@ -58,32 +58,32 @@ interface DecodedToken {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-  case 'COMPLETED':
-  case 'PAID':
-    return 'bg-green-100 text-green-800 border-green-200';
-  case 'PENDING':
-    return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-  case 'CANCELLED':
-    return 'bg-red-100 text-red-800 border-red-200';
-  case 'PROCESSING':
-    return 'bg-blue-100 text-blue-800 border-blue-200';
-  default:
-    return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'COMPLETED':
+    case 'PAID':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'PENDING':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'CANCELLED':
+      return 'bg-red-100 text-red-800 border-red-200';
+    case 'PROCESSING':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 };
 
 const getStatusText = (status: string) => {
   switch (status) {
-  case 'PAID':
-    return 'Completed';
-  case 'PENDING':
-    return 'Pending';
-  case 'CANCELLED':
-    return 'Error';
-  case 'PROCESSING':
-    return 'Processing';
-  default:
-    return status;
+    case 'PAID':
+      return 'Completed';
+    case 'PENDING':
+      return 'Pending';
+    case 'CANCELLED':
+      return 'Error';
+    case 'PROCESSING':
+      return 'Processing';
+    default:
+      return status;
   }
 };
 
@@ -166,7 +166,7 @@ export default function OrdersManagement() {
 
     if (!showCompleted) {
       filtered = filtered.filter(
-        order => !(order.orderStatus === OrderStatus.PAID),
+        order => !(order.orderStatus === OrderStatus.PAID)
       );
     }
 
@@ -174,7 +174,7 @@ export default function OrdersManagement() {
       filtered = filtered.filter(
         order =>
           order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.branchName?.toLowerCase().includes(searchTerm.toLowerCase()),
+          order.branchName?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -199,8 +199,8 @@ export default function OrdersManagement() {
       setSelectedOrder(updatedOrder);
       setData(
         data.map(order =>
-          order.id === selectedOrder.id ? updatedOrder : order,
-        ),
+          order.id === selectedOrder.id ? updatedOrder : order
+        )
       );
     }
   };
@@ -343,7 +343,7 @@ export default function OrdersManagement() {
                           className={`${getStatusColor(order.orderStatus?.toString() || 'PENDING')} border`}
                         >
                           {getStatusText(
-                            order.orderStatus?.toString() || 'PENDING',
+                            order.orderStatus?.toString() || 'PENDING'
                           )}
                         </Badge>
                       </TableCell>
@@ -381,7 +381,7 @@ export default function OrdersManagement() {
                       className={`${getStatusColor(selectedOrder.orderStatus?.toString() || 'PENDING')} border`}
                     >
                       {getStatusText(
-                        selectedOrder.orderStatus?.toString() || 'PENDING',
+                        selectedOrder.orderStatus?.toString() || 'PENDING'
                       )}
                     </Badge>
                   </div>
@@ -393,7 +393,7 @@ export default function OrdersManagement() {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
-                      },
+                      }
                     )}{' '}
                     • {new Date(selectedOrder.createdAt!).toLocaleTimeString()}
                   </p>
@@ -418,7 +418,7 @@ export default function OrdersManagement() {
                         <span className='font-medium'>
                           {new Date(
                             selectedOrder.orderedDate ||
-                              selectedOrder.createdAt!,
+                              selectedOrder.createdAt!
                           ).toLocaleString()}
                         </span>
                       </div>
@@ -426,7 +426,7 @@ export default function OrdersManagement() {
                         <span className='text-gray-600'>Required Date</span>
                         <span className='font-medium'>
                           {new Date(
-                            selectedOrder.requiredDate!,
+                            selectedOrder.requiredDate!
                           ).toLocaleString()}
                         </span>
                       </div>
@@ -488,48 +488,48 @@ export default function OrdersManagement() {
                   {/* Order Items */}
                   {selectedOrder.orderLines &&
                     selectedOrder.orderLines.length > 0 && (
-                    <div>
-                      <h3 className='text-lg font-semibold mb-4'>
+                      <div>
+                        <h3 className='text-lg font-semibold mb-4'>
                           Order Items
-                      </h3>
-                      <div className='space-y-3'>
-                        {selectedOrder.orderLines.map((item, index) => (
-                          <div
-                            key={index}
-                            className='bg-gray-50 p-4 rounded-lg'
-                          >
-                            <div className='flex justify-between items-start mb-2'>
-                              <div>
-                                <h4 className='font-medium'>
-                                  {item.menuItem?.name || 'Menu Item'}
-                                </h4>
-                                <p className='text-sm text-gray-500'>
-                                  {item.menuItem?.description}
-                                </p>
+                        </h3>
+                        <div className='space-y-3'>
+                          {selectedOrder.orderLines.map((item, index) => (
+                            <div
+                              key={index}
+                              className='bg-gray-50 p-4 rounded-lg'
+                            >
+                              <div className='flex justify-between items-start mb-2'>
+                                <div>
+                                  <h4 className='font-medium'>
+                                    {item.menuItem?.name || 'Menu Item'}
+                                  </h4>
+                                  <p className='text-sm text-gray-500'>
+                                    {item.menuItem?.description}
+                                  </p>
+                                </div>
+                                <span className='font-medium'>
+                                  {company?.currency || '$'}
+                                  {item.price}
+                                </span>
                               </div>
-                              <span className='font-medium'>
-                                {company?.currency || '$'}
-                                {item.price}
-                              </span>
-                            </div>
-                            <div className='flex justify-between text-sm text-gray-600'>
-                              <span>Quantity: {item.quantity}</span>
-                              <span>
+                              <div className='flex justify-between text-sm text-gray-600'>
+                                <span>Quantity: {item.quantity}</span>
+                                <span>
                                   Total: {company?.currency || '$'}
-                                {item.totalPrice}
-                              </span>
-                            </div>
-                            {item.notes && (
-                              <div className='mt-2 text-sm text-gray-600'>
-                                <span className='font-medium'>Notes: </span>
-                                {item.notes}
+                                  {item.totalPrice}
+                                </span>
                               </div>
-                            )}
-                          </div>
-                        ))}
+                              {item.notes && (
+                                <div className='mt-2 text-sm text-gray-600'>
+                                  <span className='font-medium'>Notes: </span>
+                                  {item.notes}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* Actions */}
                   <div className='pt-4 border-t'>

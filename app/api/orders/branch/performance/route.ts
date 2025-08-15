@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   if (!branchId) {
     return NextResponse.json(
       { error: 'branchId is required' },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   if (isNaN(days) || days < 1 || days > 365) {
     return NextResponse.json(
       { error: 'Period must be between 1 and 365 days' },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       const dayEnd = endOfDay(date);
 
       const dayOrders = orders.filter(
-        order => order.createdAt >= dayStart && order.createdAt <= dayEnd,
+        order => order.createdAt >= dayStart && order.createdAt <= dayEnd
       );
 
       const dayItems = dayOrders.reduce(
@@ -70,9 +70,9 @@ export async function GET(req: NextRequest) {
           sum +
           order.orderLines.reduce(
             (lineSum, line) => lineSum + (line.quantity || 0),
-            0,
+            0
           ),
-        0,
+        0
       );
 
       const daySales = dayOrders.reduce(
@@ -81,9 +81,9 @@ export async function GET(req: NextRequest) {
           order.orderLines.reduce(
             (lineSum, line) =>
               lineSum + (line.quantity || 0) * (line.price || 0),
-            0,
+            0
           ),
-        0,
+        0
       );
 
       dailyData.push({
@@ -113,13 +113,13 @@ export async function GET(req: NextRequest) {
           orders: Number((orders.length / days).toFixed(1)),
           items: Number(
             (dailyData.reduce((sum, day) => sum + day.items, 0) / days).toFixed(
-              1,
-            ),
+              1
+            )
           ),
           sales: Number(
             (dailyData.reduce((sum, day) => sum + day.sales, 0) / days).toFixed(
-              2,
-            ),
+              2
+            )
           ),
         },
       },
@@ -138,7 +138,7 @@ export async function GET(req: NextRequest) {
         details:
           process.env.NODE_ENV === 'development' ? error.message : undefined,
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

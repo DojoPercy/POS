@@ -39,7 +39,7 @@ export function AddressAutocomplete({
         // Remove previous listeners if any
         if (autocompleteRef.current) {
           window.google.maps.event.clearInstanceListeners(
-            autocompleteRef.current,
+            autocompleteRef.current
           );
         }
 
@@ -56,7 +56,7 @@ export function AddressAutocomplete({
               'place_id',
               'address_components',
             ],
-          },
+          }
         );
 
         autocompleteRef.current.addListener('place_changed', () => {
@@ -105,7 +105,7 @@ export function AddressAutocomplete({
       if (autocompleteRef.current && window.google?.maps?.event) {
         try {
           window.google.maps.event.clearInstanceListeners(
-            autocompleteRef.current,
+            autocompleteRef.current
           );
         } catch (e) {
           console.warn('Cleanup failed:', e);

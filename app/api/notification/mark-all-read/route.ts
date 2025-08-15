@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     console.error('Error marking all notifications as read:', error);
     return NextResponse.json(
       { error: 'Failed to mark notifications as read' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

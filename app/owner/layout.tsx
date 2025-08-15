@@ -101,7 +101,9 @@ export default function OwnerLayout({
               <SidebarInset className='flex flex-col flex-1 min-w-0'>
                 <SidebarHeaderComponent />
                 <main className='flex-1 overflow-auto bg-slate-50 p-4 md:p-6'>
-                  <div className={`${montserrat.variable} ${outfit.variable} font-montserrat max-w-full`}>
+                  <div
+                    className={`${montserrat.variable} ${outfit.variable} font-montserrat max-w-full`}
+                  >
                     <ErrorBoundary>{children}</ErrorBoundary>
                   </div>
                 </main>

@@ -6,7 +6,6 @@ export default function SidebarField({
   columnName,
   iconName,
   iconProp,
-  iconViewbox = '0 0 512 512',
   loading,
   handleChange,
   disabled,

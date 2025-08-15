@@ -121,7 +121,7 @@ export default function ManagerProfile() {
   const [user, setUser] = useState<ManagerUser | null>(null);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [branchSummary, setBranchSummary] = useState<BranchSummary | null>(
-    null,
+    null
   );
   const [isLoading, setIsLoading] = useState(true);
   const [summaryLoading, setSummaryLoading] = useState(true);
@@ -144,7 +144,7 @@ export default function ManagerProfile() {
         const to = format(toDate, 'yyyy-MM-dd');
 
         const response = await fetch(
-          `/api/orders/branch?branchId=${targetBranchId}&from=${from}&to=${to}`,
+          `/api/orders/branch?branchId=${targetBranchId}&from=${from}&to=${to}`
         );
 
         if (response.ok) {
@@ -168,7 +168,7 @@ export default function ManagerProfile() {
         setSummaryLoading(false);
       }
     },
-    [toast],
+    [toast]
   );
 
   const handleDateRangeChange = (newDateRange: DateRange | undefined) => {
@@ -180,7 +180,7 @@ export default function ManagerProfile() {
       fetchBranchSummary(
         branchId?.toString() || user?.branchId || '',
         dateRange.from,
-        dateRange.to,
+        dateRange.to
       );
     }
   };
@@ -204,7 +204,7 @@ export default function ManagerProfile() {
         const decodedToken: DecodedToken = jwtDecode(token);
         const userDetails = await getUserById(decodedToken.userId ?? '');
         const branchDetails = await getBranchById(
-          (branchId?.toString() || decodedToken.branchId) ?? '',
+          (branchId?.toString() || decodedToken.branchId) ?? ''
         );
 
         setUser(userDetails);
@@ -215,7 +215,7 @@ export default function ManagerProfile() {
           fetchBranchSummary(
             (branchId?.toString() || decodedToken.branchId) ?? '',
             dateRange.from,
-            dateRange.to,
+            dateRange.to
           );
         }
       } catch (error) {
@@ -238,7 +238,7 @@ export default function ManagerProfile() {
       fetchBranchSummary(
         branchId?.toString() || user?.branchId || '',
         dateRange.from,
-        dateRange.to,
+        dateRange.to
       );
     }
   }, [dateRange, user, branchId, fetchBranchSummary]);
@@ -475,7 +475,7 @@ export default function ManagerProfile() {
                         Last updated:{' '}
                         {format(
                           new Date(branchSummary.lastUpdated),
-                          'MMM dd, yyyy \'at\' HH:mm',
+                          "MMM dd, yyyy 'at' HH:mm"
                         )}
                       </p>
                     )}
@@ -556,7 +556,7 @@ export default function ManagerProfile() {
                                 .waiterName || 'Unknown'}{' '}
                               - $
                               {branchSummary.topPerformers.topWaiter.amount.toFixed(
-                                2,
+                                2
                               )}
                             </p>
                           </div>
@@ -573,9 +573,9 @@ export default function ManagerProfile() {
                             <p className='text-sm text-gray-600'>
                               {format(
                                 new Date(
-                                  branchSummary.topPerformers.busiestDay.date,
+                                  branchSummary.topPerformers.busiestDay.date
                                 ),
-                                'MMM dd, yyyy',
+                                'MMM dd, yyyy'
                               )}{' '}
                               - {branchSummary.topPerformers.busiestDay.orders}{' '}
                               orders
@@ -594,13 +594,13 @@ export default function ManagerProfile() {
                             <p className='text-sm text-gray-600'>
                               {format(
                                 new Date(
-                                  branchSummary.topPerformers.highestSalesDay.date,
+                                  branchSummary.topPerformers.highestSalesDay.date
                                 ),
-                                'MMM dd, yyyy',
+                                'MMM dd, yyyy'
                               )}{' '}
                               - $
                               {branchSummary.topPerformers.highestSalesDay.amount.toFixed(
-                                2,
+                                2
                               )}
                             </p>
                           </div>

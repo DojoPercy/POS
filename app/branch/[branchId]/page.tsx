@@ -50,7 +50,7 @@ export default function BranchStatistics() {
   });
 
   const [selectedHeader, setSelectedHeader] = useState<StatisticHeaderDef>(
-    StatisticHeaders[0],
+    StatisticHeaders[0]
   );
   const [headerData, setHeaderData] = useState<number[]>([]);
   const [graphData, setGraphData] = useState<GraphDataDef>({});
@@ -96,7 +96,7 @@ export default function BranchStatistics() {
             const headerValue = await header.call(
               date.from,
               date.to,
-              branchId.toString(),
+              branchId.toString()
             );
             headerContent.push(headerValue);
           }
@@ -108,7 +108,7 @@ export default function BranchStatistics() {
             graphContent[fn.index] = await fn.call(
               date.from,
               date.to,
-              branchId.toString(),
+              branchId.toString()
             );
           }
         }
@@ -118,7 +118,7 @@ export default function BranchStatistics() {
           tableValue = await getOrderSummaryByDateRange(
             date.from,
             date.to,
-            branchId.toString(),
+            branchId.toString()
           );
         }
 
@@ -130,7 +130,7 @@ export default function BranchStatistics() {
           title: 'Data Updated',
           description: `Statistics loaded for ${format(date?.from || new Date(), 'MMM dd')} - ${format(
             date?.to || new Date(),
-            'MMM dd, yyyy',
+            'MMM dd, yyyy'
           )}`,
         });
       } catch (error) {

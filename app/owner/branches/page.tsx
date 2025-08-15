@@ -297,7 +297,7 @@ export default function BranchManagement() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [selectedBranchForQR, setSelectedBranchForQR] = useState<Branch | null>(
-    null,
+    null
   );
 
   // Memoized filtered branches
@@ -325,7 +325,7 @@ export default function BranchManagement() {
 
       try {
         const response = await axios.get(
-          `/api/branches?companyId=${companyId}`,
+          `/api/branches?companyId=${companyId}`
         );
 
         // Add mock data for demo purposes
@@ -335,7 +335,7 @@ export default function BranchManagement() {
             employeeCount: Math.floor(Math.random() * 50) + 10,
             rating: (Math.random() * 2 + 3).toFixed(1),
             image: 'https://via.placeholder.com/300x200',
-          }),
+          })
         );
 
         setBranches(branchesWithMockData);
@@ -354,7 +354,7 @@ export default function BranchManagement() {
         setLoading(false);
       }
     },
-    [clearError, handleError, toast],
+    [clearError, handleError, toast]
   );
 
   // Initialize component
@@ -400,7 +400,7 @@ export default function BranchManagement() {
         });
       }
     },
-    [toast],
+    [toast]
   );
 
   const handleBranchCreated = useCallback(
@@ -412,15 +412,15 @@ export default function BranchManagement() {
         description: 'Branch created successfully',
       });
     },
-    [toast],
+    [toast]
   );
 
   const handleBranchUpdated = useCallback(
     (updatedBranch: Branch) => {
       setBranches(prev =>
         prev.map(branch =>
-          branch.id === updatedBranch.id ? updatedBranch : branch,
-        ),
+          branch.id === updatedBranch.id ? updatedBranch : branch
+        )
       );
       setEditDialogOpen(false);
       setSelectedBranch(null);
@@ -429,7 +429,7 @@ export default function BranchManagement() {
         description: 'Branch updated successfully',
       });
     },
-    [toast],
+    [toast]
   );
 
   const handleShowQRCode = useCallback((branch: Branch) => {
@@ -626,7 +626,7 @@ export default function BranchManagement() {
                 onDelete={handleDelete}
                 onShowQR={handleShowQRCode}
               />
-            ),
+            )
           )}
         </div>
       )}

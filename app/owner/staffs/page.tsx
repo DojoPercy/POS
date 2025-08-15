@@ -16,7 +16,6 @@ import {
   Grid,
   List,
   Building2,
-  Calendar,
   UserPlus,
   AlertCircle,
   CheckCircle,
@@ -56,7 +55,6 @@ import { useErrorHandler } from '@/components/error-boundary';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { jwtDecode } from 'jwt-decode';
-import ShiftTimetable from './shifttimetable';
 
 interface User {
   id: string;
@@ -461,9 +459,7 @@ export default function StaffManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBranch, setSelectedBranch] = useState<string>('all');
   const [selectedRole, setSelectedRole] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'cards' | 'branches' | 'schedule'>(
-    'cards',
-  );
+  const [viewMode, setViewMode] = useState<'cards' | 'branches'>('cards');
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -510,7 +506,7 @@ export default function StaffManagement() {
       const token = localStorage.getItem('token');
       if (!token) {
         handleError(
-          new Error('Authentication token not found. Please log in again.'),
+          new Error('Authentication token not found. Please log in again.')
         );
         setLoading(false);
         return;
@@ -569,13 +565,13 @@ export default function StaffManagement() {
         });
       }
     },
-    [toast],
+    [toast]
   );
 
   const handleUserUpdated = useCallback(
     (updatedUser: User) => {
       setUsers(prev =>
-        prev.map(user => (user.id === updatedUser.id ? updatedUser : user)),
+        prev.map(user => (user.id === updatedUser.id ? updatedUser : user))
       );
       setEditDialogOpen(false);
       setSelectedUser(null);
@@ -584,7 +580,7 @@ export default function StaffManagement() {
         description: 'Staff member updated successfully',
       });
     },
-    [toast],
+    [toast]
   );
 
   // Statistics - now branch-specific
@@ -599,9 +595,9 @@ export default function StaffManagement() {
     const avgPerformance =
       relevantUsers.length > 0
         ? (
-          relevantUsers.reduce((sum, u) => sum + (u.performance || 0), 0) /
+            relevantUsers.reduce((sum, u) => sum + (u.performance || 0), 0) /
             relevantUsers.filter(u => u.performance).length
-        ).toFixed(1)
+          ).toFixed(1)
         : '0.0';
     const branchesWithStaff =
       selectedBranch === 'all'
@@ -786,22 +782,12 @@ export default function StaffManagement() {
             >
               <Building2 className='h-4 w-4' />
             </Button>
-            <Button
-              variant={viewMode === 'schedule' ? 'default' : 'ghost'}
-              size='sm'
-              onClick={() => setViewMode('schedule')}
-              className='rounded-l-none'
-            >
-              <Calendar className='h-4 w-4' />
-            </Button>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      {viewMode === 'schedule' ? (
-        <ShiftTimetable />
-      ) : viewMode === 'cards' ? (
+      {viewMode === 'cards' ? (
         <div>
           <div className='flex items-center justify-between mb-6'>
             <h2 className='text-xl font-semibold text-slate-900'>

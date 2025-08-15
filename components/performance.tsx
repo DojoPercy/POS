@@ -46,7 +46,7 @@ export function BranchPerformanceChart({
         const performanceData = await fetchBranchPerformance(
           branchId,
           selectedPeriod,
-          selectedMetric,
+          selectedMetric
         );
         setData(performanceData);
       } catch (error) {

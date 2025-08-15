@@ -8,7 +8,7 @@ export async function getCompany(companyId: string) {
   } else {
     url = new URL(
       '/api/company',
-      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     ).toString();
   }
 
@@ -21,16 +21,17 @@ export async function getCompany(companyId: string) {
 
 export async function updateCompanyDetails(
   companyId: string,
-  updatedCompany: Company,
+  updatedCompany: Company
 ) {
-  console.log(companyId, updatedCompany)
+  console.log(companyId, updatedCompany);
   let url: string;
   if (typeof window !== 'undefined') {
     url = '/api/company';
   } else {
     url = new URL(
       '/api/company',
-      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     ).toString();
   }
+  console.log(url);
 }

@@ -43,7 +43,7 @@ export function ExpensesList() {
 
   const dispatch = useDispatch<AppDispatch>();
   const { expenses, status, error } = useSelector(
-    (state: RootState) => state.expenses,
+    (state: RootState) => state.expenses
   );
   const { company, isLoading } = useSelector(selectCompany);
 

@@ -45,44 +45,44 @@ export default function OrderCard({
   }, [dispatch, user?.companyId]);
   const getStatusBadge = (status: string) => {
     switch (status) {
-    case OrderStatus.PENDING:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-yellow-100 text-yellow-800 border-yellow-300'
-        >
+      case OrderStatus.PENDING:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-yellow-100 text-yellow-800 border-yellow-300'
+          >
             New
-        </Badge>
-      );
-    case OrderStatus.PROCESSING:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-blue-100 text-blue-800 border-blue-300'
-        >
+          </Badge>
+        );
+      case OrderStatus.PROCESSING:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-blue-100 text-blue-800 border-blue-300'
+          >
             Processing
-        </Badge>
-      );
-    case OrderStatus.COMPLETED:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-green-100 text-green-800 border-green-300'
-        >
+          </Badge>
+        );
+      case OrderStatus.COMPLETED:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-green-100 text-green-800 border-green-300'
+          >
             Completed
-        </Badge>
-      );
-    case OrderStatus.PAID:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-purple-100 text-purple-800 border-purple-300'
-        >
+          </Badge>
+        );
+      case OrderStatus.PAID:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-purple-100 text-purple-800 border-purple-300'
+          >
             Paid
-        </Badge>
-      );
-    default:
-      return <Badge variant='outline'>{status}</Badge>;
+          </Badge>
+        );
+      default:
+        return <Badge variant='outline'>{status}</Badge>;
     }
   };
 
@@ -101,7 +101,7 @@ export default function OrderCard({
     return order.orderLines
       .reduce((acc, line) => {
         const menuItem = menuItems.find(
-          (item: MenuItem) => item.id === line.menuItemId,
+          (item: MenuItem) => item.id === line.menuItemId
         );
         return (
           acc +

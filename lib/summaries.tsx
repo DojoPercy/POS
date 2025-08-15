@@ -14,7 +14,7 @@ export interface BranchSalesSummary {
 export async function getSalesSummaryOfBranches(
   from: Date,
   to: Date,
-  companyId: string,
+  companyId: string
 ): Promise<BranchSalesSummary[]> {
   try {
     const queryParams = new URLSearchParams();
@@ -46,7 +46,7 @@ export async function getProfitSummaryByDateRange(
   from: Date,
   to: Date,
   branchId: string | undefined,
-  companyId: string | undefined,
+  companyId: string | undefined
 ) {
   try {
     const queryParams = new URLSearchParams();
@@ -57,7 +57,7 @@ export async function getProfitSummaryByDateRange(
       queryParams.append('to', to.toISOString());
     }
     const summary: Summary = await fetch(
-      '/api/summary/expense_revenue?' + queryParams.toString(),
+      '/api/summary/expense_revenue?' + queryParams.toString()
     ).then(res => res.json());
     console.log('Profit Summary:', summary);
     return summary;
@@ -71,7 +71,7 @@ export async function getTopMenusByDateRange(
   from: Date,
   to: Date,
   branchId: string | undefined,
-  companyId: string | undefined,
+  companyId: string | undefined
 ) {
   try {
     const queryParams = new URLSearchParams();
@@ -82,7 +82,7 @@ export async function getTopMenusByDateRange(
       queryParams.append('toDate', to.toISOString());
     }
     const topMenus = await fetch(
-      '/api/summary/menuitems?' + queryParams.toString(),
+      '/api/summary/menuitems?' + queryParams.toString()
     ).then(res => res.json());
     console.log('Top Menus:', topMenus);
     return topMenus;

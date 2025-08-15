@@ -148,8 +148,8 @@ export default function UsersPage() {
       await axios.put(`/api/users/${userId}`, { status: newStatus });
       setUsers(prev =>
         prev.map(user =>
-          user.id === userId ? { ...user, status: newStatus } : user,
-        ),
+          user.id === userId ? { ...user, status: newStatus } : user
+        )
       );
       toast({
         title: 'Success',
@@ -179,16 +179,16 @@ export default function UsersPage() {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-    case 'owner':
-      return 'bg-purple-100 text-purple-800';
-    case 'manager':
-      return 'bg-blue-100 text-blue-800';
-    case 'waiter':
-      return 'bg-green-100 text-green-800';
-    case 'kitchen':
-      return 'bg-orange-100 text-orange-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
+      case 'owner':
+        return 'bg-purple-100 text-purple-800';
+      case 'manager':
+        return 'bg-blue-100 text-blue-800';
+      case 'waiter':
+        return 'bg-green-100 text-green-800';
+      case 'kitchen':
+        return 'bg-orange-100 text-orange-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 

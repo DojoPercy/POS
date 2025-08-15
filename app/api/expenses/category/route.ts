@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     console.error('Error fetching categories:', error);
     return NextResponse.json(
       { error: 'Error fetching categories' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -55,14 +55,14 @@ export async function POST(request: Request) {
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'A category with this name already exists' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     console.error('Error creating category:', error);
     return NextResponse.json(
       { error: 'Error creating category' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

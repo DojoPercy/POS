@@ -76,7 +76,7 @@ export default function AddMenuItemForm({
 }) {
   const dispatch = useDispatch();
   const { categories, status, error } = useSelector(
-    (state: any) => state.menuCategories,
+    (state: any) => state.menuCategories
   );
 
   const [formData, setFormData] = useState<MenuItemFormData>({
@@ -129,7 +129,7 @@ export default function AddMenuItemForm({
   const handlePriceChange = (
     index: number,
     field: 'name' | 'price',
-    value: string,
+    value: string
   ) => {
     setFormData(prev => {
       const updatedPrices = [...prev.prices];
@@ -191,13 +191,13 @@ export default function AddMenuItemForm({
     setFormData(prev => ({
       ...prev,
       ingredients: prev.ingredients.map(i =>
-        i.id === id ? { ...i, amount } : i,
+        i.id === id ? { ...i, amount } : i
       ),
     }));
   };
 
   const filteredIngredients = availableIngredients.filter(ingredient =>
-    ingredient.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    ingredient.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -261,7 +261,7 @@ export default function AddMenuItemForm({
               ingredientId: ingredient.id,
               amount: ingredient.amount,
             }),
-          }),
+          })
         );
 
         await Promise.all(ingredientPromises);
@@ -285,7 +285,7 @@ export default function AddMenuItemForm({
       onAddItem();
     } catch (err: any) {
       setFormError(
-        err.message || 'An error occurred while adding the menu item',
+        err.message || 'An error occurred while adding the menu item'
       );
     } finally {
       setLoading(false);
@@ -457,7 +457,7 @@ export default function AddMenuItemForm({
                                 handlePriceChange(
                                   index,
                                   'price',
-                                  e.target.value,
+                                  e.target.value
                                 )
                               }
                               className='border-slate-300'
@@ -547,11 +547,11 @@ export default function AddMenuItemForm({
                                     size='sm'
                                     onClick={() => addIngredient(ingredient)}
                                     disabled={formData.ingredients.some(
-                                      i => i.id === ingredient.id,
+                                      i => i.id === ingredient.id
                                     )}
                                   >
                                     {formData.ingredients.some(
-                                      i => i.id === ingredient.id,
+                                      i => i.id === ingredient.id
                                     )
                                       ? 'Added'
                                       : 'Add'}
@@ -605,7 +605,7 @@ export default function AddMenuItemForm({
                                       onClick={() =>
                                         updateIngredientAmount(
                                           ingredient.id,
-                                          ingredient.amount - 1,
+                                          ingredient.amount - 1
                                         )
                                       }
                                       disabled={ingredient.amount <= 1}
@@ -619,7 +619,7 @@ export default function AddMenuItemForm({
                                       onChange={e =>
                                         updateIngredientAmount(
                                           ingredient.id,
-                                          Number(e.target.value),
+                                          Number(e.target.value)
                                         )
                                       }
                                       className='w-20 text-center border-slate-300'
@@ -632,7 +632,7 @@ export default function AddMenuItemForm({
                                       onClick={() =>
                                         updateIngredientAmount(
                                           ingredient.id,
-                                          ingredient.amount + 1,
+                                          ingredient.amount + 1
                                         )
                                       }
                                     >

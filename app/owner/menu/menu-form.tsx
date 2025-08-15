@@ -39,7 +39,7 @@ const formSchema = z.object({
       z.object({
         name: z.string().min(1, 'Price option name is required'),
         price: z.number().min(0, 'Price must be positive'),
-      }),
+      })
     )
     .min(1, 'At least one price option is required'),
 });
@@ -56,11 +56,11 @@ export default function MenuItemForm({
   isEdit = false,
 }: MenuItemFormProps) {
   const [ingredients, setIngredients] = useState<string[]>(
-    item?.ingredients || [],
+    item?.ingredients || []
   );
   const [newIngredient, setNewIngredient] = useState('');
   const [priceOptions, setPriceOptions] = useState(
-    item?.priceOptions || [{ name: 'Regular', price: 0 }],
+    item?.priceOptions || [{ name: 'Regular', price: 0 }]
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
@@ -109,7 +109,7 @@ export default function MenuItemForm({
   const removePriceOption = (index: any) => {
     if (priceOptions.length > 1) {
       const newOptions = priceOptions.filter(
-        (_: any, i: number) => i !== index,
+        (_: any, i: number) => i !== index
       );
       setPriceOptions(newOptions);
       form.setValue('priceOptions', newOptions);
@@ -119,7 +119,7 @@ export default function MenuItemForm({
   const updatePriceOption = (
     index: any,
     field: 'name' | 'price',
-    value: string | number,
+    value: string | number
   ) => {
     const newOptions = [...priceOptions];
     newOptions[index] = { ...newOptions[index], [field]: value };
@@ -141,7 +141,7 @@ export default function MenuItemForm({
       console.log('Submitting:', payload);
 
       toast.success(
-        `Menu item ${isEdit ? 'updated' : 'created'} successfully!`,
+        `Menu item ${isEdit ? 'updated' : 'created'} successfully!`
       );
       onSuccess();
     } catch (error) {
@@ -300,7 +300,7 @@ export default function MenuItemForm({
                   name: string | number | readonly string[] | undefined;
                   price: string | number | readonly string[] | undefined;
                 },
-                index: Key | null | undefined,
+                index: Key | null | undefined
               ) => (
                 <div key={index} className='flex gap-3 items-end'>
                   <div className='flex-1'>
@@ -324,7 +324,7 @@ export default function MenuItemForm({
                         updatePriceOption(
                           index,
                           'price',
-                          Number.parseFloat(e.target.value) || 0,
+                          Number.parseFloat(e.target.value) || 0
                         )
                       }
                     />
@@ -341,7 +341,7 @@ export default function MenuItemForm({
                     </Button>
                   )}
                 </div>
-              ),
+              )
             )}
           </div>
         </div>

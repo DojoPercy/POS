@@ -8,7 +8,6 @@ interface UserJwtPayload {
   iat: number;
 }
 
-
 export const getJwtSecretKey = () => {
   const secret = process.env.JWT_SECRET_KEY;
 
@@ -59,7 +58,7 @@ export const verifyToken = async (token: string) => {
   try {
     const verified = await jwtVerify(
       token,
-      new TextEncoder().encode(getJwtSecretKey()),
+      new TextEncoder().encode(getJwtSecretKey())
     );
     return verified.payload as UserJwtPayload;
   } catch (error) {

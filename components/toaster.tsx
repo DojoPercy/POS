@@ -1,7 +1,6 @@
 'use client';
 
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { Toast } from '@radix-ui/react-toast';
 
 export function Toaster() {

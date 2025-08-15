@@ -21,7 +21,7 @@ export function ProgressDot({
           'bg-green-500': completed,
           'bg-gray-300 dark:bg-gray-600': !active && !completed,
         },
-        className,
+        className
       )}
     />
   );
@@ -47,7 +47,7 @@ export function StepTitle({
           'text-green-500': completed,
           'text-gray-500 dark:text-gray-400': !active && !completed,
         },
-        className,
+        className
       )}
     >
       {children}

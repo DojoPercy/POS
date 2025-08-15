@@ -8,7 +8,7 @@ function calculateDistance(
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number,
+  lon2: number
 ): number {
   const R = 6371e3; // Earth's radius in meters
   const φ1 = (lat1 * Math.PI) / 180;
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     if (!branchId || !email) {
       return NextResponse.json(
         { error: 'Branch ID and email are required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching attendance:', error);
     return NextResponse.json(
       { error: 'Failed to fetch attendance' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     if (!branchId || !email || !action) {
       return NextResponse.json(
         { error: 'Branch ID, email, and action are required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
         branch.latitude,
         branch.longitude,
         latitude,
-        longitude,
+        longitude
       );
 
       // Check if user is within 100 meters of the branch
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
             distance: Math.round(distance),
             maxDistance,
           },
-          { status: 400 },
+          { status: 400 }
         );
       }
     }
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
       if (attendance && attendance.signInTime) {
         return NextResponse.json(
           { error: 'Already signed in for today' },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -219,14 +219,14 @@ export async function POST(request: NextRequest) {
       if (!attendance || !attendance.signInTime) {
         return NextResponse.json(
           { error: 'Must sign in first' },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
       if (attendance.signOutTime) {
         return NextResponse.json(
           { error: 'Already signed out for today' },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -276,7 +276,7 @@ export async function POST(request: NextRequest) {
     console.error('Error processing attendance:', error);
     return NextResponse.json(
       { error: 'Failed to process attendance' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

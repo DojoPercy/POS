@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   if (!id) {
     return NextResponse.json(
       { error: 'branchId, companyId, or waiterId is required' },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
       // Group ingredient deductions by ingredientId and branchId
       const ingredientDeductions = new Map<string, number>(); // Key: `${ingredientId}-${branchId}`, Value: totalDeductQty
       console.log('Deducting inventory for order:', newOrder.id);
-      
+
       for (const line of newOrder.orderLines) {
         // Since orderLines from Prisma do not include orderType or ingredientId,
         // we infer orderType based on the presence of ingredientId.
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
           const key = `${line.ingredientId}-${branchId}`;
           ingredientDeductions.set(
             key,
-            (ingredientDeductions.get(key) || 0) + deductQty,
+            (ingredientDeductions.get(key) || 0) + deductQty
           );
         } else {
           // Menu item order - deduct ingredients based on recipe
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
             const key = `${ingredient.ingredientId}-${branchId}`;
             ingredientDeductions.set(
               key,
-              (ingredientDeductions.get(key) || 0) + deductQty,
+              (ingredientDeductions.get(key) || 0) + deductQty
             );
           }
         }
@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
               },
             },
           });
-        },
+        }
       );
 
       // Run all inventory updates in a single transaction

@@ -132,7 +132,7 @@ export default function NotificationsPage() {
         return;
       }
       const response = await fetch(
-        `/api/branches?companyId=${decodedToken.companyId}`,
+        `/api/branches?companyId=${decodedToken.companyId}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -150,7 +150,7 @@ export default function NotificationsPage() {
         return;
       }
       const response = await fetch(
-        `/api/users?companyId=${decodedToken.companyId}`,
+        `/api/users?companyId=${decodedToken.companyId}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -283,7 +283,7 @@ export default function NotificationsPage() {
               ],
               {
                 className: `h-3 w-3 ${row.original.isRead ? 'text-gray-600' : 'text-blue-600'}`,
-              },
+              }
             )}
           </div>
           <span
@@ -452,7 +452,7 @@ export default function NotificationsPage() {
                     ],
                     {
                       className: `h-4 w-4 ${selectedNotification.isRead ? 'text-gray-600' : 'text-blue-600'}`,
-                    },
+                    }
                   )}
                 </div>
                 <div>
@@ -498,7 +498,7 @@ export default function NotificationsPage() {
                   <p className='text-gray-600'>
                     {format(
                       new Date(selectedNotification.createdAt),
-                      'MMM d, yyyy \'at\' h:mm a',
+                      "MMM d, yyyy 'at' h:mm a"
                     )}
                   </p>
                 </div>
@@ -508,7 +508,7 @@ export default function NotificationsPage() {
                     <p className='text-gray-600'>
                       {format(
                         new Date(selectedNotification.expiresAt),
-                        'MMM d, yyyy \'at\' h:mm a',
+                        "MMM d, yyyy 'at' h:mm a"
                       )}
                     </p>
                   </div>

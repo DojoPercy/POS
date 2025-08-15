@@ -57,7 +57,7 @@ export default function AttendanceManagement({
   >([]);
   const [loading, setLoading] = useState(true);
   const [selectedBranch, setSelectedBranch] = useState<string>(
-    branchId || 'all',
+    branchId || 'all'
   );
 
   useEffect(() => {

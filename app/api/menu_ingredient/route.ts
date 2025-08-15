@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     }
     return NextResponse.json(
       { message: 'No id or companyId provided' },
-      { status: 400 },
+      { status: 400 }
     );
   } catch (error) {
     console.log(error);

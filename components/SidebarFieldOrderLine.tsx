@@ -42,7 +42,7 @@ export default function SidebarFieldOrderLine({
               </span>
               <span className='my-auto w-2/5 text-right border-l-2 border-l-zinc-300'>
                 {Intl.NumberFormat('id').format(
-                  row.sellUnitPrice * row.quantity,
+                  row.sellUnitPrice * row.quantity
                 )}
               </span>
             </div>
@@ -74,10 +74,10 @@ export default function SidebarFieldOrderLine({
           <span className='ml-auto my-auto'>
             {!loading && Object.keys(data).length !== 0
               ? Intl.NumberFormat('id').format(
-                data.orderTotal -
+                  data.orderTotal -
                     (data.discount ? data.discount : 0) +
-                    (data.rounding ? data.rounding : 0),
-              )
+                    (data.rounding ? data.rounding : 0)
+                )
               : '0'}
           </span>
         </div>

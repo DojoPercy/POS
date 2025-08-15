@@ -79,14 +79,14 @@ export function NotificationBell() {
 
       const decodedToken: DecodedToken = jwtDecode(token);
       const response = await fetch(
-        `/api/notification?userId=${decodedToken.userId}`,
+        `/api/notification?userId=${decodedToken.userId}`
       );
 
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.data || []);
         setUnreadCount(
-          data.data?.filter((n: Notification) => !n.isRead).length || 0,
+          data.data?.filter((n: Notification) => !n.isRead).length || 0
         );
       }
     } catch (error) {
@@ -101,7 +101,7 @@ export function NotificationBell() {
 
       const decodedToken: DecodedToken = jwtDecode(token);
       const response = await fetch(
-        `/api/notification/unread-count?userId=${decodedToken.userId}`,
+        `/api/notification/unread-count?userId=${decodedToken.userId}`
       );
 
       if (response.ok) {
@@ -129,8 +129,8 @@ export function NotificationBell() {
         if (response.ok) {
           setNotifications(prev =>
             prev.map(n =>
-              n.id === notificationId ? { ...n, isRead: true } : n,
-            ),
+              n.id === notificationId ? { ...n, isRead: true } : n
+            )
           );
           setUnreadCount(prev => Math.max(0, prev - 1));
           toast({
@@ -147,7 +147,7 @@ export function NotificationBell() {
         });
       }
     },
-    [toast],
+    [toast]
   );
 
   const markAllAsRead = useCallback(async () => {
@@ -200,7 +200,7 @@ export function NotificationBell() {
           setNotifications(prev => prev.filter(n => n.id !== notificationId));
           setUnreadCount(prev => {
             const notification = notifications.find(
-              n => n.id === notificationId,
+              n => n.id === notificationId
             );
             return notification && !notification.isRead
               ? Math.max(0, prev - 1)
@@ -220,7 +220,7 @@ export function NotificationBell() {
         });
       }
     },
-    [notifications, toast],
+    [notifications, toast]
   );
 
   useEffect(() => {
@@ -359,7 +359,7 @@ export function NotificationBell() {
                               <span>
                                 {format(
                                   new Date(notification.createdAt),
-                                  'MMM d, h:mm a',
+                                  'MMM d, h:mm a'
                                 )}
                               </span>
                               {notification.company && (

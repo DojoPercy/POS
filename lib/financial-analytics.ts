@@ -48,7 +48,9 @@ export class FinancialAnalyticsService {
     const response = await fetch(`/api/summary/financial-analytics?${params}`);
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch financial analytics: ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch financial analytics: ${response.statusText}`
+      );
     }
 
     return response.json();

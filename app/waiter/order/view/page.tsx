@@ -80,7 +80,7 @@ export default function Orders() {
       branchName: order.branch?.name ?? 'N/A',
     }))
     .filter((order: OrderType) =>
-      showCompleted ? true : !(order.orderStatus === OrderStatus.PAID),
+      showCompleted ? true : !(order.orderStatus === OrderStatus.PAID)
     )
     .filter((order: OrderType) => {
       if (dateRange?.from && dateRange?.to) {
@@ -94,7 +94,7 @@ export default function Orders() {
         ? order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           order.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           order.branchName?.toLowerCase().includes(searchTerm.toLowerCase())
-        : true,
+        : true
     );
 
   return (

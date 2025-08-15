@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     console.error('Error getting unread count:', error);
     return NextResponse.json(
       { error: 'Failed to get unread count' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -1,16 +1,12 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import {  Building2, LogOut, Menu, Search, User } from 'lucide-react';
+import { Building2, LogOut, Menu, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchUserFromToken,
-  logoutUser,
-  selectUser,
-} from '@/redux/authSlice';
+import { fetchUserFromToken, logoutUser, selectUser } from '@/redux/authSlice';
 import type { RootState } from '@/redux';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -55,13 +51,13 @@ export function SidebarHeaderComponent() {
     const fetchBranches = async () => {
       try {
         const response = await axios.get(
-          `/api/branches?companyId=${user?.companyId}`,
+          `/api/branches?companyId=${user?.companyId}`
         );
         setBranches(response.data);
       } catch (err: any) {
         console.error(
           'Failed to fetch branches:',
-          err.response?.data?.error || err.message,
+          err.response?.data?.error || err.message
         );
       }
     };

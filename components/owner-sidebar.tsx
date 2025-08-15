@@ -15,10 +15,6 @@ import {
   Users,
   BarChart3,
   Bell,
-  Crown,
-  TrendingUp,
-  Store,
-  FileText,
   Shield,
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -177,9 +173,14 @@ export function SideBarOwner() {
           {/* Enhanced ChainPOS Logo */}
 
           <div className='flex items-center justify-center'>
-          <Image src='/pos_final.png' alt='ChainPOS Logo' width={108} height={108} />
+            <Image
+              src='/pos_final.png'
+              alt='ChainPOS Logo'
+              width={108}
+              height={108}
+            />
           </div>
-      
+
           {/* <div className='flex flex-col group-data-[collapsible=icon]:hidden'>
             <span className='text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
               ChainPOS
@@ -202,7 +203,6 @@ export function SideBarOwner() {
                   height={48}
                   className=' object-cover '
                 />
-               
               </div>
               <div className='flex flex-col flex-1 min-w-0'>
                 <span className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
@@ -211,7 +211,6 @@ export function SideBarOwner() {
                 <span className='text-xs text-gray-600 dark:text-gray-400 font-medium'>
                   Owner Dashboard
                 </span>
-                
               </div>
             </div>
           </div>
@@ -267,9 +266,9 @@ export function SideBarOwner() {
         {hasCompanies && (
           <div className='px-3 py-2'>
             <SidebarGroup>
-                          <SidebarGroupLabel className='px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
-              Business Management
-            </SidebarGroupLabel>
+              <SidebarGroupLabel className='px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+                Business Management
+              </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {businessNavItems.map(item => (
@@ -309,7 +308,7 @@ export function SideBarOwner() {
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                      
+
                       {/* Render children if they exist */}
                       {item.children && (
                         <div className='ml-4 space-y-1'>
@@ -340,8 +339,8 @@ export function SideBarOwner() {
                             </SidebarMenuItem>
                           ))}
                         </div>
-                                             )}
-                     </div>
+                      )}
+                    </div>
                   ))}
                 </SidebarMenu>
               </SidebarGroupContent>
@@ -411,7 +410,9 @@ export function SideBarOwner() {
               <p className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className='text-xs text-gray-500 dark:text-gray-400 font-medium'>Owner</p>
+              <p className='text-xs text-gray-500 dark:text-gray-400 font-medium'>
+                Owner
+              </p>
             </div>
           </div>
         </div>

@@ -98,7 +98,7 @@ const BranchStats = ({
   const prepareChartData = () => {
     const labels = branchData.map(item => item.branch);
     const values = branchData.map(item =>
-      chartType === 'sales' ? item.sales : item.revenue,
+      chartType === 'sales' ? item.sales : item.revenue
     );
     const colors = generateColors(branchData.length);
 
@@ -119,7 +119,7 @@ const BranchStats = ({
 
   const totalValue = branchData.reduce(
     (sum, item) => sum + (chartType === 'sales' ? item.sales : item.revenue),
-    0,
+    0
   );
 
   return (
@@ -196,7 +196,7 @@ const BranchStats = ({
                           const label = context.label || '';
                           const value = context.raw as number;
                           const percentage = Math.round(
-                            (value / totalValue) * 100,
+                            (value / totalValue) * 100
                           );
                           const formattedValue =
                             chartType === 'revenue'

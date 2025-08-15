@@ -98,27 +98,27 @@ export default function KitchenPage() {
   const getFilteredOrders = () => {
     if (!orders) return [];
     const filteredOrders = orders.filter(
-      (order: OrderType) => order.orderStatus !== OrderStatus.PAID,
+      (order: OrderType) => order.orderStatus !== OrderStatus.PAID
     );
     console.log(filteredOrders);
     switch (activeTab) {
-    case 'pending':
-      return orders.filter(
-        (order: OrderType) =>
-          filteredOrders.orderStatus === OrderStatus.PENDING,
-      );
-    case 'processing':
-      return orders.filter(
-        (order: OrderType) =>
-          filteredOrders.orderStatus === OrderStatus.PROCESSING,
-      );
-    case 'completed':
-      return orders.filter(
-        (order: OrderType) =>
-          filteredOrders.orderStatus === OrderStatus.COMPLETED,
-      );
-    default:
-      return filteredOrders;
+      case 'pending':
+        return orders.filter(
+          (order: OrderType) =>
+            filteredOrders.orderStatus === OrderStatus.PENDING
+        );
+      case 'processing':
+        return orders.filter(
+          (order: OrderType) =>
+            filteredOrders.orderStatus === OrderStatus.PROCESSING
+        );
+      case 'completed':
+        return orders.filter(
+          (order: OrderType) =>
+            filteredOrders.orderStatus === OrderStatus.COMPLETED
+        );
+      default:
+        return filteredOrders;
     }
   };
 

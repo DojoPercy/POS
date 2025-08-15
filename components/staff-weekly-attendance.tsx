@@ -1,22 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Calendar,
+  
   Clock,
   CheckCircle,
   XCircle,
   AlertCircle,
   User,
   MapPin,
-  TrendingUp,
+  
 } from 'lucide-react';
-import { format, startOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
+import { format, startOfWeek, addDays, parseISO } from 'date-fns';
 
 interface StaffWeeklyAttendanceProps {
   userId: string;
@@ -72,7 +72,6 @@ export function StaffWeeklyAttendance({
   branchId,
   companyId,
   staffName,
-  staffEmail,
   staffRole,
   branchName,
 }: StaffWeeklyAttendanceProps) {
@@ -118,14 +117,14 @@ export function StaffWeeklyAttendance({
       .slice(0, 2);
   };
 
-  const getStatusColor = (day: WeeklyDay) => {
-    if (!day.hasShift) return 'text-gray-400';
-    if (day.isCompleted) return 'text-green-600';
-    if (day.hasAttendance && day.attendance?.status === 'SIGNED_IN')
-      return 'text-blue-600';
-    if (day.hasShift && !day.hasAttendance) return 'text-red-600';
-    return 'text-gray-600';
-  };
+  // const getStatusColor = (day: WeeklyDay) => {
+  //   if (!day.hasShift) return 'text-gray-400';
+  //   if (day.isCompleted) return 'text-green-600';
+  //   if (day.hasAttendance && day.attendance?.status === 'SIGNED_IN')
+  //     return 'text-blue-600';
+  //   if (day.hasShift && !day.hasAttendance) return 'text-red-600';
+  //   return 'text-gray-600';
+  // };
 
   const getStatusIcon = (day: WeeklyDay) => {
     if (!day.hasShift) return null;
@@ -280,7 +279,7 @@ export function StaffWeeklyAttendance({
 
         {/* Weekly Schedule Grid */}
         <div className='grid grid-cols-7 gap-2'>
-          {weeklyData.weeklySchedule.map((day, index) => (
+          {weeklyData.weeklySchedule.map((day, ) => (
             <div
               key={day.date}
               className={`p-3 rounded-lg border ${

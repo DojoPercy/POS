@@ -4,13 +4,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  ShoppingCart,
-  Search,
-
-  LogOut,
-  User,
-} from 'lucide-react';
+import { ShoppingCart, Search, LogOut, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Breadcrumb,

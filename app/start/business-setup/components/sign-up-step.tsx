@@ -172,7 +172,7 @@ export function SignUpStep({
 
   const handleOtpKeyDown = (
     index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
+    e: React.KeyboardEvent<HTMLInputElement>
   ) => {
     // Handle backspace to go to previous input
     if (e.key === 'Backspace' && !otp[index] && index > 0) {

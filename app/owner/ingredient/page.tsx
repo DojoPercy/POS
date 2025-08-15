@@ -38,7 +38,7 @@ export default function IngredientsPage() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `/api/ingredient?companyId=${user.companyId}`,
+        `/api/ingredient?companyId=${user.companyId}`
       );
       if (!response.ok) throw new Error('Failed to fetch ingredients');
       const data = await response.json();
@@ -57,7 +57,7 @@ export default function IngredientsPage() {
   }, [fetchIngredients, user?.companyId]);
 
   const filteredIngredients = ingredients.filter((ingredient: any) =>
-    ingredient.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    ingredient.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (

@@ -4,7 +4,7 @@ import { NotificationService } from '@/lib/notification-service';
 // PUT - Update notification (mark as read)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params;
@@ -14,7 +14,7 @@ export async function PUT(
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -31,7 +31,7 @@ export async function PUT(
     console.error('Error updating notification:', error);
     return NextResponse.json(
       { error: 'Failed to update notification' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -39,7 +39,7 @@ export async function PUT(
 // DELETE - Delete notification
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params;
@@ -49,7 +49,7 @@ export async function DELETE(
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -63,7 +63,7 @@ export async function DELETE(
     console.error('Error deleting notification:', error);
     return NextResponse.json(
       { error: 'Failed to delete notification' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

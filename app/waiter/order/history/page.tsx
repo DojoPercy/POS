@@ -261,7 +261,7 @@ export default function OrderHistory() {
                       {
                         filteredOrders.filter(
                           (order: OrderType) =>
-                            order.orderStatus === OrderStatus.PAID,
+                            order.orderStatus === OrderStatus.PAID
                         ).length
                       }
                     </p>
@@ -286,7 +286,7 @@ export default function OrderHistory() {
                         .reduce(
                           (sum: number, order: OrderType) =>
                             sum + (order.finalPrice || 0),
-                          0,
+                          0
                         )
                         .toFixed(2)}
                     </p>
@@ -309,12 +309,12 @@ export default function OrderHistory() {
                       $
                       {filteredOrders.length > 0
                         ? (
-                          filteredOrders.reduce(
-                            (sum: number, order: OrderType) =>
-                              sum + (order.finalPrice || 0),
-                            0,
-                          ) / filteredOrders.length
-                        ).toFixed(2)
+                            filteredOrders.reduce(
+                              (sum: number, order: OrderType) =>
+                                sum + (order.finalPrice || 0),
+                              0
+                            ) / filteredOrders.length
+                          ).toFixed(2)
                         : '0.00'}
                     </p>
                   </div>

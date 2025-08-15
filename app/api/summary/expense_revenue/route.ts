@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     if (!branchId && !companyId) {
       return NextResponse.json(
         { error: 'branchId or companyId is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -25,11 +25,11 @@ export async function GET(req: NextRequest) {
         branchId: branchId || undefined,
         ...(from && to
           ? {
-            createdAt: {
-              gte: new Date(from),
-              lte: new Date(to),
-            },
-          }
+              createdAt: {
+                gte: new Date(from),
+                lte: new Date(to),
+              },
+            }
           : {}),
       },
     });
@@ -39,11 +39,11 @@ export async function GET(req: NextRequest) {
         branchId: branchId || undefined,
         ...(from && to
           ? {
-            dateAdded: {
-              gte: new Date(from),
-              lte: new Date(to),
-            },
-          }
+              dateAdded: {
+                gte: new Date(from),
+                lte: new Date(to),
+              },
+            }
           : {}),
       },
       select: {
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
 
     const totalExpense = expenses.reduce(
       (sum, expense) => sum + expense.amount * expense.quantity,
-      0,
+      0
     );
 
     const totalSummary = {

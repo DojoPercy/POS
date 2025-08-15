@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     if (!companyId) {
       return NextResponse.json(
         { error: 'Company ID is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -70,14 +70,14 @@ export async function GET(request: NextRequest) {
     // Get summary statistics
     const totalRecords = attendanceRecords.length;
     const completedShifts = attendanceRecords.filter(
-      r => r.signInTime && r.signOutTime,
+      r => r.signInTime && r.signOutTime
     ).length;
     const incompleteShifts = attendanceRecords.filter(
-      r => r.signInTime && !r.signOutTime,
+      r => r.signInTime && !r.signOutTime
     ).length;
     const totalHours = attendanceRecords.reduce(
       (sum, record) => sum + (record.totalHours || 0),
-      0,
+      0
     );
     const averageHours = totalRecords > 0 ? totalHours / completedShifts : 0;
 
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
               ? (stat._sum.totalHours || 0) / stat._count.id
               : 0,
         };
-      }),
+      })
     );
 
     // Get user-wise statistics
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
               ? (stat._sum.totalHours || 0) / stat._count.id
               : 0,
         };
-      }),
+      })
     );
 
     // Get daily attendance trends
@@ -226,7 +226,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching attendance analytics:', error);
     return NextResponse.json(
       { error: 'Failed to fetch attendance analytics' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

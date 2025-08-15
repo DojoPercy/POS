@@ -36,12 +36,12 @@ export function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
               className={`
                 flex items-center justify-center w-10 h-10 rounded-full 
                 ${
-          isActive
-            ? 'bg-primary text-white'
-            : isCompleted
-              ? 'bg-green-500 text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-          }
+                  isActive
+                    ? 'bg-primary text-white'
+                    : isCompleted
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                }
                 transition-all duration-200
               `}
             >

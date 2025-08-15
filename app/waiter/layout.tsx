@@ -16,7 +16,7 @@ export default function WaiterLayout({
 }) {
   const pathname = usePathname();
   const shouldShowOrderList = !['/waiter/order/view', '/waiter'].includes(
-    pathname,
+    pathname
   );
 
   return (

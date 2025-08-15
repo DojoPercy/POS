@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     if (!email || !otp) {
       return NextResponse.json(
         { error: 'Email and OTP are required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     if (!storedOtp) {
       return NextResponse.json(
         { error: 'OTP expired or invalid' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -34,13 +34,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       { message: 'OTP verified successfully' },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error('Error verifying OTP:', error);
     return NextResponse.json(
       { error: 'Failed to verify OTP' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

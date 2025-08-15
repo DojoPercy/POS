@@ -1,4 +1,3 @@
-
 import type { DateRange } from 'react-day-picker';
 
 export interface BranchSummary {
@@ -63,7 +62,7 @@ export interface BranchPerformance {
 
 export async function fetchBranchSummary(
   branchId: string,
-  dateRange?: DateRange,
+  dateRange?: DateRange
 ): Promise<BranchSummary> {
   const params = new URLSearchParams({ branchId });
 
@@ -87,7 +86,7 @@ export async function fetchBranchSummary(
 export async function fetchBranchPerformance(
   branchId: string,
   period = 7,
-  metric = 'sales',
+  metric = 'sales'
 ): Promise<BranchPerformance> {
   const params = new URLSearchParams({
     branchId,

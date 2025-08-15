@@ -39,9 +39,9 @@ export const RestaurantReceipt: React.FC<ReceiptProps> = ({
       : `data:image/png;base64,${company.logo}`
     : '';
 
-  const logoHTML = logoBase64
-    ? `<img id="receipt-logo" src="${logoBase64}" style="filter: grayscale(100%) contrast(200%); max-width: 100px; max-height: 100px; display: block; margin: auto; margin-bottom: 10px;" />`
-    : '';
+  // const logoHTML = logoBase64
+  //   ? `<img id="receipt-logo" src="${logoBase64}" style="filter: grayscale(100%) contrast(200%); max-width: 100px; max-height: 100px; display: block; margin: auto; margin-bottom: 10px;" />`
+  //   : '';
 
   const formatReceiptText = () => {
     let receiptText = `${company.name.toUpperCase()}\n`;
@@ -80,7 +80,7 @@ export const RestaurantReceipt: React.FC<ReceiptProps> = ({
     if (printWindow) {
       // Validate and format logo base64
       const isBase64Image = /^data:image\/[a-z]+;base64,/.test(
-        company.logo || '',
+        company.logo || ''
       );
       const logoBase64 = company.logo
         ? isBase64Image

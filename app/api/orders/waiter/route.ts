@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   if (!waiterId) {
     return NextResponse.json(
       { error: 'waiterId is required' },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
       (sum, order) =>
         sum +
         order.orderLines.reduce((lineSum, line) => lineSum + line.quantity, 0),
-      0,
+      0
     );
 
     const totalAmount = orders.reduce(
@@ -59,9 +59,9 @@ export async function GET(req: NextRequest) {
         sum +
         order.orderLines.reduce(
           (lineSum, line) => lineSum + line.price * line.quantity,
-          0,
+          0
         ),
-      0,
+      0
     );
 
     const summary = {

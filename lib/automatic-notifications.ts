@@ -16,8 +16,6 @@ interface OrderData {
   createdAt: string;
 }
 
-
-
 interface PerformanceSummary {
   totalRevenue: number;
   totalExpense: number;
@@ -35,7 +33,7 @@ export class AutomaticNotificationService {
 
       // Fetch branch performance data using your real API
       const response = await fetch(
-        `/api/summary/branches?companyId=${companyId}&fromDate=${startDate.toISOString()}&toDate=${endDate.toISOString()}`,
+        `/api/summary/branches?companyId=${companyId}&fromDate=${startDate.toISOString()}&toDate=${endDate.toISOString()}`
       );
       if (!response.ok) {
         console.error('Failed to fetch branch data:', response.statusText);
@@ -48,12 +46,12 @@ export class AutomaticNotificationService {
 
       // Find top branch by revenue
       const topRevenueBranch = branches.reduce((prev, current) =>
-        prev.revenue > current.revenue ? prev : current,
+        prev.revenue > current.revenue ? prev : current
       );
 
       // Find top branch by orders (sales)
       const topOrdersBranch = branches.reduce((prev, current) =>
-        prev.sales > current.sales ? prev : current,
+        prev.sales > current.sales ? prev : current
       );
 
       // Create notifications for top performers
@@ -61,7 +59,7 @@ export class AutomaticNotificationService {
         await NotificationUtils.createTopBranchNotification(
           { name: topRevenueBranch.branch },
           'revenue',
-          `$${topRevenueBranch.revenue.toLocaleString()}`,
+          `$${topRevenueBranch.revenue.toLocaleString()}`
         );
       }
 
@@ -69,7 +67,7 @@ export class AutomaticNotificationService {
         await NotificationUtils.createTopBranchNotification(
           { name: topOrdersBranch.branch },
           'orders',
-          `${topOrdersBranch.sales} orders`,
+          `${topOrdersBranch.sales} orders`
         );
       }
       console.log('Top branches checked');
@@ -88,7 +86,7 @@ export class AutomaticNotificationService {
 
       // Fetch recent orders using your real API
       const response = await fetch(
-        `/api/orders?companyId=${companyId}&from=${startDate.toISOString()}&to=${endDate.toISOString()}`,
+        `/api/orders?companyId=${companyId}&from=${startDate.toISOString()}&to=${endDate.toISOString()}`
       );
       if (!response.ok) {
         console.error('Failed to fetch orders:', response.statusText);
@@ -101,7 +99,7 @@ export class AutomaticNotificationService {
 
       // Find highest order by amount
       const highestOrder = orders.reduce((prev, current) =>
-        prev.totalPrice > current.totalPrice ? prev : current,
+        prev.totalPrice > current.totalPrice ? prev : current
       );
 
       // Check if this is a record-breaking order (2x above average)
@@ -116,7 +114,7 @@ export class AutomaticNotificationService {
             items: highestOrder.orderLines,
             orderNumber: highestOrder.orderNumber,
           },
-          highestOrder.branch.name,
+          highestOrder.branch.name
         );
       }
     } catch (error) {
@@ -134,7 +132,7 @@ export class AutomaticNotificationService {
 
       // Fetch attendance data using your real API
       const response = await fetch(
-        `/api/attendance/analytics?companyId=${companyId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`,
+        `/api/attendance/analytics?companyId=${companyId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
       );
       if (!response.ok) {
         console.error('Failed to fetch attendance data:', response.statusText);
@@ -149,13 +147,13 @@ export class AutomaticNotificationService {
       // Find employee with most hours worked
       const topHours = attendanceData.userStats.reduce(
         (prev: any, current: any) =>
-          prev.totalHours > current.totalHours ? prev : current,
+          prev.totalHours > current.totalHours ? prev : current
       );
 
       // Find employee with most shifts (days present)
       const topShifts = attendanceData.userStats.reduce(
         (prev: any, current: any) =>
-          prev.totalShifts > current.totalShifts ? prev : current,
+          prev.totalShifts > current.totalShifts ? prev : current
       );
 
       // Create notifications for top attendance
@@ -163,7 +161,7 @@ export class AutomaticNotificationService {
         // Threshold for perfect attendance
         await NotificationUtils.createTopAttendanceNotification(
           { fullname: topShifts.userName },
-          { daysPresent: topShifts.totalShifts },
+          { daysPresent: topShifts.totalShifts }
         );
       }
 
@@ -175,7 +173,7 @@ export class AutomaticNotificationService {
           {
             ordersProcessed: topHours.ordersProcessed || 0,
             satisfactionRating: topHours.satisfactionRating || 95,
-          },
+          }
         );
       }
     } catch (error) {
@@ -191,7 +189,7 @@ export class AutomaticNotificationService {
 
       // Fetch today's performance data using your real API
       const response = await fetch(
-        `/api/summary/expense_revenue?companyId=${companyId}&from=${todayStr}&to=${todayStr}`,
+        `/api/summary/expense_revenue?companyId=${companyId}&from=${todayStr}&to=${todayStr}`
       );
       if (!response.ok) {
         console.error('Failed to fetch daily summary:', response.statusText);
@@ -202,14 +200,14 @@ export class AutomaticNotificationService {
 
       // Get top branch for today
       const branchResponse = await fetch(
-        `/api/summary/branches?companyId=${companyId}&fromDate=${todayStr}&toDate=${todayStr}`,
+        `/api/summary/branches?companyId=${companyId}&fromDate=${todayStr}&toDate=${todayStr}`
       );
       let topBranch = 'No branches';
       if (branchResponse.ok) {
         const branches = await branchResponse.json();
         if (branches.length > 0) {
           const topBranchData = branches.reduce((prev: any, current: any) =>
-            prev.revenue > current.revenue ? prev : current,
+            prev.revenue > current.revenue ? prev : current
           );
           topBranch = topBranchData.branch;
         }
@@ -231,7 +229,7 @@ export class AutomaticNotificationService {
     try {
       // Fetch inventory data using your real API
       const response = await fetch(
-        `/api/inventory_stock?companyId=${companyId}`,
+        `/api/inventory_stock?companyId=${companyId}`
       );
       if (!response.ok) {
         console.error('Failed to fetch inventory data:', response.statusText);
@@ -270,7 +268,7 @@ export class AutomaticNotificationService {
 
       // Fetch sales data using your real API
       const response = await fetch(
-        `/api/summary/branches?companyId=${companyId}&fromDate=${startDate.toISOString()}&toDate=${endDate.toISOString()}`,
+        `/api/summary/branches?companyId=${companyId}&fromDate=${startDate.toISOString()}&toDate=${endDate.toISOString()}`
       );
       if (!response.ok) {
         console.error('Failed to fetch sales data:', response.statusText);
@@ -312,7 +310,7 @@ export class AutomaticNotificationService {
 
       // Fetch weekly performance data using your real API
       const response = await fetch(
-        `/api/summary/expense_revenue?companyId=${companyId}&from=${startOfWeek.toISOString()}&to=${endOfWeek.toISOString()}`,
+        `/api/summary/expense_revenue?companyId=${companyId}&from=${startOfWeek.toISOString()}&to=${endOfWeek.toISOString()}`
       );
       if (!response.ok) {
         console.error('Failed to fetch weekly data:', response.statusText);
@@ -323,7 +321,7 @@ export class AutomaticNotificationService {
 
       // Get order count for the week
       const ordersResponse = await fetch(
-        `/api/orders?companyId=${companyId}&from=${startOfWeek.toISOString()}&to=${endOfWeek.toISOString()}`,
+        `/api/orders?companyId=${companyId}&from=${startOfWeek.toISOString()}&to=${endOfWeek.toISOString()}`
       );
       let totalOrders = 0;
       if (ordersResponse.ok) {
@@ -358,7 +356,7 @@ export class AutomaticNotificationService {
       for (const achievement of achievements) {
         if (achievement.condition) {
           await NotificationUtils.createWeeklyAchievementNotification(
-            achievement,
+            achievement
           );
         }
       }

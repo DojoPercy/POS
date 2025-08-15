@@ -28,7 +28,7 @@ export function NotificationTest({ companyId }: NotificationTestProps) {
 
   const handleTestNotification = async (
     type: string,
-    testFunction: () => Promise<void>,
+    testFunction: () => Promise<void>
   ) => {
     setLoading(type);
     try {
@@ -166,7 +166,7 @@ export function NotificationTest({ companyId }: NotificationTestProps) {
                           notification.type,
                           testFunctions[
                             notification.type as keyof typeof testFunctions
-                          ],
+                          ]
                         )
                       }
                       disabled={isLoading}

@@ -80,50 +80,50 @@ interface DecodedToken {
 
 const getStatusColor = (status: OrderStatus) => {
   switch (status) {
-  case OrderStatus.PAID:
-    return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-  case OrderStatus.COMPLETED:
-    return 'bg-orange-100 text-orange-800 border-orange-200';
-  case OrderStatus.PROCESSING:
-    return 'bg-blue-100 text-blue-800 border-blue-200';
-  case OrderStatus.PENDING:
-    return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-  case OrderStatus.CANCELED:
-    return 'bg-red-100 text-red-800 border-red-200';
-  default:
-    return 'bg-gray-100 text-gray-800 border-gray-200';
+    case OrderStatus.PAID:
+      return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+    case OrderStatus.COMPLETED:
+      return 'bg-orange-100 text-orange-800 border-orange-200';
+    case OrderStatus.PROCESSING:
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case OrderStatus.PENDING:
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case OrderStatus.CANCELED:
+      return 'bg-red-100 text-red-800 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 };
 
 const getStatusText = (status: OrderStatus) => {
   switch (status) {
-  case OrderStatus.PAID:
-    return 'Completed';
-  case OrderStatus.COMPLETED:
-    return 'Ready';
-  case OrderStatus.PROCESSING:
-    return 'Accepted';
-  case OrderStatus.PENDING:
-    return 'New';
-  case OrderStatus.CANCELED:
-    return 'Canceled';
-  default:
-    return 'Unknown';
+    case OrderStatus.PAID:
+      return 'Completed';
+    case OrderStatus.COMPLETED:
+      return 'Ready';
+    case OrderStatus.PROCESSING:
+      return 'Accepted';
+    case OrderStatus.PENDING:
+      return 'New';
+    case OrderStatus.CANCELED:
+      return 'Canceled';
+    default:
+      return 'Unknown';
   }
 };
 
 const getStatusIcon = (status: OrderStatus) => {
   switch (status) {
-  case OrderStatus.PAID:
-    return <CheckCircle className='h-3 w-3' />;
-  case OrderStatus.COMPLETED:
-    return <AlertCircle className='h-3 w-3' />;
-  case OrderStatus.PROCESSING:
-    return <ChefHat className='h-3 w-3' />;
-  case OrderStatus.PENDING:
-    return <Clock className='h-3 w-3' />;
-  default:
-    return <Clock className='h-3 w-3' />;
+    case OrderStatus.PAID:
+      return <CheckCircle className='h-3 w-3' />;
+    case OrderStatus.COMPLETED:
+      return <AlertCircle className='h-3 w-3' />;
+    case OrderStatus.PROCESSING:
+      return <ChefHat className='h-3 w-3' />;
+    case OrderStatus.PENDING:
+      return <Clock className='h-3 w-3' />;
+    default:
+      return <Clock className='h-3 w-3' />;
   }
 };
 
@@ -151,7 +151,6 @@ export default function LiveOrdersMain() {
   const [paymentTypeSelected, setPaymentTypeSelected] = useState<string[]>([]);
 
   const { toast } = useToast();
-  const router = useRouter();
   const [newOrderOpen, setNewOrderOpen] = useState(false);
 
   useEffect(() => {
@@ -234,20 +233,20 @@ export default function LiveOrdersMain() {
 
   const filteredOrders = Array.isArray(orders)
     ? Array.from(new Map(orders.map(item => [item.id, item])).values())
-      .filter(order => {
-        const matchesSearch = order.orderNumber
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase());
-        const matchesStatus =
+        .filter(order => {
+          const matchesSearch = order.orderNumber
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase());
+          const matchesStatus =
             statusFilter === 'all' ||
             order.orderStatus?.toLowerCase() === statusFilter.toLowerCase();
-        return matchesSearch && matchesStatus;
-      })
-      .sort(
-        (a, b) =>
-          new Date(b.updatedAt || 0).getTime() -
-            new Date(a.updatedAt || 0).getTime(),
-      )
+          return matchesSearch && matchesStatus;
+        })
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt || 0).getTime() -
+            new Date(a.updatedAt || 0).getTime()
+        )
     : [];
 
   const handleRefresh = async () => {
@@ -287,7 +286,7 @@ export default function LiveOrdersMain() {
     if (!selectedOrder) return;
     setCheckoutOpen(true);
     setReceivedAmount(
-      selectedOrder.finalPrice || selectedOrder.totalPrice || 0,
+      selectedOrder.finalPrice || selectedOrder.totalPrice || 0
     );
     setOrderDetailsOpen(false);
   };
@@ -364,13 +363,13 @@ export default function LiveOrdersMain() {
 
   const getPaymentMethodIcon = (method: string) => {
     switch (method.toLowerCase()) {
-    case 'cash':
-      return <Banknote className='h-4 w-4 mr-2' />;
-    case 'credit card':
-    case 'card':
-      return <CreditCard className='h-4 w-4 mr-2' />;
-    default:
-      return <Receipt className='h-4 w-4 mr-2' />;
+      case 'cash':
+        return <Banknote className='h-4 w-4 mr-2' />;
+      case 'credit card':
+      case 'card':
+        return <CreditCard className='h-4 w-4 mr-2' />;
+      default:
+        return <Receipt className='h-4 w-4 mr-2' />;
     }
   };
 
@@ -970,7 +969,7 @@ export default function LiveOrdersMain() {
                             variant='outline'
                             onClick={() =>
                               setReceivedAmount(prev =>
-                                Number(prev.toString() + num.toString()),
+                                Number(prev.toString() + num.toString())
                               )
                             }
                             className='h-12 lg:h-14 text-lg lg:text-xl font-semibold hover:bg-gray-100'
@@ -983,7 +982,7 @@ export default function LiveOrdersMain() {
                           className='h-12 lg:h-14 text-lg lg:text-xl font-semibold bg-transparent hover:bg-gray-100'
                           onClick={() =>
                             setReceivedAmount(prev =>
-                              Number(prev.toString() + '.'),
+                              Number(prev.toString() + '.')
                             )
                           }
                         >
@@ -993,7 +992,7 @@ export default function LiveOrdersMain() {
                           variant='outline'
                           onClick={() =>
                             setReceivedAmount(prev =>
-                              Number(prev.toString() + '0'),
+                              Number(prev.toString() + '0')
                             )
                           }
                           className='h-12 lg:h-14 text-lg lg:text-xl font-semibold hover:bg-gray-100'

@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
   if (!branchId) {
     return NextResponse.json(
       { error: 'branchId is required' },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -64,19 +64,19 @@ export async function GET(req: NextRequest) {
     if (start && isNaN(start.getTime())) {
       return NextResponse.json(
         { error: 'Invalid start date format' },
-        { status: 400 },
+        { status: 400 }
       );
     }
     if (end && isNaN(end.getTime())) {
       return NextResponse.json(
         { error: 'Invalid end date format' },
-        { status: 400 },
+        { status: 400 }
       );
     }
     if (start && end && start > end) {
       return NextResponse.json(
         { error: 'Start date must be before end date' },
-        { status: 400 },
+        { status: 400 }
       );
     }
     if (end) {
@@ -150,7 +150,7 @@ export async function GET(req: NextRequest) {
         oAcc +
         o.orderLines.reduce(
           (lAcc, line) => lAcc + (line.quantity || 0) * (line.price || 0),
-          0,
+          0
         )
       );
     }, 0);
@@ -174,11 +174,11 @@ export async function GET(req: NextRequest) {
         }
         const itemsInOrder = o.orderLines.reduce(
           (sum, line) => sum + (line.quantity || 0),
-          0,
+          0
         );
         const amtInOrder = o.orderLines.reduce(
           (sum, line) => sum + (line.quantity || 0) * (line.price || 0),
-          0,
+          0
         );
 
         map[wId].orders += 1;
@@ -198,7 +198,7 @@ export async function GET(req: NextRequest) {
           amount: number;
           averageOrderValue: number;
         }
-      >,
+      >
     );
 
     // 9) Daily breakdown
@@ -210,11 +210,11 @@ export async function GET(req: NextRequest) {
       const dateKey = o.createdAt.toISOString().split('T')[0];
       const itemsInOrder = o.orderLines.reduce(
         (sum, line) => sum + (line.quantity || 0),
-        0,
+        0
       );
       const amtInOrder = o.orderLines.reduce(
         (sum, line) => sum + (line.quantity || 0) * (line.price || 0),
-        0,
+        0
       );
 
       if (!dailyMap.has(dateKey)) {
@@ -234,22 +234,22 @@ export async function GET(req: NextRequest) {
     const topWaiter =
       waiterEntries.length > 0
         ? waiterEntries.reduce((top, curr) =>
-          curr.amount > top.amount ? curr : top,
-        )
+            curr.amount > top.amount ? curr : top
+          )
         : null;
 
     const busiestDay =
       dailyBreakdown.length > 0
         ? dailyBreakdown.reduce((b, curr) =>
-          curr.orders > b.orders ? curr : b,
-        )
+            curr.orders > b.orders ? curr : b
+          )
         : null;
 
     const highestSalesDay =
       dailyBreakdown.length > 0
         ? dailyBreakdown.reduce((h, curr) =>
-          curr.amount > h.amount ? curr : h,
-        )
+            curr.amount > h.amount ? curr : h
+          )
         : null;
 
     // 11) Build final summary object
@@ -269,22 +269,22 @@ export async function GET(req: NextRequest) {
       topPerformers: {
         topWaiter: topWaiter
           ? {
-            waiterId: topWaiter.waiterId,
-            waiterName: topWaiter.waiterName,
-            amount: Number(topWaiter.amount.toFixed(2)),
-          }
+              waiterId: topWaiter.waiterId,
+              waiterName: topWaiter.waiterName,
+              amount: Number(topWaiter.amount.toFixed(2)),
+            }
           : null,
         busiestDay: busiestDay
           ? {
-            date: busiestDay.date,
-            orders: busiestDay.orders,
-          }
+              date: busiestDay.date,
+              orders: busiestDay.orders,
+            }
           : null,
         highestSalesDay: highestSalesDay
           ? {
-            date: highestSalesDay.date,
-            amount: Number(highestSalesDay.amount.toFixed(2)),
-          }
+              date: highestSalesDay.date,
+              amount: Number(highestSalesDay.amount.toFixed(2)),
+            }
           : null,
       },
       lastUpdated: new Date().toISOString(),
@@ -302,7 +302,7 @@ export async function GET(req: NextRequest) {
         details:
           process.env.NODE_ENV === 'development' ? error.message : undefined,
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

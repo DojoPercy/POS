@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       if (!branch) {
         return NextResponse.json(
           { error: 'Branch not found' },
-          { status: 404 },
+          { status: 404 }
         );
       }
 
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
   } catch {
     return NextResponse.json(
       { error: 'Failed to fetch user' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     if (!email || !password || !role) {
       return NextResponse.json(
         { error: 'Missing required fields: email, password, or role' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -107,13 +107,13 @@ export async function POST(req: NextRequest) {
           companyId: user.companyId,
         },
       },
-      { status: 201 },
+      { status: 201 }
     );
   } catch (error) {
     console.error('Error creating user:', error);
     return NextResponse.json(
       { error: 'User creation failed due to a server error' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

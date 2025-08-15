@@ -34,7 +34,7 @@ export default function MenuItemCard({
   const itemPrices = item.price || [];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPrice, setSelectedPrice] = useState<PriceType | null>(
-    itemPrices.length > 0 ? itemPrices[0] : null,
+    itemPrices.length > 0 ? itemPrices[0] : null
   );
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
@@ -178,10 +178,10 @@ export default function MenuItemCard({
                     className={`
                       flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-all
                       ${
-                  selectedPrice?.id === price.id
-                    ? 'border-primary bg-primary/5'
-                    : 'border-gray-200 hover:border-gray-300'
-                  }
+                        selectedPrice?.id === price.id
+                          ? 'border-primary bg-primary/5'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }
                     `}
                     onClick={() => setSelectedPrice(price)}
                   >

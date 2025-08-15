@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     const body: Partial<CreatePaymentRequest> = await req.json();
@@ -22,7 +22,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     await prisma.payment.delete({
@@ -31,7 +31,7 @@ export async function DELETE(
 
     return NextResponse.json(
       { message: 'Payment deleted successfully' },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

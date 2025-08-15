@@ -135,7 +135,7 @@ export default function StaffSchedulePage() {
 
   const handleShiftStateChange = async (
     shiftId: string,
-    newState: Shift['shiftState'],
+    newState: Shift['shiftState']
   ) => {
     try {
       const response = await fetch(`/api/shift/${shiftId}`, {
@@ -147,7 +147,7 @@ export default function StaffSchedulePage() {
       if (response.ok) {
         const updatedShift = await response.json();
         setShifts(prev =>
-          prev.map(shift => (shift.id === shiftId ? updatedShift : shift)),
+          prev.map(shift => (shift.id === shiftId ? updatedShift : shift))
         );
       }
     } catch (error) {
@@ -371,7 +371,7 @@ export default function StaffSchedulePage() {
                         onValueChange={value =>
                           handleShiftStateChange(
                             shift.id,
-                            value as Shift['shiftState'],
+                            value as Shift['shiftState']
                           )
                         }
                       >

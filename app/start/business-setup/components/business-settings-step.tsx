@@ -114,10 +114,10 @@ export function BusinessSettingsStep({
               className={`
                 border rounded-lg p-4 cursor-pointer transition-all
                 ${
-    formData.orderProcessingMode === 'restaurant'
-      ? 'border-primary bg-primary/5'
-      : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
-    }
+                  formData.orderProcessingMode === 'restaurant'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
+                }
               `}
               onClick={() => handleChange('orderProcessingMode', 'restaurant')}
             >
@@ -126,10 +126,10 @@ export function BusinessSettingsStep({
                   className={`
                   w-5 h-5 rounded-full border-2 flex items-center justify-center
                   ${
-    formData.orderProcessingMode === 'restaurant'
-      ? 'border-primary'
-      : 'border-gray-300 dark:border-gray-600'
-    }
+                    formData.orderProcessingMode === 'restaurant'
+                      ? 'border-primary'
+                      : 'border-gray-300 dark:border-gray-600'
+                  }
                 `}
                 >
                   {formData.orderProcessingMode === 'restaurant' && (
@@ -150,10 +150,10 @@ export function BusinessSettingsStep({
               className={`
                 border rounded-lg p-4 cursor-pointer transition-all
                 ${
-    formData.orderProcessingMode === 'retail'
-      ? 'border-primary bg-primary/5'
-      : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
-    }
+                  formData.orderProcessingMode === 'retail'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
+                }
               `}
               onClick={() => handleChange('orderProcessingMode', 'retail')}
             >
@@ -162,10 +162,10 @@ export function BusinessSettingsStep({
                   className={`
                   w-5 h-5 rounded-full border-2 flex items-center justify-center
                   ${
-    formData.orderProcessingMode === 'retail'
-      ? 'border-primary'
-      : 'border-gray-300 dark:border-gray-600'
-    }
+                    formData.orderProcessingMode === 'retail'
+                      ? 'border-primary'
+                      : 'border-gray-300 dark:border-gray-600'
+                  }
                 `}
                 >
                   {formData.orderProcessingMode === 'retail' && (

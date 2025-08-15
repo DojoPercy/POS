@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     if (!branchId && !companyId) {
       return NextResponse.json(
         { error: 'Branch ID or Company ID is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching attendance history:', error);
     return NextResponse.json(
       { error: 'Failed to fetch attendance history' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

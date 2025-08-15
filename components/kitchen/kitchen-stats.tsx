@@ -21,10 +21,10 @@ interface KitchenStatsProps {
 export default function KitchenStats({ orders }: KitchenStatsProps) {
   // Count orders by status
   const pendingCount = orders.filter(
-    order => order.orderStatus === OrderStatus.PENDING,
+    order => order.orderStatus === OrderStatus.PENDING
   ).length;
   const processingCount = orders.filter(
-    order => order.orderStatus === OrderStatus.PROCESSING,
+    order => order.orderStatus === OrderStatus.PROCESSING
   ).length;
   const completedTodayCount = orders.filter(order => {
     const isCompleted = order.orderStatus === OrderStatus.COMPLETED;
@@ -40,7 +40,7 @@ export default function KitchenStats({ orders }: KitchenStatsProps) {
     order =>
       order.orderStatus === OrderStatus.COMPLETED &&
       order.createdAt &&
-      order.updatedAt,
+      order.updatedAt
   );
 
   let avgPrepTimeMinutes = 0;

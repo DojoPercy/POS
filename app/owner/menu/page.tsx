@@ -201,23 +201,21 @@ const DesktopMenuItemCard = ({
       <div className='relative'>
         <div className='aspect-square bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center'>
           {item.imageUrl ? (
-          <div className="relative overflow-hidden bg-gray-100 w-full h-full">
-          {item.imageUrl ? (
-            <Image
-              src={item.imageUrl}
-              alt={item.name}
-              width={200}
-              height={200}
-              className="object-cover h-full w-full"
-              
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full w-full">
-              <ChefHat className="h-10 w-10 text-gray-400" />
+            <div className='relative overflow-hidden bg-gray-100 w-full h-full'>
+              {item.imageUrl ? (
+                <Image
+                  src={item.imageUrl}
+                  alt={item.name}
+                  width={200}
+                  height={200}
+                  className='object-cover h-full w-full'
+                />
+              ) : (
+                <div className='flex items-center justify-center h-full w-full'>
+                  <ChefHat className='h-10 w-10 text-gray-400' />
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        
           ) : (
             <ChefHat className='h-20 w-20 text-orange-400' />
           )}
@@ -304,7 +302,7 @@ export default function MenuManagement() {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const { menuItems, isLoading } = useSelector(
-    (state: RootState) => state.menu,
+    (state: RootState) => state.menu
   );
 
   // Initialize user
@@ -344,16 +342,16 @@ export default function MenuManagement() {
     // Sort items
     filtered.sort((a: MenuItem, b: MenuItem) => {
       switch (sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name);
-      case 'price':
-        const priceA = a.price?.[0]?.price || 0;
-        const priceB = b.price?.[0]?.price || 0;
-        return priceA - priceB;
-      case 'category':
-        return (a.category?.name || '').localeCompare(b.category?.name || '');
-      default:
-        return 0;
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'price':
+          const priceA = a.price?.[0]?.price || 0;
+          const priceB = b.price?.[0]?.price || 0;
+          return priceA - priceB;
+        case 'category':
+          return (a.category?.name || '').localeCompare(b.category?.name || '');
+        default:
+          return 0;
       }
     });
 
@@ -371,7 +369,7 @@ export default function MenuManagement() {
         acc[categoryName].push(item);
         return acc;
       },
-      {},
+      {}
     );
   }, [filteredAndSortedItems]);
 
@@ -398,7 +396,7 @@ export default function MenuManagement() {
         });
       }
     },
-    [toast],
+    [toast]
   );
 
   const handleItemCreated = useCallback(
@@ -409,7 +407,7 @@ export default function MenuManagement() {
         description: 'Menu item created successfully',
       });
     },
-    [toast],
+    [toast]
   );
 
   const handleItemUpdated = useCallback(
@@ -421,7 +419,7 @@ export default function MenuManagement() {
         description: 'Menu item updated successfully',
       });
     },
-    [toast],
+    [toast]
   );
 
   if (error) {
@@ -568,7 +566,7 @@ export default function MenuManagement() {
                     menuItems.reduce(
                       (sum: any, item: { price: { price: any }[] }) =>
                         sum + (item.price?.[0]?.price || 0),
-                      0,
+                      0
                     ) / Math.max(menuItems.length, 1)
                   ).toFixed(2)}
                 </p>
@@ -659,7 +657,7 @@ export default function MenuManagement() {
                         onEdit={handleEditItem}
                         onDelete={handleDeleteItem}
                       />
-                    ),
+                    )
                   )}
                 </div>
               </CardContent>
@@ -683,7 +681,7 @@ export default function MenuManagement() {
                 onEdit={handleEditItem}
                 onDelete={handleDeleteItem}
               />
-            ),
+            )
           )}
         </div>
       )}

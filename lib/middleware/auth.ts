@@ -45,7 +45,7 @@ export const roleBasedAccess = (allowedRoles: string | any[]) => {
           new (): any;
           json: { (arg0: { error: string }): any; new (): any };
         };
-      },
+      }
     ) => {
       const { role } = req.user;
 

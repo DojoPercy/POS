@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, { params }: any) {
     console.error('Error fetching users:', error);
     return NextResponse.json(
       { error: 'Failed to fetch users' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -53,7 +53,7 @@ export async function PUT(req: NextRequest, { params }: any) {
     console.error('Error updating user:', error);
     return NextResponse.json(
       { error: 'Failed to update user' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -74,7 +74,7 @@ export async function DELETE(req: NextRequest, { params }: any) {
     if (existingUser.role === 'owner') {
       return NextResponse.json(
         { error: 'Cannot delete owner account' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -84,13 +84,13 @@ export async function DELETE(req: NextRequest, { params }: any) {
 
     return NextResponse.json(
       { message: 'User deleted successfully' },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error('Error deleting user:', error);
     return NextResponse.json(
       { error: 'Failed to delete user' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

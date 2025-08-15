@@ -103,7 +103,7 @@ export default function BranchInventoryPage() {
         setIsLoadingBranch(false);
       }
     },
-    [toast],
+    [toast]
   );
 
   const fetchIngredients = useCallback(async () => {
@@ -130,7 +130,7 @@ export default function BranchInventoryPage() {
       setIsLoadingStock(true);
       try {
         const response = await fetch(
-          `/api/inventory_stock?branchId=${branchId}`,
+          `/api/inventory_stock?branchId=${branchId}`
         );
         if (!response.ok) throw new Error('Failed to fetch inventory stock');
         const data = await response.json();
@@ -146,7 +146,7 @@ export default function BranchInventoryPage() {
         setIsLoadingStock(false);
       }
     },
-    [toast],
+    [toast]
   );
 
   const handleRefresh = () => {
@@ -254,7 +254,7 @@ export default function BranchInventoryPage() {
   const prepareInventoryData = (): InventoryItem[] => {
     return ingredients.map((ingredient: any) => {
       const stockItem = inventoryStock.find(
-        (stock: any) => stock.ingredientId === ingredient.id,
+        (stock: any) => stock.ingredientId === ingredient.id
       );
       return {
         ...ingredient,
@@ -272,10 +272,10 @@ export default function BranchInventoryPage() {
     // Filter
     const filtered = filterValue
       ? data.filter(
-        (item: any) =>
-          item.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-            item.category?.toLowerCase().includes(filterValue.toLowerCase()),
-      )
+          (item: any) =>
+            item.name.toLowerCase().includes(filterValue.toLowerCase()) ||
+            item.category?.toLowerCase().includes(filterValue.toLowerCase())
+        )
       : data;
 
     // Sort
@@ -297,7 +297,7 @@ export default function BranchInventoryPage() {
 
   const inventoryData = getFilteredAndSortedData();
   const lowStockItems = inventoryData.filter(
-    item => item.stock < (item.minStock || 10),
+    item => item.stock < (item.minStock || 10)
   );
   const outOfStockItems = inventoryData.filter(item => item.stock === 0);
 
@@ -335,7 +335,7 @@ export default function BranchInventoryPage() {
     link.setAttribute('href', url);
     link.setAttribute(
       'download',
-      `${branchInfo?.name || 'branch'}-inventory-${new Date().toISOString().split('T')[0]}.csv`,
+      `${branchInfo?.name || 'branch'}-inventory-${new Date().toISOString().split('T')[0]}.csv`
     );
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
@@ -384,7 +384,7 @@ export default function BranchInventoryPage() {
   // Get available ingredients that are not yet in stock
   const availableIngredients = ingredients.filter(
     ingredient =>
-      !inventoryStock.some(stock => stock.ingredientId === ingredient.id),
+      !inventoryStock.some(stock => stock.ingredientId === ingredient.id)
   );
 
   return (

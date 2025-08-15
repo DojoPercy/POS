@@ -56,7 +56,7 @@ export function AddStockDialog({
   };
 
   const selectedIngredientData = availableIngredients.find(
-    ing => ing.id === selectedIngredient,
+    ing => ing.id === selectedIngredient
   );
 
   return (

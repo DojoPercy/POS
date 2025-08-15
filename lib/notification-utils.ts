@@ -89,7 +89,7 @@ export class NotificationUtils {
 
   static async createStaffNotification(
     staffData: any,
-    action: 'added' | 'updated' | 'removed',
+    action: 'added' | 'updated' | 'removed'
   ) {
     const decodedToken = this.getToken();
 
@@ -104,7 +104,7 @@ export class NotificationUtils {
 
   static async createMenuNotification(
     menuData: any,
-    action: 'added' | 'updated' | 'removed',
+    action: 'added' | 'updated' | 'removed'
   ) {
     const decodedToken = this.getToken();
 
@@ -119,7 +119,7 @@ export class NotificationUtils {
 
   static async createBranchNotification(
     branchData: any,
-    action: 'added' | 'updated' | 'removed',
+    action: 'added' | 'updated' | 'removed'
   ) {
     const decodedToken = this.getToken();
 
@@ -158,7 +158,7 @@ export class NotificationUtils {
 
   static async createSystemMaintenanceNotification(
     message: string,
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' = 'MEDIUM',
+    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' = 'MEDIUM'
   ) {
     const decodedToken = this.getToken();
 
@@ -175,7 +175,7 @@ export class NotificationUtils {
     userId: string,
     title: string,
     message: string,
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' = 'MEDIUM',
+    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' = 'MEDIUM'
   ) {
     return this.createNotification({
       title,
@@ -191,7 +191,7 @@ export class NotificationUtils {
     branchIds: string[],
     title: string,
     message: string,
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' = 'MEDIUM',
+    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' = 'MEDIUM'
   ) {
     const promises = branchIds.map(branchId =>
       this.createNotification({
@@ -200,7 +200,7 @@ export class NotificationUtils {
         type: 'BRANCH',
         priority,
         branchId,
-      }),
+      })
     );
 
     return Promise.all(promises);
@@ -210,7 +210,7 @@ export class NotificationUtils {
     userIds: string[],
     title: string,
     message: string,
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' = 'MEDIUM',
+    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' = 'MEDIUM'
   ) {
     const promises = userIds.map(userId =>
       this.createNotification({
@@ -219,7 +219,7 @@ export class NotificationUtils {
         type: 'USER',
         priority,
         userId,
-      }),
+      })
     );
 
     return Promise.all(promises);
@@ -231,7 +231,7 @@ export class NotificationUtils {
   static async createTopBranchNotification(
     branchData: any,
     metric: string,
-    value: string,
+    value: string
   ) {
     const decodedToken = this.getToken();
 
@@ -247,7 +247,7 @@ export class NotificationUtils {
   // Highest Order Achievement Notification
   static async createHighestOrderNotification(
     orderData: any,
-    branchName: string,
+    branchName: string
   ) {
     const decodedToken = this.getToken();
 
@@ -263,7 +263,7 @@ export class NotificationUtils {
   // Top Attendance Notification
   static async createTopAttendanceNotification(
     userData: any,
-    attendanceData: any,
+    attendanceData: any
   ) {
     const decodedToken = this.getToken();
 
@@ -331,7 +331,7 @@ export class NotificationUtils {
   // Employee Performance Notification
   static async createEmployeePerformanceNotification(
     employeeData: any,
-    performanceData: any,
+    performanceData: any
   ) {
     const decodedToken = this.getToken();
 

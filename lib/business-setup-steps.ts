@@ -25,7 +25,7 @@ export async function completeBusiness(formData: any) {
         subscriptionStatus: 'active',
         subscriptionStartDate: new Date(),
         subscriptionEndDate: new Date(
-          new Date().setFullYear(new Date().getFullYear() + 1),
+          new Date().setFullYear(new Date().getFullYear() + 1)
         ), // 1-year
         branches: [],
         users: [],
@@ -57,7 +57,7 @@ export async function completeBusiness(formData: any) {
                       name: ing.ingredient.name,
                       unit: ing.ingredient.unit,
                       companyId,
-                    }),
+                    })
                   );
                 }
               });
@@ -74,18 +74,18 @@ export async function completeBusiness(formData: any) {
               if (response.status === 200) {
                 ingredientsMap.set(ingredient.name, response.data.id);
                 console.log(
-                  `Ingredient "${ingredient.name}" created successfully.`,
+                  `Ingredient "${ingredient.name}" created successfully.`
                 );
                 return response.data;
               }
             } catch (error) {
               console.error(
                 `Error creating ingredient ${ingredient.name}:`,
-                error,
+                error
               );
             }
             return null;
-          },
+          }
         );
 
         // Wait for all ingredients to be created
@@ -113,7 +113,7 @@ export async function completeBusiness(formData: any) {
 
               const managerResponse = await axios.post(
                 '/api/users',
-                managerData,
+                managerData
               );
 
               if (managerResponse.status === 201) {
@@ -135,7 +135,7 @@ export async function completeBusiness(formData: any) {
 
                 const branchResponse = await axios.post(
                   '/api/branches',
-                  branchData,
+                  branchData
                 );
 
                 if (branchResponse.status === 201) {
@@ -163,7 +163,7 @@ export async function completeBusiness(formData: any) {
                   });
 
                   console.log(
-                    `Branch "${branch.name}" and Manager account created successfully.`,
+                    `Branch "${branch.name}" and Manager account created successfully.`
                   );
                   return { success: true, branch: branchResponse.data };
                 }
@@ -171,15 +171,15 @@ export async function completeBusiness(formData: any) {
             } catch (error) {
               console.error(
                 `Error creating branch and manager for ${branch.name}:`,
-                error,
+                error
               );
             }
             return { success: false, branch: null };
-          }),
+          })
         );
 
         console.log(
-          `Created ${branchResponses.filter(r => r.success).length} branches successfully.`,
+          `Created ${branchResponses.filter(r => r.success).length} branches successfully.`
         );
 
         // 4. Create Menu Categories and Menu Items
@@ -198,13 +198,13 @@ export async function completeBusiness(formData: any) {
                   name: category.name,
                   description: category.description,
                   companyId: companyId,
-                },
+                }
               );
 
               if (menuCategoriesResponse.status === 201) {
                 const categoryId = menuCategoriesResponse.data.id;
                 console.log(
-                  `Menu Category "${category.name}" created with ID: ${categoryId}`,
+                  `Menu Category "${category.name}" created with ID: ${categoryId}`
                 );
 
                 // Create menu items for this category
@@ -222,7 +222,7 @@ export async function completeBusiness(formData: any) {
 
                     try {
                       const imageUrl = await uploadBase64Image(
-                        item.imageBase64,
+                        item.imageBase64
                       );
                       console.log(imageUrl);
                       const menuResponse = await axios.post('/api/menu', {
@@ -238,7 +238,7 @@ export async function completeBusiness(formData: any) {
                       if (menuResponse.status === 201) {
                         const menuId = menuResponse.data.id;
                         console.log(
-                          `Menu Item "${item.name}" created with ID: ${menuId}`,
+                          `Menu Item "${item.name}" created with ID: ${menuId}`
                         );
 
                         // 5. Create Menu-Ingredient relationships
@@ -254,7 +254,7 @@ export async function completeBusiness(formData: any) {
                                 ingredientsMap.has(ing.ingredient.name)
                               ) {
                                 const ingredientId = ingredientsMap.get(
-                                  ing.ingredient.name,
+                                  ing.ingredient.name
                                 );
 
                                 try {
@@ -264,28 +264,28 @@ export async function completeBusiness(formData: any) {
                                       menuId,
                                       ingredientId,
                                       amount: ing.amount || 0,
-                                    },
+                                    }
                                   );
 
                                   if (menuIngResponse.status === 200) {
                                     console.log(
-                                      `Menu-ingredient relationship created for "${item.name}" and "${ing.ingredient.name}".`,
+                                      `Menu-ingredient relationship created for "${item.name}" and "${ing.ingredient.name}".`
                                     );
                                     return menuIngResponse.data;
                                   }
                                 } catch (error) {
                                   console.error(
                                     'Error creating menu-ingredient relationship:',
-                                    error,
+                                    error
                                   );
                                 }
                               } else {
                                 console.warn(
-                                  `Ingredient "${ing.ingredient?.name}" not found in ingredientsMap.`,
+                                  `Ingredient "${ing.ingredient?.name}" not found in ingredientsMap.`
                                 );
                               }
                               return null;
-                            },
+                            }
                           );
 
                           await Promise.all(menuIngredientPromises);
@@ -296,11 +296,11 @@ export async function completeBusiness(formData: any) {
                     } catch (error) {
                       console.error(
                         `Error creating menu item "${item.name}":`,
-                        error,
+                        error
                       );
                     }
                     return null;
-                  },
+                  }
                 );
 
                 await Promise.all(menuItemPromises);
@@ -309,11 +309,11 @@ export async function completeBusiness(formData: any) {
             } catch (error) {
               console.error(
                 `Error creating menu category "${category.name}":`,
-                error,
+                error
               );
             }
             return null;
-          },
+          }
         );
 
         await Promise.all(categoryPromises);

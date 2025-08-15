@@ -59,7 +59,7 @@ export function GoogleMapsLoader({ children }: GoogleMapsLoaderProps) {
 
         script.onerror = () => {
           setError(
-            'Failed to load Google Maps API. Please check your internet connection and API key.',
+            'Failed to load Google Maps API. Please check your internet connection and API key.'
           );
         };
 

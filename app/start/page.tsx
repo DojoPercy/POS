@@ -63,7 +63,7 @@ export default function LandingPage() {
     } catch (err: any) {
       setLoading(false);
       setError(
-        err.response?.data?.message || 'Registration failed. Please try again.',
+        err.response?.data?.message || 'Registration failed. Please try again.'
       );
     }
   };

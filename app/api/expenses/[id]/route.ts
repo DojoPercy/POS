@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params;
@@ -25,14 +25,14 @@ export async function GET(
     console.error('Error fetching expense:', error);
     return NextResponse.json(
       { error: 'Error fetching expense' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params;
@@ -42,7 +42,7 @@ export async function PUT(
     if (!itemName || !categoryId || !amount) {
       return NextResponse.json(
         { error: 'Missing required fields' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -69,14 +69,14 @@ export async function PUT(
     console.error('Error updating expense:', error);
     return NextResponse.json(
       { error: 'Error updating expense' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params;
@@ -94,7 +94,7 @@ export async function DELETE(
     console.error('Error deleting expense:', error);
     return NextResponse.json(
       { error: 'Error deleting expense' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

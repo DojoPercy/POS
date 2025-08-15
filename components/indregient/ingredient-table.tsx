@@ -40,7 +40,7 @@ export function IngredientTable({
   onRefresh,
 }: IngredientTableProps) {
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(
-    null,
+    null
   );
   const [deletingIngredient, setDeletingIngredient] =
     useState<Ingredient | null>(null);

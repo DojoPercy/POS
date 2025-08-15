@@ -58,60 +58,60 @@ export default function KitchenDashboard({
         line =>
           line.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           (line.notes &&
-            line.notes.toLowerCase().includes(searchQuery.toLowerCase())),
-      ),
+            line.notes.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
   );
 
   const pendingOrders = filteredOrders.filter(
-    order => order.orderStatus === OrderStatus.PENDING,
+    order => order.orderStatus === OrderStatus.PENDING
   );
   const processingOrders = filteredOrders.filter(
-    order => order.orderStatus === OrderStatus.PROCESSING,
+    order => order.orderStatus === OrderStatus.PROCESSING
   );
   const completedOrders = filteredOrders.filter(
-    order => order.orderStatus === OrderStatus.COMPLETED,
+    order => order.orderStatus === OrderStatus.COMPLETED
   );
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-    case OrderStatus.PENDING:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-amber-100 text-amber-800 border-amber-300 font-medium'
-        >
+      case OrderStatus.PENDING:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-amber-100 text-amber-800 border-amber-300 font-medium'
+          >
             New
-        </Badge>
-      );
-    case OrderStatus.PROCESSING:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-blue-100 text-blue-800 border-blue-300 font-medium'
-        >
+          </Badge>
+        );
+      case OrderStatus.PROCESSING:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-blue-100 text-blue-800 border-blue-300 font-medium'
+          >
             Processing
-        </Badge>
-      );
-    case OrderStatus.COMPLETED:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-emerald-100 text-emerald-800 border-emerald-300 font-medium'
-        >
+          </Badge>
+        );
+      case OrderStatus.COMPLETED:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-emerald-100 text-emerald-800 border-emerald-300 font-medium'
+          >
             Completed
-        </Badge>
-      );
-    case OrderStatus.PAID:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-violet-100 text-violet-800 border-violet-300 font-medium'
-        >
+          </Badge>
+        );
+      case OrderStatus.PAID:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-violet-100 text-violet-800 border-violet-300 font-medium'
+          >
             Paid
-        </Badge>
-      );
-    default:
-      return <Badge variant='outline'>{status}</Badge>;
+          </Badge>
+        );
+      default:
+        return <Badge variant='outline'>{status}</Badge>;
     }
   };
 
@@ -130,7 +130,7 @@ export default function KitchenDashboard({
     return order.orderLines
       .reduce((acc, line) => {
         const menuItem = Menuitems.find(
-          (item: MenuItem) => item.id === line.menuItemId,
+          (item: MenuItem) => item.id === line.menuItemId
         );
         return (
           acc +
@@ -146,14 +146,14 @@ export default function KitchenDashboard({
     if (!order.orderLines) return null;
 
     const notesLines = order.orderLines.filter(
-      line => line.notes && line.notes.trim() !== '',
+      line => line.notes && line.notes.trim() !== ''
     );
 
     if (notesLines.length === 0) return null;
 
     return notesLines.map((line, index) => {
       const menuItem = Menuitems.find(
-        (item: MenuItem) => item.id === line.menuItemId,
+        (item: MenuItem) => item.id === line.menuItemId
       );
       return (
         <div
@@ -246,7 +246,7 @@ export default function KitchenDashboard({
               const waitTime = getWaitTime(order.createdAt);
               const waitTimeColor = getWaitTimeColor(waitTime);
               const hasNotes = order.orderLines?.some(
-                line => line.notes && line.notes.trim() !== '',
+                line => line.notes && line.notes.trim() !== ''
               );
 
               return (
@@ -277,7 +277,7 @@ export default function KitchenDashboard({
                               <div className='flex items-center text-sm text-gray-500 mt-1'>
                                 <Clock className='h-3.5 w-3.5 mr-1' />
                                 {getTimeAgo(
-                                  order.createdAt || order.orderedDate,
+                                  order.createdAt || order.orderedDate
                                 )}
                               </div>
                             </div>
@@ -367,7 +367,7 @@ export default function KitchenDashboard({
               const waitTime = getWaitTime(order.createdAt);
               const waitTimeColor = getWaitTimeColor(waitTime);
               const hasNotes = order.orderLines?.some(
-                line => line.notes && line.notes.trim() !== '',
+                line => line.notes && line.notes.trim() !== ''
               );
 
               return (

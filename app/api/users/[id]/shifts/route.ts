@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } },
+  { params }: { params: { userId: string } }
 ) {
   try {
     const { searchParams } = new URL(request.url);
@@ -31,7 +31,7 @@ export async function GET(
     console.error('Error fetching user shifts:', error);
     return NextResponse.json(
       { error: 'Failed to fetch shifts' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

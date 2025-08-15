@@ -28,7 +28,7 @@ export function DatePickerWithRange({
   placeholder = 'Pick a date range',
 }: DatePickerWithRangeProps) {
   const [internalDate, setInternalDate] = React.useState<DateRange | undefined>(
-    date,
+    date
   );
 
   const handleDateChange = (newDate: DateRange | undefined) => {
@@ -47,7 +47,7 @@ export function DatePickerWithRange({
             variant={'outline'}
             className={cn(
               'w-[300px] justify-start text-left font-normal',
-              !displayDate && 'text-muted-foreground',
+              !displayDate && 'text-muted-foreground'
             )}
           >
             <CalendarIcon className='mr-2 h-4 w-4' />

@@ -26,7 +26,7 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 );
 
 const BarChartSkeleton = () => (
@@ -85,7 +85,7 @@ const ProfitSummaries = ({
         fromDate,
         toDate,
         undefined,
-        companyId,
+        companyId
       );
 
       if (data) {

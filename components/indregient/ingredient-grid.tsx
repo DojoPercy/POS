@@ -33,7 +33,7 @@ export function IngredientGrid({
   onRefresh,
 }: IngredientGridProps) {
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(
-    null,
+    null
   );
   const [deletingIngredient, setDeletingIngredient] =
     useState<Ingredient | null>(null);

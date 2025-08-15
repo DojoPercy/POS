@@ -59,8 +59,8 @@ export default function SideBarFieldPayment({
           <span className='ml-auto my-auto'>
             {!loading && Object.keys(data).length !== 0
               ? Intl.NumberFormat('id').format(
-                data.orderTotal - data.paymentTotal,
-              )
+                  data.orderTotal - data.paymentTotal
+                )
               : '0'}
           </span>
         </div>

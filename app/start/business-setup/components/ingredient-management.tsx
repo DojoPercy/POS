@@ -101,7 +101,7 @@ export function IngredientsManagement({
       return;
 
     const updatedIngredients = ingredients.filter(
-      ingredient => ingredient.id !== id,
+      ingredient => ingredient.id !== id
     );
     onIngredientsChange(updatedIngredients);
   };
@@ -113,7 +113,7 @@ export function IngredientsManagement({
 
     if (isEditing) {
       updatedIngredients = ingredients.map(ing =>
-        ing.id === currentIngredient.id ? currentIngredient : ing,
+        ing.id === currentIngredient.id ? currentIngredient : ing
       );
     } else {
       // Generate a temporary ID for new ingredients
@@ -129,7 +129,7 @@ export function IngredientsManagement({
   };
 
   const filteredIngredients = ingredients.filter(ingredient =>
-    ingredient.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    ingredient.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

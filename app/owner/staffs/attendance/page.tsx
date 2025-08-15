@@ -164,31 +164,31 @@ const formatTime = (dateString: string) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-  case 'SIGNED_IN':
-    return 'bg-green-100 text-green-800 border-green-200';
-  case 'SIGNED_OUT':
-    return 'bg-gray-100 text-gray-800 border-gray-200';
-  case 'BREAK':
-    return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-  case 'OVERTIME':
-    return 'bg-red-100 text-red-800 border-red-200';
-  default:
-    return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'SIGNED_IN':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'SIGNED_OUT':
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'BREAK':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'OVERTIME':
+      return 'bg-red-100 text-red-800 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 };
 
 const getStatusIcon = (status: string) => {
   switch (status) {
-  case 'SIGNED_IN':
-    return <CheckCircle className='h-4 w-4' />;
-  case 'SIGNED_OUT':
-    return <XCircle className='h-4 w-4' />;
-  case 'BREAK':
-    return <Coffee className='h-4 w-4' />;
-  case 'OVERTIME':
-    return <Timer className='h-4 w-4' />;
-  default:
-    return <Clock className='h-4 w-4' />;
+    case 'SIGNED_IN':
+      return <CheckCircle className='h-4 w-4' />;
+    case 'SIGNED_OUT':
+      return <XCircle className='h-4 w-4' />;
+    case 'BREAK':
+      return <Coffee className='h-4 w-4' />;
+    case 'OVERTIME':
+      return <Timer className='h-4 w-4' />;
+    default:
+      return <Clock className='h-4 w-4' />;
   }
 };
 
@@ -380,13 +380,13 @@ export default function AttendanceManagement() {
 
         if (!analyticsResponse.ok) {
           throw new Error(
-            `Failed to fetch analytics: ${analyticsResponse.statusText}`,
+            `Failed to fetch analytics: ${analyticsResponse.statusText}`
           );
         }
 
         if (!branchesResponse.ok) {
           throw new Error(
-            `Failed to fetch branches: ${branchesResponse.statusText}`,
+            `Failed to fetch branches: ${branchesResponse.statusText}`
           );
         }
 
@@ -409,7 +409,7 @@ export default function AttendanceManagement() {
         setLoading(false);
       }
     },
-    [clearError, handleError, toast, dateRange, selectedBranch],
+    [clearError, handleError, toast, dateRange, selectedBranch]
   );
 
   useEffect(() => {
@@ -472,7 +472,7 @@ export default function AttendanceManagement() {
           record.signOutTime ? formatTime(record.signOutTime) : 'N/A',
           record.totalHours ? formatDuration(record.totalHours) : 'N/A',
           record.status,
-        ].join(','),
+        ].join(',')
       ),
     ].join('\n');
 
@@ -818,7 +818,7 @@ export default function AttendanceManagement() {
                     <MobileAttendanceCard key={record.id} record={record} />
                   ) : (
                     <DesktopAttendanceCard key={record.id} record={record} />
-                  ),
+                  )
                 )}
               </div>
             )}

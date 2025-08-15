@@ -207,7 +207,7 @@ export default function WaiterDashboard() {
         const to = format(toDate, 'yyyy-MM-dd');
 
         const response = await fetch(
-          `/api/orders/waiter?waiterId=${waiterId}&from=${from}&to=${to}`,
+          `/api/orders/waiter?waiterId=${waiterId}&from=${from}&to=${to}`
         );
         if (response.ok) {
           const summary = await response.json();
@@ -230,7 +230,7 @@ export default function WaiterDashboard() {
         setSummaryLoading(false);
       }
     },
-    [toast],
+    [toast]
   );
 
   // Real-time order updates with Pusher
@@ -308,7 +308,7 @@ export default function WaiterDashboard() {
           fetchOrderSummary(
             decodedToken.userId ?? '',
             dateRange.from,
-            dateRange.to,
+            dateRange.to
           );
         }
       } catch (error) {
@@ -352,19 +352,19 @@ export default function WaiterDashboard() {
   // Filter orders by status
   const pendingOrders =
     orders?.filter(
-      (order: OrderType) => order.orderStatus === OrderStatus.PENDING,
+      (order: OrderType) => order.orderStatus === OrderStatus.PENDING
     ) || [];
   const processingOrders =
     orders?.filter(
-      (order: OrderType) => order.orderStatus === OrderStatus.PROCESSING,
+      (order: OrderType) => order.orderStatus === OrderStatus.PROCESSING
     ) || [];
   const completedOrders =
     orders?.filter(
-      (order: OrderType) => order.orderStatus === OrderStatus.COMPLETED,
+      (order: OrderType) => order.orderStatus === OrderStatus.COMPLETED
     ) || [];
   const paidOrders =
     orders?.filter(
-      (order: OrderType) => order.orderStatus === OrderStatus.PAID,
+      (order: OrderType) => order.orderStatus === OrderStatus.PAID
     ) || [];
 
   if (isLoading) {
@@ -518,7 +518,7 @@ export default function WaiterDashboard() {
                           onClick={() => {
                             // Scroll to ingredient order form
                             const element = document.getElementById(
-                              'ingredient-order-form',
+                              'ingredient-order-form'
                             );
                             if (element) {
                               element.scrollIntoView({ behavior: 'smooth' });
@@ -644,7 +644,7 @@ export default function WaiterDashboard() {
                       Last updated:{' '}
                       {format(
                         new Date(orderSummary.lastUpdated),
-                        'MMM dd, yyyy \'at\' HH:mm',
+                        "MMM dd, yyyy 'at' HH:mm"
                       )}
                     </p>
                   )}
@@ -851,7 +851,7 @@ export default function WaiterDashboard() {
                             <p className='text-sm text-gray-500'>
                               {format(
                                 new Date(order.createdAt || ''),
-                                'MMM dd, HH:mm',
+                                'MMM dd, HH:mm'
                               )}
                             </p>
                           </div>

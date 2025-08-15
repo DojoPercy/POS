@@ -10,12 +10,9 @@ import {
   User,
   Settings,
   LogOut,
-  
-  
   Utensils,
   Clock,
   Star,
-  
   Package,
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -417,7 +414,9 @@ export function WaiterSidebar() {
             </p>
             <div className='flex items-center gap-1 mt-1'>
               <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-              <span className='text-xs text-green-600 dark:text-green-400 font-medium'>Online</span>
+              <span className='text-xs text-green-600 dark:text-green-400 font-medium'>
+                Online
+              </span>
             </div>
           </div>
         </div>

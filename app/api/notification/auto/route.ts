@@ -20,60 +20,60 @@ export async function POST(request: NextRequest) {
         {
           error: 'Type and companyId are required',
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     let result;
 
     switch (type) {
-    case 'top-branches':
-      result = await AutomaticNotificationService.checkTopBranches(companyId);
-      break;
+      case 'top-branches':
+        result = await AutomaticNotificationService.checkTopBranches(companyId);
+        break;
 
-    case 'highest-orders':
-      result =
+      case 'highest-orders':
+        result =
           await AutomaticNotificationService.checkHighestOrders(companyId);
-      break;
+        break;
 
-    case 'top-attendance':
-      result =
+      case 'top-attendance':
+        result =
           await AutomaticNotificationService.checkTopAttendance(companyId);
-      break;
+        break;
 
-    case 'low-stock':
-      result =
+      case 'low-stock':
+        result =
           await AutomaticNotificationService.checkLowStockAlerts(companyId);
-      break;
+        break;
 
-    case 'sales-milestones':
-      result =
+      case 'sales-milestones':
+        result =
           await AutomaticNotificationService.checkSalesMilestones(companyId);
-      break;
+        break;
 
-    case 'daily-summary':
-      result = await AutomaticNotificationService.runDailySummary(companyId);
-      break;
+      case 'daily-summary':
+        result = await AutomaticNotificationService.runDailySummary(companyId);
+        break;
 
-    case 'weekly-achievements':
-      result =
+      case 'weekly-achievements':
+        result =
           await AutomaticNotificationService.generateWeeklyAchievements(
-            companyId,
+            companyId
           );
-      break;
+        break;
 
-    case 'all':
-      result = await AutomaticNotificationService.runAllChecks(companyId);
-      break;
+      case 'all':
+        result = await AutomaticNotificationService.runAllChecks(companyId);
+        break;
 
-    default:
-      return NextResponse.json(
-        {
-          error:
+      default:
+        return NextResponse.json(
+          {
+            error:
               'Invalid notification type. Valid types: top-branches, highest-orders, top-attendance, low-stock, sales-milestones, daily-summary, weekly-achievements, all',
-        },
-        { status: 400 },
-      );
+          },
+          { status: 400 }
+        );
     }
 
     return NextResponse.json({
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       {
         error: 'Failed to trigger automatic notifications',
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

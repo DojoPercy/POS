@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     // Create a response and append the cleared cookie
     const response = NextResponse.json(
       { message: 'Successfully logged out' },
-      { status: 200 },
+      { status: 200 }
     );
     response.headers.append('Set-Cookie', cookie);
 
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

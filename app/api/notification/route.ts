@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching notifications:', error);
     return NextResponse.json(
       { error: 'Failed to fetch notifications' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (!title || !message || !type || !createdBy) {
       return NextResponse.json(
         { error: 'Title, message, type, and createdBy are required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -59,21 +59,21 @@ export async function POST(request: NextRequest) {
     if (type === NotificationType.COMPANY && !companyId) {
       return NextResponse.json(
         { error: 'Company ID is required for company notifications' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (type === NotificationType.BRANCH && !branchId) {
       return NextResponse.json(
         { error: 'Branch ID is required for branch notifications' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (type === NotificationType.USER && !userId) {
       return NextResponse.json(
         { error: 'User ID is required for user notifications' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -94,13 +94,13 @@ export async function POST(request: NextRequest) {
         success: true,
         data: notification,
       },
-      { status: 201 },
+      { status: 201 }
     );
   } catch (error) {
     console.error('Error creating notification:', error);
     return NextResponse.json(
       { error: 'Failed to create notification' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

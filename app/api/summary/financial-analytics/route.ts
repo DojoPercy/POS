@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     if (!companyId) {
       return NextResponse.json(
         { error: 'companyId is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
       expensesData,
       groupBy,
       fromDate,
-      toDate,
+      toDate
     );
 
     // Calculate summary statistics
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
     console.error('Financial analytics error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -99,15 +99,15 @@ function processFinancialData(
   expensesData: any[],
   groupBy: string,
   fromDate: Date,
-  toDate: Date,
+  toDate: Date
 ) {
   const dataMap = new Map();
 
   // Process revenue data
-  revenueData.forEach((item) => {
+  revenueData.forEach(item => {
     const date = new Date(item.createdAt);
     const key = getDateKey(date, groupBy);
-    
+
     if (!dataMap.has(key)) {
       dataMap.set(key, {
         date: key,
@@ -122,14 +122,15 @@ function processFinancialData(
     const existing = dataMap.get(key);
     existing.revenue += item._sum.totalPrice || 0;
     existing.orders += item._count.id || 0;
-    existing.avgOrderValue = existing.orders > 0 ? existing.revenue / existing.orders : 0;
+    existing.avgOrderValue =
+      existing.orders > 0 ? existing.revenue / existing.orders : 0;
   });
 
   // Process expenses data
-  expensesData.forEach((item) => {
+  expensesData.forEach(item => {
     const date = new Date(item.dateAdded);
     const key = getDateKey(date, groupBy);
-    
+
     if (!dataMap.has(key)) {
       dataMap.set(key, {
         date: key,
@@ -148,7 +149,7 @@ function processFinancialData(
   // Calculate profit and fill missing dates
   const result = [];
   const currentDate = new Date(fromDate);
-  
+
   while (currentDate <= toDate) {
     const key = getDateKey(currentDate, groupBy);
     const data = dataMap.get(key) || {
@@ -167,7 +168,9 @@ function processFinancialData(
     moveToNextPeriod(currentDate, groupBy);
   }
 
-  return result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  return result.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
 }
 
 function getDateKey(date: Date, groupBy: string): string {
@@ -224,17 +227,28 @@ function calculateSummaryStats(data: any[]) {
   const firstHalf = data.slice(0, midPoint);
   const secondHalf = data.slice(midPoint);
 
-  const firstHalfRevenue = firstHalf.reduce((sum, item) => sum + item.revenue, 0);
-  const secondHalfRevenue = secondHalf.reduce((sum, item) => sum + item.revenue, 0);
+  const firstHalfRevenue = firstHalf.reduce(
+    (sum, item) => sum + item.revenue,
+    0
+  );
+  const secondHalfRevenue = secondHalf.reduce(
+    (sum, item) => sum + item.revenue,
+    0
+  );
   const firstHalfProfit = firstHalf.reduce((sum, item) => sum + item.profit, 0);
-  const secondHalfProfit = secondHalf.reduce((sum, item) => sum + item.profit, 0);
+  const secondHalfProfit = secondHalf.reduce(
+    (sum, item) => sum + item.profit,
+    0
+  );
 
-  const revenueTrend = firstHalfRevenue > 0 
-    ? ((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue) * 100 
-    : 0;
-  const profitTrend = firstHalfProfit > 0 
-    ? ((secondHalfProfit - firstHalfProfit) / firstHalfProfit) * 100 
-    : 0;
+  const revenueTrend =
+    firstHalfRevenue > 0
+      ? ((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue) * 100
+      : 0;
+  const profitTrend =
+    firstHalfProfit > 0
+      ? ((secondHalfProfit - firstHalfProfit) / firstHalfProfit) * 100
+      : 0;
 
   return {
     totalRevenue,

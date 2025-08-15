@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
       if (!menu) {
         return NextResponse.json(
           { error: 'Menu item not found' },
-          { status: 404 },
+          { status: 404 }
         );
       }
       await redis.set(cachedKey, JSON.stringify(menu), 'EX', 60 * 60);

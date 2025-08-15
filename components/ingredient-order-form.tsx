@@ -74,7 +74,7 @@ export function IngredientOrderForm() {
         setDecodedToken(token as DecodedToken);
 
         const ingredientsResponse = await fetch(
-          `/api/ingredient?companyId=${token?.companyId}&branchId=${token?.branchId}`,
+          `/api/ingredient?companyId=${token?.companyId}&branchId=${token?.branchId}`
         );
 
         if (ingredientsResponse.ok) {
@@ -99,7 +99,7 @@ export function IngredientOrderForm() {
   useEffect(() => {
     const newTotalPrice = orderLines.reduce(
       (sum, line) => sum + line.totalPrice,
-      0,
+      0
     );
     setTotalPrice(newTotalPrice);
   }, [orderLines]);
@@ -127,7 +127,7 @@ export function IngredientOrderForm() {
 
       // Check if ingredient already exists in order
       const existingIndex = orderLines.findIndex(
-        line => line.ingredientId === ingredient.id,
+        line => line.ingredientId === ingredient.id
       );
       if (existingIndex !== -1) {
         // Update existing ingredient quantity and price
@@ -337,7 +337,7 @@ export function IngredientOrderForm() {
               Price per{' '}
               {selectedIngredient
                 ? ingredients.find(ing => ing.id === selectedIngredient)
-                  ?.unit || 'unit'
+                    ?.unit || 'unit'
                 : 'unit'}
             </Label>
             <Input
@@ -396,7 +396,7 @@ export function IngredientOrderForm() {
                         onChange={e =>
                           handleUpdateQuantity(
                             index,
-                            parseFloat(e.target.value) || 0,
+                            parseFloat(e.target.value) || 0
                           )
                         }
                         className='w-20'
@@ -411,7 +411,7 @@ export function IngredientOrderForm() {
                         onChange={e =>
                           handleUpdatePrice(
                             index,
-                            parseFloat(e.target.value) || 0,
+                            parseFloat(e.target.value) || 0
                           )
                         }
                         className='w-24'

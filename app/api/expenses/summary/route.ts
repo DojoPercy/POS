@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   } catch (error) {
     return NextResponse.json(
       { error: 'Error fetching total count' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

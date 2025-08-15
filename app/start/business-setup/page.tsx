@@ -88,7 +88,7 @@ export default function BusinessSetupPage() {
       window.scrollTo(0, 0);
     } else {
       console.log(
-        'Waiting for dialog to close before proceeding to next step.',
+        'Waiting for dialog to close before proceeding to next step.'
       );
     }
   };
@@ -102,62 +102,62 @@ export default function BusinessSetupPage() {
 
   const renderStep = () => {
     switch (currentStep) {
-    case 1:
-      return (
-        <SignUpStep
-          formData={formData}
-          updateFormData={updateFormData}
-          nextStep={nextStep}
-        />
-      );
-    case 2:
-      return (
-        <BusinessDetailsStep
-          formData={formData}
-          updateFormData={updateFormData}
-          nextStep={nextStep}
-          prevStep={prevStep}
-        />
-      );
-    case 3:
-      return (
-        <BusinessSettingsStep
-          formData={formData}
-          updateFormData={updateFormData}
-          nextStep={nextStep}
-          prevStep={prevStep}
-        />
-      );
-    case 4:
-      return (
-        <BranchesStep
-          formData={formData}
-          updateFormData={updateFormData}
-          nextStep={nextStep}
-          prevStep={prevStep}
-        />
-      );
-    case 5:
-      return (
-        <MenuSetupStep
-          formData={formData}
-          updateFormData={updateFormData}
-          nextStep={nextStep}
-          prevStep={prevStep}
-          isDialogOpen={isDialogOpen}
-          setIsDialogOpen={setIsDialogOpen}
-        />
-      );
-    case 6:
-      return (
-        <ActivationStep
-          formData={formData}
-          updateFormData={updateFormData}
-          prevStep={prevStep}
-        />
-      );
-    default:
-      return null;
+      case 1:
+        return (
+          <SignUpStep
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+          />
+        );
+      case 2:
+        return (
+          <BusinessDetailsStep
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
+      case 3:
+        return (
+          <BusinessSettingsStep
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
+      case 4:
+        return (
+          <BranchesStep
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
+      case 5:
+        return (
+          <MenuSetupStep
+            formData={formData}
+            updateFormData={updateFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+            isDialogOpen={isDialogOpen}
+            setIsDialogOpen={setIsDialogOpen}
+          />
+        );
+      case 6:
+        return (
+          <ActivationStep
+            formData={formData}
+            updateFormData={updateFormData}
+            prevStep={prevStep}
+          />
+        );
+      default:
+        return null;
     }
   };
 

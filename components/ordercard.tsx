@@ -72,7 +72,7 @@ export function OrderCard({
                 </span>
                 <span>${line.totalPrice.toFixed(2)}</span>
               </li>
-            ),
+            )
           )}
         </ul>
       </CardContent>

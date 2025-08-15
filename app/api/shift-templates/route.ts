@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     if (!companyId) {
       return NextResponse.json(
         { error: 'Company ID is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching shift templates:', error);
     return NextResponse.json(
       { error: 'Failed to fetch shift templates' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     console.error('Error creating shift template:', error);
     return NextResponse.json(
       { error: 'Failed to create shift template' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

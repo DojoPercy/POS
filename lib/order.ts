@@ -36,7 +36,7 @@ export type orderSummaryByDate = {
 export async function getOrders(
   companyId: string | undefined,
   branchId: string | undefined,
-  waiterId?: string,
+  waiterId?: string
 ) {
   try {
     let url: string;
@@ -46,7 +46,7 @@ export async function getOrders(
     } else {
       url = new URL(
         '/api/orders',
-        process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+        process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
       ).toString();
     }
 
@@ -95,10 +95,10 @@ export async function getOrderCounter(branchId: string) {
 
 export async function getHighestOrderInBranch(
   companyId: string,
-  branchId?: string,
+  branchId?: string
 ) {
   const orders = await getOrders(companyId, undefined);
-console.log(branchId)
+  console.log(branchId);
   const branchOrderCount = orders.reduce((acc: any, order: any) => {
     if (!acc[order.branchId]) {
       acc[order.branchId] = 0;
@@ -117,7 +117,7 @@ console.log(branchId)
     }
   }
   const branch = await fetch(`/api/branches?id=${highestBranchId}`).then(res =>
-    res.json(),
+    res.json()
   );
 
   if (!branch) {
@@ -154,7 +154,7 @@ export async function getOrderById(orderId: string) {
 
 export async function fetchIncompleteOrders(branchId: string) {
   const response = await fetch(
-    `/api/orders?branchId=${branchId}&isCompleted=false`,
+    `/api/orders?branchId=${branchId}&isCompleted=false`
   );
 
   if (!response.ok) {
@@ -167,7 +167,7 @@ export async function getOrderCountByDateRange(
   from: Date,
   to: Date,
   branchId?: string,
-  companyId?: string,
+  companyId?: string
 ): Promise<number> {
   try {
     // Construct query string safely
@@ -209,7 +209,7 @@ export async function getOrderRevenueByDateRange(
   from: Date,
   to: Date,
   branchId?: string,
-  companyId?: string,
+  companyId?: string
 ) {
   const queryParams = new URLSearchParams();
   queryParams.append('from', from.toISOString());
@@ -235,12 +235,12 @@ export async function getOrderRevenueByDateRange(
   }
 
   const data = res.filter(
-    (order: any) => order.orderStatus !== OrderStatus.PENDING,
+    (order: any) => order.orderStatus !== OrderStatus.PENDING
   );
 
   const totalRevenue = data.reduce(
     (acc: number, order: any) => acc + (order.finalPrice || 0),
-    0,
+    0
   );
 
   return totalRevenue.toFixed(2);
@@ -266,7 +266,7 @@ export async function getOrderSummaryByDateRange(
   from: Date,
   to: Date,
   branchId?: string,
-  companyId?: string,
+  companyId?: string
 ): Promise<any[]> {
   const queryParams = new URLSearchParams();
   queryParams.append('from', from.toISOString());
@@ -327,10 +327,8 @@ export async function getOrderSummaryByDateRange(
 export async function getOrderSummaryByDateRangeOwner(
   from: Date,
   to: Date,
-  companyId?: string,
+  companyId?: string
 ): Promise<any[]> {
-
-
   const queryParams = new URLSearchParams();
   queryParams.append('from', from.toISOString());
   queryParams.append('to', to.toISOString());
@@ -364,7 +362,7 @@ export async function getOrderSummaryByDateRangeOwner(
     }
 
     for (const orderLine of order.orderLines) {
-      console.log(orderLine)
+      console.log(orderLine);
       summary[orderDate].sales += 1; // Increment sales count
     }
     summary[orderDate].revenue += order.totalPrice;
@@ -380,11 +378,9 @@ export async function getOrderSummaryByDateRangeOwner(
 export async function getSalesSummaryOfBranches(
   from: Date,
   to: Date,
-  companyId: string,
+  companyId: string
 ) {
   try {
-   
-
     const queryParams = new URLSearchParams();
     queryParams.append('from', from.toISOString());
     queryParams.append('to', to.toISOString());
@@ -479,7 +475,7 @@ export async function getTodaySalesSummaryOfBranches(companyId: string) {
       }
 
       for (const orderLine of order.orderLines) {
-        console.log(orderLine)
+        console.log(orderLine);
         summary[branch].sales += 1;
       }
 
@@ -492,7 +488,7 @@ export async function getTodaySalesSummaryOfBranches(companyId: string) {
       revenue: data.revenue.toFixed(2),
     }));
   } catch (error) {
-    console.error('Error fetching today\'s sales summary of branches:', error);
+    console.error("Error fetching today's sales summary of branches:", error);
   }
 }
 
@@ -500,7 +496,7 @@ export async function getExpectedRevenueByDataRange(
   from: Date,
   to: Date,
   branchId?: string,
-  companyId?: string,
+  companyId?: string
 ) {
   try {
     const queryParams = new URLSearchParams();
@@ -527,12 +523,12 @@ export async function getExpectedRevenueByDataRange(
     }
 
     const data = res.filter(
-      (order: any) => order.orderStatus === OrderStatus.PENDING,
+      (order: any) => order.orderStatus === OrderStatus.PENDING
     );
 
     const totalRevenue = data.reduce(
       (acc: number, order: any) => acc + (order.totalPrice || 0),
-      0,
+      0
     );
 
     return totalRevenue.toFixed(2);
@@ -569,7 +565,7 @@ export async function getOrderSummaryByDateRange1(from: Date, to: Date) {
 
     while (i < res.length) {
       const orderDateString = new Date(res[i].orderedDate).toLocaleDateString(
-        'id',
+        'id'
       );
       if (orderDateString === currentDateString) {
         let revenue = res[i].rounding - res[i].discount;
@@ -612,8 +608,6 @@ export async function getOrdersByDateRange(from: Date, to: Date) {
   });
   return res.json();
 }
-
-
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'

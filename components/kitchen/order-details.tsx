@@ -26,44 +26,44 @@ export default function OrderDetailView({
 }: OrderDetailViewProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
-    case OrderStatus.PENDING:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-amber-100 text-amber-800 border-amber-300 font-medium'
-        >
+      case OrderStatus.PENDING:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-amber-100 text-amber-800 border-amber-300 font-medium'
+          >
             New
-        </Badge>
-      );
-    case OrderStatus.PROCESSING:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-blue-100 text-blue-800 border-blue-300 font-medium'
-        >
+          </Badge>
+        );
+      case OrderStatus.PROCESSING:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-blue-100 text-blue-800 border-blue-300 font-medium'
+          >
             Processing
-        </Badge>
-      );
-    case OrderStatus.COMPLETED:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-emerald-100 text-emerald-800 border-emerald-300 font-medium'
-        >
+          </Badge>
+        );
+      case OrderStatus.COMPLETED:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-emerald-100 text-emerald-800 border-emerald-300 font-medium'
+          >
             Completed
-        </Badge>
-      );
-    case OrderStatus.PAID:
-      return (
-        <Badge
-          variant='outline'
-          className='bg-violet-100 text-violet-800 border-violet-300 font-medium'
-        >
+          </Badge>
+        );
+      case OrderStatus.PAID:
+        return (
+          <Badge
+            variant='outline'
+            className='bg-violet-100 text-violet-800 border-violet-300 font-medium'
+          >
             Paid
-        </Badge>
-      );
-    default:
-      return <Badge variant='outline'>{status}</Badge>;
+          </Badge>
+        );
+      default:
+        return <Badge variant='outline'>{status}</Badge>;
     }
   };
 
@@ -85,7 +85,7 @@ export default function OrderDetailView({
     if (!order.orderLines) return 0;
     return order.orderLines.reduce(
       (total, line) => total + (line.totalPrice || 0),
-      0,
+      0
     );
   };
 

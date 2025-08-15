@@ -18,38 +18,38 @@ import type { OrderType } from '@/lib/types/types';
 
 const getStatusColor = (status: string) => {
   switch (status) {
-  case 'COMPLETED':
-  case 'PAID':
-    return 'bg-green-100 text-green-800 border-green-200';
-  case 'PENDING':
-    return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-  case 'CANCELLED':
-    return 'bg-red-100 text-red-800 border-red-200';
-  case 'PROCESSING':
-    return 'bg-blue-100 text-blue-800 border-blue-200';
-  default:
-    return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'COMPLETED':
+    case 'PAID':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'PENDING':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'CANCELLED':
+      return 'bg-red-100 text-red-800 border-red-200';
+    case 'PROCESSING':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 };
 
 const getStatusText = (status: string) => {
   switch (status) {
-  case 'PAID':
-    return 'Completed';
-  case 'PENDING':
-    return 'Pending';
-  case 'CANCELLED':
-    return 'Error';
-  case 'PROCESSING':
-    return 'Processing';
-  default:
-    return status;
+    case 'PAID':
+      return 'Completed';
+    case 'PENDING':
+      return 'Pending';
+    case 'CANCELLED':
+      return 'Error';
+    case 'PROCESSING':
+      return 'Processing';
+    default:
+      return status;
   }
 };
 
 export const columns = (
   companyCurrency: string,
-  onOrderClick?: (order: OrderType) => void,
+  onOrderClick?: (order: OrderType) => void
 ): ColumnDef<OrderType>[] => [
   {
     id: 'select',

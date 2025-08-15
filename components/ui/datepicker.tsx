@@ -24,7 +24,7 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
           variant={'outline'}
           className={cn(
             'w-[140px] justify-start text-left font-normal',
-            !date && 'text-muted-foreground',
+            !date && 'text-muted-foreground'
           )}
           size='sm'
         >

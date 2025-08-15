@@ -34,7 +34,7 @@ export function MenuIngredients(
     onChange,
     isDialogOpen,
     setIsDialogOpen,
-  }: MenuIngredientsProps,
+  }: MenuIngredientsProps
 ) {
   const [menuIngredients, setMenuIngredients] =
     useState<MenuIngredient[]>(initialIngredients);
@@ -49,7 +49,7 @@ export function MenuIngredients(
     const exists = menuIngredients.some(
       item =>
         item.ingredientId === ingredient.id ||
-        item.ingredient.id === ingredient.id,
+        item.ingredient.id === ingredient.id
     );
 
     if (!exists && ingredient.id) {
@@ -143,7 +143,7 @@ export function MenuIngredients(
                               onChange={e =>
                                 handleAmountChange(
                                   index,
-                                  Number.parseFloat(e.target.value) || 0,
+                                  Number.parseFloat(e.target.value) || 0
                                 )
                               }
                               className='text-right'

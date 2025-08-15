@@ -1,5 +1,3 @@
-
-
 export async function sendOrderUpdate(order: any) {
   console.log('Sending order update:', order, process.env.NEXT_PUBLIC_BASE_URL);
   const url = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';

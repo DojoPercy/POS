@@ -29,7 +29,7 @@ export default function IngredientDisplay({
 
   const getIngredientName = (
     ingredient: IngredientItem | string,
-    index: number,
+    index: number
   ): string => {
     console.log('getIngredientName', ingredient, index);
 

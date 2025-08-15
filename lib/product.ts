@@ -100,7 +100,7 @@ export async function getProductOrderSummaryByDateRange(from: Date, to: Date) {
   }
 
   const productOrderSummaryArray: orderProductsSummary[] = Object.values(
-    productOrderSummaryObject,
+    productOrderSummaryObject
   );
 
   return productOrderSummaryArray;

@@ -64,13 +64,13 @@ export default function BranchForm({
     try {
       const response = await axios.get('/api/users');
       const managers = response.data.filter(
-        (user: any) => user.role === 'manager',
+        (user: any) => user.role === 'manager'
       );
       setUsers(managers);
     } catch (err: any) {
       console.error(
         'Failed to fetch users:',
-        err.response?.data?.error || err.message,
+        err.response?.data?.error || err.message
       );
     }
   };
@@ -121,7 +121,7 @@ export default function BranchForm({
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          `Failed to ${isEdit ? 'update' : 'create'} branch. Please try again.`,
+          `Failed to ${isEdit ? 'update' : 'create'} branch. Please try again.`
       );
     } finally {
       setLoading(false);

@@ -88,7 +88,7 @@ export default function Orders() {
         const orders = await getOrders(undefined, decodedToken.branchId ?? '');
 
         const filteredOrders = orders.filter(
-          (order: { branchId: any }) => order.branchId === decodedToken.branchId,
+          (order: { branchId: any }) => order.branchId === decodedToken.branchId
         );
         setData(filteredOrders);
         setFilteredData(orders);
@@ -105,7 +105,7 @@ export default function Orders() {
     let filtered = data;
     if (!showCompleted) {
       filtered = filtered.filter(
-        order => !(order.orderStatus === OrderStatus.PAID),
+        order => !(order.orderStatus === OrderStatus.PAID)
       );
     }
     if (dateRange?.from && dateRange?.to) {

@@ -32,7 +32,7 @@ export function BranchesStep({
         branch.name &&
         branch.location &&
         branch.manager.name &&
-        branch.manager.email,
+        branch.manager.email
     );
 
     if (!hasCompleteBranch) {

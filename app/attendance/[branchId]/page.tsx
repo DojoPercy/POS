@@ -176,7 +176,7 @@ export default function AttendancePage() {
         },
         error => {
           setLocationError(
-            'Location access denied. Please enable location services.',
+            'Location access denied. Please enable location services.'
           );
           console.error('Geolocation error:', error);
         },
@@ -184,7 +184,7 @@ export default function AttendancePage() {
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 300000, // 5 minutes
-        },
+        }
       );
     } else {
       setLocationError('Geolocation is not supported by this browser.');
@@ -202,7 +202,7 @@ export default function AttendancePage() {
 
     try {
       const response = await fetch(
-        `/api/attendance?branchId=${branchId}&email=${encodeURIComponent(email.trim())}`,
+        `/api/attendance?branchId=${branchId}&email=${encodeURIComponent(email.trim())}`
       );
       const data = await response.json();
 
@@ -227,7 +227,7 @@ export default function AttendancePage() {
   const handleAttendanceAction = async (action: 'signin' | 'signout') => {
     if (!location) {
       setError(
-        'Location is required for attendance. Please enable location services.',
+        'Location is required for attendance. Please enable location services.'
       );
       return;
     }
@@ -264,7 +264,7 @@ export default function AttendancePage() {
         setSuccess(
           action === 'signin'
             ? 'Successfully signed in!'
-            : `Successfully signed out! Total hours: ${formatDuration(data.attendance.totalHours || 0)}`,
+            : `Successfully signed out! Total hours: ${formatDuration(data.attendance.totalHours || 0)}`
         );
         setNotes('');
       } else if (response.status === 400) {

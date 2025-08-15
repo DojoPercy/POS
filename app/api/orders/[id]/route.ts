@@ -111,7 +111,7 @@ export async function PUT(req: NextRequest, { params }: any) {
           const key = `${line.ingredientId}-${body.branchId}`;
           ingredientDeductions.set(
             key,
-            (ingredientDeductions.get(key) || 0) + deductQty,
+            (ingredientDeductions.get(key) || 0) + deductQty
           );
         } else {
           // Menu item order - deduct ingredients based on recipe
@@ -125,7 +125,7 @@ export async function PUT(req: NextRequest, { params }: any) {
             const key = `${ingredient.ingredientId}-${body.branchId}`;
             ingredientDeductions.set(
               key,
-              (ingredientDeductions.get(key) || 0) + deductQty,
+              (ingredientDeductions.get(key) || 0) + deductQty
             );
           }
         }
@@ -146,7 +146,7 @@ export async function PUT(req: NextRequest, { params }: any) {
               },
             },
           });
-        },
+        }
       );
 
       // Run all inventory updates in a single transaction
@@ -157,7 +157,7 @@ export async function PUT(req: NextRequest, { params }: any) {
     await sendOrderUpdate(updatedOrder);
 
     console.log(
-      `Deleting cache for branchId: ${body.branchId}, companyId: ${body.companyId}, waiterId: ${body.waiterId}`,
+      `Deleting cache for branchId: ${body.branchId}, companyId: ${body.companyId}, waiterId: ${body.waiterId}`
     );
     console.log('Cache keys to delete:', cacheKeys);
 

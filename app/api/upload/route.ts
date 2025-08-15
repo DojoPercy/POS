@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     if (!base64) {
       return new NextResponse(
         JSON.stringify({ error: 'Base64 string is required' }),
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     console.error('Error uploading image:', error);
     return new NextResponse(
       JSON.stringify({ error: 'Failed to upload image' }),
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     console.error('Error triggering Pusher event:', error);
     return NextResponse.json(
       { error: 'Failed to trigger event' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -31,7 +31,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
     const allOrders = await getOrders(undefined, decodedToken.branchId ?? '');
     const filtered = allOrders.filter(
       (o: { isCompleted: any; isCheckedOut: any }) =>
-        !(o.isCompleted && o.isCheckedOut),
+        !(o.isCompleted && o.isCheckedOut)
     );
     setOrders(filtered);
   };

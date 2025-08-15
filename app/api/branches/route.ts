@@ -58,7 +58,7 @@ export async function GET(req: Request) {
       if (!branch) {
         return NextResponse.json(
           { error: 'Branch not found' },
-          { status: 404 },
+          { status: 404 }
         );
       }
 
@@ -111,7 +111,7 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json(
       { message: 'Branch deleted successfully' },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

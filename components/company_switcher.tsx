@@ -84,7 +84,7 @@ export function CompanySwitcher({
                     'mr-2 h-4 w-4',
                     selectedCompany?.id === companies[0].id
                       ? 'opacity-100'
-                      : 'opacity-0',
+                      : 'opacity-0'
                   )}
                 />
                 <div className='flex items-center'>
@@ -112,7 +112,7 @@ export function CompanySwitcher({
                       'mr-2 h-4 w-4',
                       selectedCompany?.id === company.id
                         ? 'opacity-100'
-                        : 'opacity-0',
+                        : 'opacity-0'
                     )}
                   />
                   <div className='flex items-center'>

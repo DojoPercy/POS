@@ -66,7 +66,7 @@ export function ActivationStep({
       setIsProcessing(false);
       setIsActivated(true);
       setActivationCode(
-        `POS-${Math.floor(10000 + Math.random() * 90000)}-${generateRandomString(3)}`,
+        `POS-${Math.floor(10000 + Math.random() * 90000)}-${generateRandomString(3)}`
       );
     }, 2000);
   };
@@ -76,7 +76,7 @@ export function ActivationStep({
     let result = '';
     for (let i = 0; i < length; i++) {
       result += characters.charAt(
-        Math.floor(Math.random() * characters.length),
+        Math.floor(Math.random() * characters.length)
       );
     }
     return result;
@@ -110,10 +110,10 @@ export function ActivationStep({
                   className={`
                     flex flex-col h-full p-5 rounded-lg border-2 cursor-pointer
                     ${
-              formData.subscriptionPlan === plan.id
-                ? 'border-primary bg-primary/5'
-                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-              }
+                      formData.subscriptionPlan === plan.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    }
                     ${plan.popular ? 'pt-6' : ''}
                   `}
                 >

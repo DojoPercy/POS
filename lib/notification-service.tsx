@@ -21,63 +21,63 @@ export class NotificationService {
     let notifications = [];
 
     switch (user.role) {
-    case 'owner':
-      // Company owner sees company-wide and their personal notifications
-      notifications = await prisma.notification.findMany({
-        where: {
-          OR: [
-            { companyId: user.companyId, type: NotificationType.COMPANY },
-            { userId: userId, type: NotificationType.USER },
-            { expiresAt: null },
-            { expiresAt: { gte: new Date() } },
-          ],
-        },
-        include: {
-          company: true,
-          branch: true,
-          user: true,
-        },
-        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
-      });
-      break;
+      case 'owner':
+        // Company owner sees company-wide and their personal notifications
+        notifications = await prisma.notification.findMany({
+          where: {
+            OR: [
+              { companyId: user.companyId, type: NotificationType.COMPANY },
+              { userId: userId, type: NotificationType.USER },
+              { expiresAt: null },
+              { expiresAt: { gte: new Date() } },
+            ],
+          },
+          include: {
+            company: true,
+            branch: true,
+            user: true,
+          },
+          orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+        });
+        break;
 
-    case 'manager':
-      // Branch manager sees branch and their personal notifications
-      notifications = await prisma.notification.findMany({
-        where: {
-          OR: [
-            { branchId: user.branchId, type: NotificationType.BRANCH },
-            { userId: userId, type: NotificationType.USER },
-            { expiresAt: null },
-            { expiresAt: { gte: new Date() } },
-          ],
-        },
-        include: {
-          company: true,
-          branch: true,
-          user: true,
-        },
-        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
-      });
-      break;
+      case 'manager':
+        // Branch manager sees branch and their personal notifications
+        notifications = await prisma.notification.findMany({
+          where: {
+            OR: [
+              { branchId: user.branchId, type: NotificationType.BRANCH },
+              { userId: userId, type: NotificationType.USER },
+              { expiresAt: null },
+              { expiresAt: { gte: new Date() } },
+            ],
+          },
+          include: {
+            company: true,
+            branch: true,
+            user: true,
+          },
+          orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+        });
+        break;
 
-    case 'waiter':
-    case 'kitchen':
-    default:
-      // Regular users only see their personal notifications
-      notifications = await prisma.notification.findMany({
-        where: {
-          userId: userId,
-          type: NotificationType.USER,
-        },
-        include: {
-          company: true,
-          branch: true,
-          user: true,
-        },
-        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
-      });
-      break;
+      case 'waiter':
+      case 'kitchen':
+      default:
+        // Regular users only see their personal notifications
+        notifications = await prisma.notification.findMany({
+          where: {
+            userId: userId,
+            type: NotificationType.USER,
+          },
+          include: {
+            company: true,
+            branch: true,
+            user: true,
+          },
+          orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+        });
+        break;
     }
 
     return notifications;
@@ -140,35 +140,35 @@ export class NotificationService {
     let whereClause = {};
 
     switch (user.role) {
-    case 'owner':
-      whereClause = {
-        OR: [
-          { companyId: user.companyId, type: NotificationType.COMPANY },
-          { userId: userId, type: NotificationType.USER },
-          { expiresAt: null },
-          { expiresAt: { gte: new Date() } },
-        ],
-        isRead: false,
-      };
-      break;
-    case 'manager':
-      whereClause = {
-        OR: [
-          { branchId: user.branchId, type: NotificationType.BRANCH },
-          { userId: userId, type: NotificationType.USER },
-          { expiresAt: null },
-          { expiresAt: { gte: new Date() } },
-        ],
-        isRead: false,
-      };
-      break;
-    default:
-      whereClause = {
-        userId: userId,
-        type: NotificationType.USER,
-        isRead: false,
-      };
-      break;
+      case 'owner':
+        whereClause = {
+          OR: [
+            { companyId: user.companyId, type: NotificationType.COMPANY },
+            { userId: userId, type: NotificationType.USER },
+            { expiresAt: null },
+            { expiresAt: { gte: new Date() } },
+          ],
+          isRead: false,
+        };
+        break;
+      case 'manager':
+        whereClause = {
+          OR: [
+            { branchId: user.branchId, type: NotificationType.BRANCH },
+            { userId: userId, type: NotificationType.USER },
+            { expiresAt: null },
+            { expiresAt: { gte: new Date() } },
+          ],
+          isRead: false,
+        };
+        break;
+      default:
+        whereClause = {
+          userId: userId,
+          type: NotificationType.USER,
+          isRead: false,
+        };
+        break;
     }
 
     return await prisma.notification.updateMany({
@@ -218,35 +218,35 @@ export class NotificationService {
     let whereClause = {};
 
     switch (user.role) {
-    case 'owner':
-      whereClause = {
-        OR: [
-          { companyId: user.companyId, type: NotificationType.COMPANY },
-          { userId: userId, type: NotificationType.USER },
-          { expiresAt: null },
-          { expiresAt: { gte: new Date() } },
-        ],
-        isRead: false,
-      };
-      break;
-    case 'manager':
-      whereClause = {
-        OR: [
-          { branchId: user.branchId, type: NotificationType.BRANCH },
-          { userId: userId, type: NotificationType.USER },
-          { expiresAt: null },
-          { expiresAt: { gte: new Date() } },
-        ],
-        isRead: false,
-      };
-      break;
-    default:
-      whereClause = {
-        userId: userId,
-        type: NotificationType.USER,
-        isRead: false,
-      };
-      break;
+      case 'owner':
+        whereClause = {
+          OR: [
+            { companyId: user.companyId, type: NotificationType.COMPANY },
+            { userId: userId, type: NotificationType.USER },
+            { expiresAt: null },
+            { expiresAt: { gte: new Date() } },
+          ],
+          isRead: false,
+        };
+        break;
+      case 'manager':
+        whereClause = {
+          OR: [
+            { branchId: user.branchId, type: NotificationType.BRANCH },
+            { userId: userId, type: NotificationType.USER },
+            { expiresAt: null },
+            { expiresAt: { gte: new Date() } },
+          ],
+          isRead: false,
+        };
+        break;
+      default:
+        whereClause = {
+          userId: userId,
+          type: NotificationType.USER,
+          isRead: false,
+        };
+        break;
     }
 
     return await prisma.notification.count({

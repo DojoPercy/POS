@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     if (!userId || !branchId || !companyId) {
       return NextResponse.json(
         { error: 'userId, branchId, and companyId are required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -78,11 +78,13 @@ export async function GET(request: NextRequest) {
       isCompleted: boolean;
     }> = weekDays.map((day, index) => {
       const dayOfWeek = index; // 0 = Sunday, 1 = Monday, etc.
-      const shift = shifts.find((s: { dayOfWeek: number }) => s.dayOfWeek === dayOfWeek);
-      const attendance = attendanceRecords.find(
-        (a: { date: Date }) => format(a.date, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
+      const shift = shifts.find(
+        (s: { dayOfWeek: number }) => s.dayOfWeek === dayOfWeek
       );
-      
+      const attendance = attendanceRecords.find(
+        (a: { date: Date }) =>
+          format(a.date, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
+      );
 
       return {
         date: format(day, 'yyyy-MM-dd'),
@@ -90,23 +92,27 @@ export async function GET(request: NextRequest) {
         dayOfWeek,
         shift: shift
           ? {
-            id: shift.id,
-            title: shift.title,
-            startTime: shift.startTime,
-            endTime: shift.endTime,
-            status: shift.status.toString(),
-            shiftState: shift.shiftState.toString(),
-            role: shift.role,
-          }
+              id: shift.id,
+              title: shift.title,
+              startTime: shift.startTime,
+              endTime: shift.endTime,
+              status: shift.status.toString(),
+              shiftState: shift.shiftState.toString(),
+              role: shift.role,
+            }
           : null,
         attendance: attendance
           ? {
-            id: attendance.id,
-            signInTime: attendance.signInTime ? attendance.signInTime.toISOString() : null,
-            signOutTime: attendance.signOutTime ? attendance.signOutTime.toISOString() : null,
-            status: attendance.status.toString(),
-            totalHours: attendance.totalHours,
-          }
+              id: attendance.id,
+              signInTime: attendance.signInTime
+                ? attendance.signInTime.toISOString()
+                : null,
+              signOutTime: attendance.signOutTime
+                ? attendance.signOutTime.toISOString()
+                : null,
+              status: attendance.status.toString(),
+              totalHours: attendance.totalHours,
+            }
           : null,
         hasShift: !!shift,
         hasAttendance: !!attendance,
@@ -123,10 +129,10 @@ export async function GET(request: NextRequest) {
       weeklySchedule,
       summary: {
         totalShifts: shifts.length,
-        completedShifts: weeklySchedule.filter((day) => day.isCompleted).length,
+        completedShifts: weeklySchedule.filter(day => day.isCompleted).length,
         totalHours: attendanceRecords.reduce(
           (sum, record) => sum + (record.totalHours || 0),
-          0,
+          0
         ),
       },
     });
@@ -134,7 +140,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching staff weekly attendance:', error);
     return NextResponse.json(
       { error: 'Failed to fetch staff weekly attendance' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

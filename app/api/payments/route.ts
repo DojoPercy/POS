@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     if (!branchId && !companyId) {
       return NextResponse.json(
         { error: 'branchId or companyId is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -22,11 +22,11 @@ export async function GET(req: NextRequest) {
         OR: [companyId ? { companyId } : {}, branchId ? { branchId } : {}],
         ...(from && to
           ? {
-            paymentDate: {
-              gte: new Date(from),
-              lte: new Date(to),
-            },
-          }
+              paymentDate: {
+                gte: new Date(from),
+                lte: new Date(to),
+              },
+            }
           : {}),
       },
     });
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json(
         { error: 'Missing required fields' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 

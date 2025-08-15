@@ -79,7 +79,7 @@ export function FrequentItemSelector({ onSelect }: FrequentItemSelectorProps) {
   const dispatch = useDispatch<AppDispatch>();
   const [user, setUsers] = useState<DecodedToken>();
   const { status, error, frequentItems } = useSelector(
-    (state: RootState) => state.expenses,
+    (state: RootState) => state.expenses
   );
 
   useEffect(() => {
@@ -101,7 +101,7 @@ export function FrequentItemSelector({ onSelect }: FrequentItemSelectorProps) {
         >
           {value
             ? frequentItems.find((item: Frequent) => item.id === value)
-              ?.itemName
+                ?.itemName
             : 'Select a frequent item...'}
           <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
         </Button>
@@ -123,7 +123,7 @@ export function FrequentItemSelector({ onSelect }: FrequentItemSelectorProps) {
                       item.id,
                       item.itemName,
                       item.categoryId,
-                      item.quantity,
+                      item.quantity
                     );
                     setOpen(false);
                   }}
@@ -131,7 +131,7 @@ export function FrequentItemSelector({ onSelect }: FrequentItemSelectorProps) {
                   <Check
                     className={cn(
                       'mr-2 h-4 w-4',
-                      value === item.id ? 'opacity-100' : 'opacity-0',
+                      value === item.id ? 'opacity-100' : 'opacity-0'
                     )}
                   />
                   {/* Add quantity to the display in CommandItem */}

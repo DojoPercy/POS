@@ -83,7 +83,7 @@ export default function Register() {
           setBranches(branches);
         } else if (decodedToken.role === 'manager') {
           const branch = branches.find(
-            (branch: { id: string }) => branch.id === decodedToken.branchId,
+            (branch: { id: string }) => branch.id === decodedToken.branchId
           );
           if (branch) {
             setBranches([branch]);
@@ -129,7 +129,7 @@ export default function Register() {
     } catch (err: any) {
       setLoading(false);
       setError(
-        err.response?.data?.message || 'Registration failed. Please try again.',
+        err.response?.data?.message || 'Registration failed. Please try again.'
       );
     }
   };

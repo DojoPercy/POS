@@ -96,7 +96,7 @@ export default function KitchenDashboardPage() {
     const timer = setTimeout(() => {
       if (orders && orders.length > 0) {
         const pendingOrder = orders.find(
-          (order: OrderType) => order.orderStatus === OrderStatus.PENDING,
+          (order: OrderType) => order.orderStatus === OrderStatus.PENDING
         );
         if (pendingOrder) {
           setNewOrderAlert(true);
@@ -178,20 +178,20 @@ export default function KitchenDashboardPage() {
     if (!orders) return [];
 
     switch (activeTab) {
-    case 'pending':
-      return orders.filter(
-        (order: OrderType) => order.orderStatus === OrderStatus.PENDING,
-      );
-    case 'processing':
-      return orders.filter(
-        (order: OrderType) => order.orderStatus === OrderStatus.PROCESSING,
-      );
-    case 'completed':
-      return orders.filter(
-        (order: OrderType) => order.orderStatus === OrderStatus.COMPLETED,
-      );
-    default:
-      return orders;
+      case 'pending':
+        return orders.filter(
+          (order: OrderType) => order.orderStatus === OrderStatus.PENDING
+        );
+      case 'processing':
+        return orders.filter(
+          (order: OrderType) => order.orderStatus === OrderStatus.PROCESSING
+        );
+      case 'completed':
+        return orders.filter(
+          (order: OrderType) => order.orderStatus === OrderStatus.COMPLETED
+        );
+      default:
+        return orders;
     }
   };
 

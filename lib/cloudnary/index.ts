@@ -1,5 +1,5 @@
 export const uploadBase64Image = async (
-  base64: string,
+  base64: string
 ): Promise<string | null> => {
   console.log('Uploading image to Cloudinary...');
   const res = await fetch('/api/upload', {

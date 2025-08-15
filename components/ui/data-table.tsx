@@ -134,7 +134,7 @@ export function DataTable<TData, TValue>({
 
   // Get status badge variant based on status value
   const getStatusVariant = (
-    status: string,
+    status: string
   ): 'default' | 'secondary' | 'destructive' | 'outline' => {
     const statusLower = status.toLowerCase();
     if (
@@ -223,9 +223,9 @@ export function DataTable<TData, TValue>({
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
                         </TableHead>
                       );
                     })}
@@ -249,7 +249,7 @@ export function DataTable<TData, TValue>({
                           <TableCell key={cell.id} className={meta?.className}>
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext(),
+                              cell.getContext()
                             )}
                           </TableCell>
                         );
@@ -356,7 +356,7 @@ export function DataTable<TData, TValue>({
           {Math.min(
             (table.getState().pagination.pageIndex + 1) *
               table.getState().pagination.pageSize,
-            table.getFilteredRowModel().rows.length,
+            table.getFilteredRowModel().rows.length
           )}{' '}
           of {table.getFilteredRowModel().rows.length} entries
         </div>
@@ -420,7 +420,7 @@ export function DataTable<TData, TValue>({
                     {getRowValue(selectedRow, 'orderStatus') ? (
                       <Badge
                         variant={getStatusVariant(
-                          getRowValue(selectedRow, 'orderStatus').toString(),
+                          getRowValue(selectedRow, 'orderStatus').toString()
                         )}
                       >
                         {getRowValue(selectedRow, 'orderStatus').toString()}
@@ -445,8 +445,8 @@ export function DataTable<TData, TValue>({
                   <div className='text-sm col-span-2'>
                     {getRowValue(selectedRow, 'createdAt')
                       ? formatDate(
-                        getRowValue(selectedRow, 'createdAt').toString(),
-                      )
+                          getRowValue(selectedRow, 'createdAt').toString()
+                        )
                       : '—'}
                   </div>
                 </div>
@@ -457,8 +457,8 @@ export function DataTable<TData, TValue>({
                   <div className='text-sm col-span-2'>
                     {getRowValue(selectedRow, 'orderedDate')
                       ? formatDate(
-                        getRowValue(selectedRow, 'orderedDate').toString(),
-                      )
+                          getRowValue(selectedRow, 'orderedDate').toString()
+                        )
                       : '—'}
                   </div>
                 </div>
@@ -469,8 +469,8 @@ export function DataTable<TData, TValue>({
                   <div className='text-sm col-span-2'>
                     {getRowValue(selectedRow, 'requiredDate')
                       ? formatDate(
-                        getRowValue(selectedRow, 'requiredDate').toString(),
-                      )
+                          getRowValue(selectedRow, 'requiredDate').toString()
+                        )
                       : '—'}
                   </div>
                 </div>
@@ -560,16 +560,16 @@ export function DataTable<TData, TValue>({
                 {/* Order Lines Summary */}
                 {getRowValue(selectedRow, 'orderLines') &&
                   getRowValue(selectedRow, 'orderLines').length > 0 && (
-                  <div className='pt-2 border-t'>
-                    <h3 className='text-sm font-semibold mb-2'>
+                    <div className='pt-2 border-t'>
+                      <h3 className='text-sm font-semibold mb-2'>
                         Order Items
-                    </h3>
-                    <div className='text-sm'>
-                      {getRowValue(selectedRow, 'orderLines').length} item(s)
+                      </h3>
+                      <div className='text-sm'>
+                        {getRowValue(selectedRow, 'orderLines').length} item(s)
                         in this order
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             )}
           </ScrollArea>

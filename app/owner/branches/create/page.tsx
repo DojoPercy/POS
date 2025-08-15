@@ -93,13 +93,13 @@ export default function BranchManagement() {
         setCompanyId(decodedToken.companyId || ''); // Set the companyId from the token
         const response = await axios.get('/api/users');
         const managers = response.data.filter(
-          (user: User) => user.role === 'manager',
+          (user: User) => user.role === 'manager'
         );
         setUsers(managers);
       } catch (err: any) {
         console.error(
           'Failed to fetch users:',
-          err.response?.data?.error || err.message,
+          err.response?.data?.error || err.message
         );
       }
     };
@@ -111,7 +111,7 @@ export default function BranchManagement() {
       } catch (err: any) {
         console.error(
           'Failed to fetch branches:',
-          err.response?.data?.error || err.message,
+          err.response?.data?.error || err.message
         );
       }
     };
@@ -145,7 +145,7 @@ export default function BranchManagement() {
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          'Failed to create branch. Please try again.',
+          'Failed to create branch. Please try again.'
       );
     }
   };

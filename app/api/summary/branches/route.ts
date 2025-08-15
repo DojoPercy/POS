@@ -11,14 +11,14 @@ export async function GET(request: NextRequest) {
     if (!companyId) {
       return NextResponse.json(
         { error: 'Company ID is required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (!fromDate || !toDate) {
       return NextResponse.json(
         { error: 'From and To dates are required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     console.error('Error in /api/summary/branches:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

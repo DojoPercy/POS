@@ -49,7 +49,7 @@ export function MenuSetupStep({
 }: MenuSetupStepProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [activeCategory, setActiveCategory] = useState<string>(
-    formData.menuCategories[0]?.id || '',
+    formData.menuCategories[0]?.id || ''
   );
   const [activeMenuItem, setActiveMenuItem] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('categories');
@@ -59,7 +59,7 @@ export function MenuSetupStep({
 
     // Check if at least one category has a name
     const hasNamedCategory = formData.menuCategories.some(
-      (cat: any) => cat.name.trim() !== '',
+      (cat: any) => cat.name.trim() !== ''
     );
 
     if (!hasNamedCategory) {
@@ -111,7 +111,7 @@ export function MenuSetupStep({
   const removeCategory = (categoryId: string) => {
     if (formData.menuCategories.length > 1) {
       const updatedCategories = formData.menuCategories.filter(
-        (cat: any) => cat.id !== categoryId,
+        (cat: any) => cat.id !== categoryId
       );
       updateFormData({ menuCategories: updatedCategories });
 
@@ -167,7 +167,7 @@ export function MenuSetupStep({
 
   const removeMenuItem = (categoryId: string, itemId: string) => {
     const category = formData.menuCategories.find(
-      (cat: any) => cat.id === categoryId,
+      (cat: any) => cat.id === categoryId
     );
 
     if (category && category.menuItems.length > 1) {
@@ -186,7 +186,7 @@ export function MenuSetupStep({
       // Update active menu item if the removed one was active
       if (activeMenuItem === itemId) {
         const newCategory = updatedCategories.find(
-          (cat: any) => cat.id === categoryId,
+          (cat: any) => cat.id === categoryId
         );
         setActiveMenuItem(newCategory.menuItems[0].id);
       }
@@ -197,7 +197,7 @@ export function MenuSetupStep({
     categoryId: string,
     itemId: string,
     field: string,
-    value: any,
+    value: any
   ) => {
     const updatedCategories = formData.menuCategories.map((cat: any) => {
       if (cat.id === categoryId) {
@@ -246,7 +246,7 @@ export function MenuSetupStep({
   const removePriceType = (
     categoryId: string,
     itemId: string,
-    priceTypeId: string,
+    priceTypeId: string
   ) => {
     const updatedCategories = formData.menuCategories.map((cat: any) => {
       if (cat.id === categoryId) {
@@ -257,7 +257,7 @@ export function MenuSetupStep({
               return {
                 ...item,
                 priceTypes: item.priceTypes.filter(
-                  (pt: any) => pt.id !== priceTypeId,
+                  (pt: any) => pt.id !== priceTypeId
                 ),
               };
             }
@@ -276,7 +276,7 @@ export function MenuSetupStep({
     itemId: string,
     priceTypeId: string,
     field: string,
-    value: any,
+    value: any
   ) => {
     const updatedCategories = formData.menuCategories.map((cat: any) => {
       if (cat.id === categoryId) {
@@ -314,7 +314,7 @@ export function MenuSetupStep({
   const updateMenuItemIngredients = (
     categoryId: string,
     itemId: string,
-    ingredients: MenuIngredient[],
+    ingredients: MenuIngredient[]
   ) => {
     const updatedCategories = formData.menuCategories.map((cat: any) => {
       if (cat.id === categoryId) {
@@ -338,7 +338,7 @@ export function MenuSetupStep({
   const handleImageChange = (
     categoryId: string,
     itemId: string,
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -357,7 +357,7 @@ export function MenuSetupStep({
     formData.menuCategories[0];
   const activeMenuItemData =
     activeCategoryData?.menuItems.find(
-      (item: any) => item.id === activeMenuItem,
+      (item: any) => item.id === activeMenuItem
     ) || activeCategoryData?.menuItems[0];
 
   return (
@@ -465,7 +465,7 @@ export function MenuSetupStep({
                             updateCategory(
                               activeCategoryData.id,
                               'name',
-                              e.target.value,
+                              e.target.value
                             )
                           }
                           className='pl-10'
@@ -492,7 +492,7 @@ export function MenuSetupStep({
                             updateCategory(
                               activeCategoryData.id,
                               'description',
-                              e.target.value,
+                              e.target.value
                             )
                           }
                           className='pl-10 min-h-[80px]'
@@ -614,7 +614,7 @@ export function MenuSetupStep({
                             activeCategory,
                             activeMenuItemData.id,
                             'name',
-                            e.target.value,
+                            e.target.value
                           )
                         }
                         placeholder='e.g., Chicken Sandwich, Chocolate Cake'
@@ -636,7 +636,7 @@ export function MenuSetupStep({
                             activeCategory,
                             activeMenuItemData.id,
                             'description',
-                            e.target.value,
+                            e.target.value
                           )
                         }
                         className='min-h-[80px]'
@@ -675,7 +675,7 @@ export function MenuSetupStep({
                               handleImageChange(
                                 activeCategory,
                                 activeMenuItemData.id,
-                                e,
+                                e
                               )
                             }
                             className='hidden'
@@ -755,7 +755,7 @@ export function MenuSetupStep({
                                             activeMenuItemData.id,
                                             priceType.id,
                                             'name',
-                                            e.target.value,
+                                            e.target.value
                                           )
                                         }
                                         placeholder='e.g., Small, Medium, Large, Regular'
@@ -784,7 +784,7 @@ export function MenuSetupStep({
                                               activeMenuItemData.id,
                                               priceType.id,
                                               'price',
-                                              e.target.value,
+                                              e.target.value
                                             )
                                           }
                                           className='pl-8'
@@ -803,7 +803,7 @@ export function MenuSetupStep({
                                         removePriceType(
                                           activeCategory,
                                           activeMenuItemData.id,
-                                          priceType.id,
+                                          priceType.id
                                         )
                                       }
                                       className='text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 mt-2'
@@ -815,7 +815,7 @@ export function MenuSetupStep({
                                 </div>
                               </AccordionContent>
                             </AccordionItem>
-                          ),
+                          )
                         )}
                       </Accordion>
                     </div>
@@ -845,7 +845,7 @@ export function MenuSetupStep({
                     updateMenuItemIngredients(
                       activeCategory,
                       activeMenuItemData.id,
-                      ingredients,
+                      ingredients
                     )
                   }
                   isDialogOpen={isDialogOpen}

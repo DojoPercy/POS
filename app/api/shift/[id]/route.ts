@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     const body = await request.json();
@@ -47,14 +47,14 @@ export async function PUT(
     console.error('Error updating shift:', error);
     return NextResponse.json(
       { error: 'Failed to update shift' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     await prisma.shift.delete({
@@ -66,7 +66,7 @@ export async function DELETE(
     console.error('Error deleting shift:', error);
     return NextResponse.json(
       { error: 'Failed to delete shift' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

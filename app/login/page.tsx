@@ -102,26 +102,24 @@ const Login = () => {
   };
 
   return (
-    <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
+    <div className='relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0'>
       <ThemeProvider>
-        <div className="relative flex lg:flex-row w-full h-screen justify-center flex-col dark:bg-gray-900 sm:p-0">
+        <div className='relative flex lg:flex-row w-full h-screen justify-center flex-col dark:bg-gray-900 sm:p-0'>
           {/* Left Side - Login Form */}
-          <div className="flex flex-col flex-1 lg:w-1/2 w-full">
-         
-            
-            <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+          <div className='flex flex-col flex-1 lg:w-1/2 w-full'>
+            <div className='flex flex-col justify-center flex-1 w-full max-w-md mx-auto'>
               <div
                 className={`transform transition-all duration-1000 delay-700 ${animateIn ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
               >
-                <div className="mb-5 sm:mb-8">
-                  <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+                <div className='mb-5 sm:mb-8'>
+                  <h1 className='mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md'>
                     Sign In
                   </h1>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className='text-sm text-gray-500 dark:text-gray-400'>
                     Enter your email and password to sign in!
                   </p>
                 </div>
-                
+
                 <div>
                   {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
                     <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
@@ -176,113 +174,120 @@ const Login = () => {
                       </span>
                     </div>
                   </div> */}
-                  
+
                   <form onSubmit={handleSubmit}>
-                    <div className="space-y-6">
+                    <div className='space-y-6'>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
-                          Email <span className="text-error-500">*</span>
+                        <label className='block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300'>
+                          Email <span className='text-error-500'>*</span>
                         </label>
-                        <div className="relative group">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
+                        <div className='relative group'>
+                          <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200' />
                           <Input
-                            type="email"
-                            name="email"
+                            type='email'
+                            name='email'
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="pl-10 h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-lg transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                            placeholder="info@gmail.com"
+                            className='pl-10 h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-lg transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white'
+                            placeholder='info@gmail.com'
                           />
                           {formData.email && (
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <div className='absolute right-3 top-1/2 transform -translate-y-1/2'>
                               {isValidEmail ? (
-                                <CheckCircle className="w-5 h-5 text-green-500" />
+                                <CheckCircle className='w-5 h-5 text-green-500' />
                               ) : (
-                                <AlertCircle className="w-5 h-5 text-red-500" />
+                                <AlertCircle className='w-5 h-5 text-red-500' />
                               )}
                             </div>
                           )}
                         </div>
                       </div>
-                      
+
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
-                          Password <span className="text-error-500">*</span>
+                        <label className='block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300'>
+                          Password <span className='text-error-500'>*</span>
                         </label>
-                        <div className="relative group">
-                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
+                        <div className='relative group'>
+                          <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200' />
                           <Input
-                            type={showPassword ? "text" : "password"}
-                            name="password"
+                            type={showPassword ? 'text' : 'password'}
+                            name='password'
                             value={formData.password}
                             onChange={handleChange}
                             required
-                            className="pl-10 pr-10 h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-lg transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                            placeholder="Enter your password"
+                            className='pl-10 pr-10 h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-lg transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white'
+                            placeholder='Enter your password'
                           />
                           <button
-                            type="button"
+                            type='button'
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                            className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200'
                           >
                             {showPassword ? (
-                              <EyeOff className="w-5 h-5" />
+                              <EyeOff className='w-5 h-5' />
                             ) : (
-                              <Eye className="w-5 h-5" />
+                              <Eye className='w-5 h-5' />
                             )}
                           </button>
                           {formData.password && (
-                            <div className="absolute right-10 top-1/2 transform -translate-y-1/2">
+                            <div className='absolute right-10 top-1/2 transform -translate-y-1/2'>
                               {isValidPassword ? (
-                                <CheckCircle className="w-5 h-5 text-green-500" />
+                                <CheckCircle className='w-5 h-5 text-green-500' />
                               ) : (
-                                <AlertCircle className="w-5 h-5 text-red-500" />
+                                <AlertCircle className='w-5 h-5 text-red-500' />
                               )}
                             </div>
                           )}
                         </div>
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+
+                      <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-3'>
                           <input
-                            type="checkbox"
+                            type='checkbox'
                             checked={isChecked}
-                            onChange={(e) => setIsChecked(e.target.checked)}
-                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            onChange={e => setIsChecked(e.target.checked)}
+                            className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                           />
-                          <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
+                          <span className='block font-normal text-gray-700 text-theme-sm dark:text-gray-400'>
                             Keep me logged in
                           </span>
                         </div>
                         <Link
-                          href="/reset-password"
-                          className="text-sm text-purple-500 hover:text-purple-600 dark:text-purple-400"
+                          href='/reset-password'
+                          className='text-sm text-purple-500 hover:text-purple-600 dark:text-purple-400'
                         >
                           Forgot password?
                         </Link>
                       </div>
 
                       {error && (
-                        <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 animate-in slide-in-from-top-2 duration-300 dark:bg-red-900/20 dark:border-red-800">
-                          <div className="flex items-center space-x-2">
-                            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                            <p className="text-sm text-red-600 font-medium dark:text-red-400">{error}</p>
+                        <div className='bg-red-50 border-2 border-red-200 rounded-lg p-3 animate-in slide-in-from-top-2 duration-300 dark:bg-red-900/20 dark:border-red-800'>
+                          <div className='flex items-center space-x-2'>
+                            <AlertCircle className='w-5 h-5 text-red-500 flex-shrink-0' />
+                            <p className='text-sm text-red-600 font-medium dark:text-red-400'>
+                              {error}
+                            </p>
                           </div>
                         </div>
                       )}
-                      
+
                       <div>
                         <Button
-                          type="submit"
-                          disabled={loading || isMatch || !isValidEmail || !isValidPassword}
-                          className="w-full h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-800 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                          type='submit'
+                          disabled={
+                            loading ||
+                            isMatch ||
+                            !isValidEmail ||
+                            !isValidPassword
+                          }
+                          className='w-full h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-800 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
                         >
                           {loading || isMatch ? (
-                            <div className="flex items-center space-x-2">
+                            <div className='flex items-center space-x-2'>
                               <ClipLoader
-                                color="#fff"
+                                color='#fff'
                                 loading={loading || isMatch}
                                 size={18}
                               />
@@ -296,12 +301,12 @@ const Login = () => {
                     </div>
                   </form>
 
-                  <div className="mt-5">
-                    <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                      Don&apos;t have an account? {""}
+                  <div className='mt-5'>
+                    <p className='text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start'>
+                      Don&apos;t have an account? {''}
                       <Link
-                        href="/signup"
-                        className="text-purple-500 hover:text-purple-600 dark:text-purple-400"
+                        href='/signup'
+                        className='text-purple-500 hover:text-purple-600 dark:text-purple-400'
                       >
                         Sign Up
                       </Link>
@@ -313,70 +318,113 @@ const Login = () => {
           </div>
 
           {/* Right Side - Grid Shape Design */}
-          <div className="lg:w-1/2 w-full h-full bg-purple-950 bg-purple/5 lg:grid items-center hidden">
-            <div className="relative items-center justify-center flex z-1">
+          <div className='lg:w-1/2 w-full h-full bg-purple-950 bg-purple/5 lg:grid items-center hidden'>
+            <div className='relative items-center justify-center flex z-1'>
               {/* Grid Shape */}
               <GridShape />
-              <div className="flex flex-col items-center max-w-sm text-center px-8 ">
-                <Link href="/" className="block mb-6 bg-white rounded-lg p-2">
+              <div className='flex flex-col items-center max-w-sm text-center px-8 '>
+                <Link href='/' className='block mb-6 bg-white rounded-lg p-2'>
                   <Image
                     width={231}
                     height={48}
-                    src="/logo.png"
-                    alt="Logo"
-                    className="h-12 w-auto"
+                    src='/logo.png'
+                    alt='Logo'
+                    className='h-12 w-auto'
                   />
                 </Link>
-                
-                <h2 className="text-2xl font-bold text-white mb-4">
+
+                <h2 className='text-2xl font-bold text-white mb-4'>
                   Restaurant Chain Management
                 </h2>
-                
-                <p className="text-gray-300 mb-8 leading-relaxed">
-                  Streamline your restaurant operations with our comprehensive management platform. 
-                  From order processing to inventory control, we've got you covered.
+
+                <p className='text-gray-300 mb-8 leading-relaxed'>
+                  Streamline your restaurant operations with our comprehensive
+                  management platform. From order processing to inventory
+                  control, we've got you covered.
                 </p>
-                
-                <div className="space-y-4 w-full">
-                  <div className="flex items-center space-x-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                    <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+                <div className='space-y-4 w-full'>
+                  <div className='flex items-center space-x-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20'>
+                    <div className='w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0'>
+                      <svg
+                        className='w-4 h-4 text-white'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                        />
                       </svg>
                     </div>
-                    <div className="text-left">
-                      <span className="text-sm font-semibold text-white">Multi-location Control</span>
-                      <p className="text-xs text-gray-300">Manage all branches seamlessly</p>
+                    <div className='text-left'>
+                      <span className='text-sm font-semibold text-white'>
+                        Multi-location Control
+                      </span>
+                      <p className='text-xs text-gray-300'>
+                        Manage all branches seamlessly
+                      </p>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center space-x-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                    <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+
+                  <div className='flex items-center space-x-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20'>
+                    <div className='w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0'>
+                      <svg
+                        className='w-4 h-4 text-white'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'
+                        />
                       </svg>
                     </div>
-                    <div className="text-left">
-                      <span className="text-sm font-semibold text-white">Real-time Analytics</span>
-                      <p className="text-xs text-gray-300">Data-driven insights for growth</p>
+                    <div className='text-left'>
+                      <span className='text-sm font-semibold text-white'>
+                        Real-time Analytics
+                      </span>
+                      <p className='text-xs text-gray-300'>
+                        Data-driven insights for growth
+                      </p>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center space-x-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                    <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+
+                  <div className='flex items-center space-x-3 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20'>
+                    <div className='w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0'>
+                      <svg
+                        className='w-4 h-4 text-white'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1'
+                        />
                       </svg>
                     </div>
-                    <div className="text-left">
-                      <span className="text-sm font-semibold text-white">Smart Inventory</span>
-                      <p className="text-xs text-gray-300">Automated stock management</p>
+                    <div className='text-left'>
+                      <span className='text-sm font-semibold text-white'>
+                        Smart Inventory
+                      </span>
+                      <p className='text-xs text-gray-300'>
+                        Automated stock management
+                      </p>
                     </div>
                   </div>
                 </div>
-                
-                <div className="mt-8 pt-6 border-t border-white/20">
-                  <p className="text-xs text-gray-400">
+
+                <div className='mt-8 pt-6 border-t border-white/20'>
+                  <p className='text-xs text-gray-400'>
                     Trusted by restaurants worldwide
                   </p>
                 </div>

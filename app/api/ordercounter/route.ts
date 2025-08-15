@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
       if (!branchId || !date) {
         return NextResponse.json(
           { error: 'Invalid BranchId' },
-          { status: 400 },
+          { status: 400 }
         );
       }
 

@@ -2,7 +2,6 @@ import { Expense } from './types/types';
 
 const API_URL = '/api/expenses';
 
-
 export type ExpenseSummaryByDate = {
   date: string;
   expenses: number;
@@ -21,9 +20,8 @@ export async function getExpenseSumByDateRange(
   from: Date,
   to: Date,
   branchId?: string,
-  companyId?: string,
+  companyId?: string
 ): Promise<number> {
- 
   if (companyId) {
     const res = await fetch(`/api/expenses?companyId=${companyId}`, {
       method: 'GET',
@@ -56,7 +54,7 @@ export async function getExpenseSumByDateRange(
 export async function getExpensesSummaryByDateRangeOwner(
   from: Date,
   to: Date,
-  companyId: string,
+  companyId: string
 ): Promise<any[]> {
   const res = await fetch(`/api/expenses?companyId=${companyId}`, {
     method: 'GET',
@@ -79,7 +77,7 @@ export async function getExpensesSummaryByDateRangeOwner(
     0,
     0,
     0,
-    0,
+    0
   );
   const toTime = Date.UTC(
     to.getFullYear(),
@@ -88,7 +86,7 @@ export async function getExpensesSummaryByDateRangeOwner(
     23,
     59,
     59,
-    999,
+    999
   );
 
   const filteredExpenses = expenses.filter((expense: any) => {
@@ -124,7 +122,7 @@ export async function getTotalExpenseCount(
   from: Date,
   to: Date,
   branchId?: string,
-  companyId?: string,
+  companyId?: string
 ): Promise<number> {
   const query = {
     queryType: expenseOperations.getTotalExpenseCount,
@@ -189,7 +187,7 @@ export async function getExpenseById(id: string) {
 
 export async function updateExpense(
   id: string,
-  updatedExpense: Partial<Expense>,
+  updatedExpense: Partial<Expense>
 ) {
   console.log('Updating expense with ID:', updatedExpense);
   const response = await fetch(`${API_URL}/${id}`, {
@@ -217,7 +215,7 @@ export async function getFrequentItems(branchId: string) {
     {
       method: 'GET',
       credentials: 'include',
-    },
+    }
   );
   return response.json();
 }
@@ -255,7 +253,7 @@ export async function updateFrequentItem(
     branchId: string;
     categoryId: string;
     quantity: number;
-  },
+  }
 ) {
   const response = await fetch(`/api/expenses/frequent-items/${id}`, {
     method: 'PUT',

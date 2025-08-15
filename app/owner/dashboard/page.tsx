@@ -328,7 +328,7 @@ export default function ImprovedDashboard() {
       } catch (err: any) {
         console.error(
           'Failed to fetch branches:',
-          err.response?.data?.error || err.message,
+          err.response?.data?.error || err.message
         );
       }
     };
@@ -351,34 +351,34 @@ export default function ImprovedDashboard() {
 
         // Fetch today's data
         const todayBranchSummaries = await getTodaySalesSummaryOfBranches(
-          selectedCompany.id,
+          selectedCompany.id
         );
         setBranchSummaries(todayBranchSummaries!);
 
         const todayRevenue = todayBranchSummaries!.reduce(
           (sum, branch) => sum + Number.parseFloat(branch.revenue),
-          0,
+          0
         );
         const todayOrders = todayBranchSummaries!.reduce(
           (sum, branch) => sum + branch.sales,
-          0,
+          0
         );
 
         // Fetch yesterday's data
         const yesterdayBranchSummaries = await getSalesSummaryOfBranches(
           yesterday,
           yesterday,
-          selectedCompany.id,
+          selectedCompany.id
         );
         const yesterdayRevenue =
           yesterdayBranchSummaries?.reduce(
             (sum, branch) => sum + Number.parseFloat(branch.revenue),
-            0,
+            0
           ) || 0;
         const yesterdayOrders =
           yesterdayBranchSummaries?.reduce(
             (sum, branch) => sum + branch.sales,
-            0,
+            0
           ) || 0;
 
         // Calculate changes
@@ -451,7 +451,7 @@ export default function ImprovedDashboard() {
           const date = new Date(today);
           date.setDate(date.getDate() - i);
           sparklinePromises.push(
-            getSalesSummaryOfBranches(date, date, selectedCompany.id),
+            getSalesSummaryOfBranches(date, date, selectedCompany.id)
           );
         }
 
@@ -460,11 +460,11 @@ export default function ImprovedDashboard() {
           result =>
             result?.reduce(
               (sum, branch) => sum + Number.parseFloat(branch.revenue),
-              0,
-            ) || 0,
+              0
+            ) || 0
         );
         const ordersSparkline = sparklineResults.map(
-          result => result?.reduce((sum, branch) => sum + branch.sales, 0) || 0,
+          result => result?.reduce((sum, branch) => sum + branch.sales, 0) || 0
         );
 
         setSparklineData({
@@ -473,7 +473,7 @@ export default function ImprovedDashboard() {
           profit: revenueSparkline.map(rev => rev * 0.35), // Assuming 35% profit margin
           expenses: revenueSparkline.map(rev => rev * 0.2), // Assuming 20% expenses
           avgOrderValue: revenueSparkline.map((rev, idx) =>
-            ordersSparkline[idx] > 0 ? rev / ordersSparkline[idx] : 0,
+            ordersSparkline[idx] > 0 ? rev / ordersSparkline[idx] : 0
           ),
         });
 
@@ -481,17 +481,17 @@ export default function ImprovedDashboard() {
         setBranches(prevBranches =>
           prevBranches.map(branch => {
             const summary = todayBranchSummaries?.find(
-              s => s.branch === branch.name,
+              s => s.branch === branch.name
             );
             return {
               ...branch,
               todayRevenue: summary ? Number.parseFloat(summary.revenue) : 0,
               todayOrders: summary ? summary.sales : 0,
             };
-          }),
+          })
         );
       } catch (error) {
-        console.error('Error fetching today\'s stats:', error);
+        console.error("Error fetching today's stats:", error);
       } finally {
         setLoading(false);
       }
@@ -536,7 +536,7 @@ export default function ImprovedDashboard() {
 
       try {
         const headerPromises = StatisticHeaders.map(header =>
-          header.call(fromDate, toDate, undefined, selectedCompany.id),
+          header.call(fromDate, toDate, undefined, selectedCompany.id)
         );
         const headerContent: number[] = await Promise.all(headerPromises);
 
@@ -546,7 +546,7 @@ export default function ImprovedDashboard() {
             .then(data => ({
               index: fn.index,
               data,
-            })),
+            }))
         );
 
         const paymentGraphCalls = StatisticFnsP.map(fn =>
@@ -555,7 +555,7 @@ export default function ImprovedDashboard() {
             .then(data => ({
               index: fn.index,
               data,
-            })),
+            }))
         );
 
         const expensesGraphCalls = StatisticFnsE.map(fn =>
@@ -564,7 +564,7 @@ export default function ImprovedDashboard() {
             .then(data => ({
               index: fn.index,
               data,
-            })),
+            }))
         );
 
         const graphResults = await Promise.all([
@@ -583,17 +583,17 @@ export default function ImprovedDashboard() {
             getOrderSummaryByDateRangeOwner(
               fromDate,
               toDate,
-              selectedCompany.id,
+              selectedCompany.id
             ),
             paymentService.getPaymentSummaryByDateRangeOwner(
               fromDate,
               toDate,
-              selectedCompany.id,
+              selectedCompany.id
             ),
             getExpensesSummaryByDateRangeOwner(
               fromDate,
               toDate,
-              selectedCompany.id,
+              selectedCompany.id
             ),
           ]);
 
@@ -649,7 +649,7 @@ export default function ImprovedDashboard() {
     const topBranch = branches.reduce(
       (max, branch) =>
         (branch.todayRevenue || 0) > (max.todayRevenue || 0) ? branch : max,
-      branches[0],
+      branches[0]
     );
 
     if (topBranch) {
@@ -851,7 +851,7 @@ export default function ImprovedDashboard() {
               {activeTab}
             </span>
             <Badge variant='outline' className='text-xs'>
-              {activeTab === 'overview' && 'Today\'s Summary'}
+              {activeTab === 'overview' && "Today's Summary"}
               {activeTab === 'branches' && `${branches.length} Branches`}
               {activeTab === 'financials' && 'Reports'}
               {activeTab === 'menu' && 'Analytics'}
@@ -968,7 +968,7 @@ export default function ImprovedDashboard() {
               <FinancialAnalyticsChart
                 companyId={selectedCompany.id}
                 currency={selectedCompany.currency}
-                className="mb-6"
+                className='mb-6'
               />
             )}
 
@@ -1162,7 +1162,7 @@ export default function ImprovedDashboard() {
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6'>
               {displayedBranches.map(branch => {
                 const maxRevenue = Math.max(
-                  ...activeBranches.map(b => b.todayRevenue || 0),
+                  ...activeBranches.map(b => b.todayRevenue || 0)
                 );
                 const progressValue =
                   maxRevenue > 0
@@ -1198,7 +1198,7 @@ export default function ImprovedDashboard() {
                               {selectedCompany?.currency}
                               {(branch.todayRevenue || 0).toLocaleString(
                                 undefined,
-                                { minimumFractionDigits: 2 },
+                                { minimumFractionDigits: 2 }
                               )}
                             </span>
                           </div>
@@ -1248,7 +1248,7 @@ export default function ImprovedDashboard() {
               <FinancialAnalyticsChart
                 companyId={selectedCompany.id}
                 currency={selectedCompany.currency}
-                className="mb-6"
+                className='mb-6'
               />
             )}
 

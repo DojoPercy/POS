@@ -75,13 +75,13 @@ export default function BranchManagement() {
       try {
         const response = await axios.get('/api/users');
         const managers = response.data.filter(
-          (user: User) => user.role === 'manager',
+          (user: User) => user.role === 'manager'
         );
         setUsers(managers);
       } catch (err: any) {
         console.error(
           'Failed to fetch users:',
-          err.response?.data?.error || err.message,
+          err.response?.data?.error || err.message
         );
       }
     };
@@ -93,7 +93,7 @@ export default function BranchManagement() {
       } catch (err: any) {
         console.error(
           'Failed to fetch branch:',
-          err.response?.data?.error || err.message,
+          err.response?.data?.error || err.message
         );
       }
     };
@@ -118,7 +118,7 @@ export default function BranchManagement() {
         ...formData,
       });
       setSuccessMessage(
-        'Branch Updated Succefully successfully! Redirecting...',
+        'Branch Updated Succefully successfully! Redirecting...'
       );
       setLoading(false);
       setTimeout(() => {
@@ -127,7 +127,7 @@ export default function BranchManagement() {
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          'Failed to update branch. Please try again.',
+          'Failed to update branch. Please try again.'
       );
     }
   };
