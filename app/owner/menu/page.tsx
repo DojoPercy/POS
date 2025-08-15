@@ -51,6 +51,7 @@ import { useToast } from '@/hooks/use-toast';
 import IngredientDisplay from './menu-indregient';
 import MenuCategoryForm from './menu-category';
 import MenuItemForm from './menu-form';
+import Image from 'next/image';
 
 interface MenuItem {
   id: string;
@@ -153,7 +154,7 @@ const MobileMenuItemCard = ({
                 <MoreVertical className='h-4 w-4' />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
+            <DropdownMenuContent align='end' className='bg-white'>
               <DropdownMenuItem onClick={() => onEdit(item)}>
                 <Edit className='h-4 w-4 mr-2' />
                 Edit
@@ -200,12 +201,23 @@ const DesktopMenuItemCard = ({
       <div className='relative'>
         <div className='aspect-square bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center'>
           {item.imageUrl ? (
-            <Avatar className='h-20 w-20'>
-              <AvatarImage src={item.imageUrl} alt={item.name} />
-              <AvatarFallback>
-                <ChefHat className='h-10 w-10' />
-              </AvatarFallback>
-            </Avatar>
+          <div className="relative overflow-hidden bg-gray-100 w-full h-full">
+          {item.imageUrl ? (
+            <Image
+              src={item.imageUrl}
+              alt={item.name}
+              width={200}
+              height={200}
+              className="object-cover h-full w-full"
+              
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full w-full">
+              <ChefHat className="h-10 w-10 text-gray-400" />
+            </div>
+          )}
+        </div>
+        
           ) : (
             <ChefHat className='h-20 w-20 text-orange-400' />
           )}
@@ -214,7 +226,7 @@ const DesktopMenuItemCard = ({
           ${basePrice.toFixed(2)}
         </Badge>
       </div>
-      <CardContent className='p-6 space-y-4'>
+      <CardContent className='p-6 space-y-4 bg-white'>
         <div className='flex items-start justify-between'>
           <div className='flex-1 min-w-0'>
             <h3 className='text-lg font-semibold text-slate-900 truncate'>
@@ -230,7 +242,7 @@ const DesktopMenuItemCard = ({
                 <MoreVertical className='h-4 w-4' />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
+            <DropdownMenuContent align='end' className='bg-white'>
               <DropdownMenuItem onClick={() => onEdit(item)}>
                 <Edit className='h-4 w-4 mr-2' />
                 Edit Item
@@ -469,7 +481,7 @@ export default function MenuManagement() {
             <SelectTrigger className='w-[160px]'>
               <SelectValue placeholder='Category' />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='bg-white'>
               <SelectItem value='all'>All Categories</SelectItem>
               {categories.map(category => (
                 <SelectItem key={category} value={category}>
@@ -483,7 +495,7 @@ export default function MenuManagement() {
             <SelectTrigger className='w-[120px]'>
               <SelectValue placeholder='Sort by' />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='bg-white'>
               <SelectItem value='name'>Name</SelectItem>
               <SelectItem value='price'>Price</SelectItem>
               <SelectItem value='category'>Category</SelectItem>

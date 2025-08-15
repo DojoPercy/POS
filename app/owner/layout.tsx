@@ -10,6 +10,20 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { NotificationProvider } from '@/components/notification-provider';
 
+import { Outfit } from 'next/font/google';
+
+const montserrat = Outfit({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  weight: ['400', '500', '600', '700'],
+});
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  variable: '--font-outfit',
+  weight: ['400', '500', '600', '700'],
+});
+
 // Error Boundary Component
 class OwnerErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -87,7 +101,7 @@ export default function OwnerLayout({
               <SidebarInset className='flex flex-col flex-1 min-w-0'>
                 <SidebarHeaderComponent />
                 <main className='flex-1 overflow-auto bg-slate-50 p-4 md:p-6'>
-                  <div className='max-w-full'>
+                  <div className={`${montserrat.variable} ${outfit.variable} font-montserrat max-w-full`}>
                     <ErrorBoundary>{children}</ErrorBoundary>
                   </div>
                 </main>

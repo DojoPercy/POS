@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -95,6 +95,16 @@ const businessNavItems = [
     icon: Users,
     text: 'Staff',
     href: '/owner/staffs',
+    children: [
+      {
+        text: 'Staff Management',
+        href: '/owner/staffs',
+      },
+      {
+        text: 'Shift Scheduler',
+        href: '/owner/staffs/shifts-grid',
+      },
+    ],
   },
   {
     icon: Bell,
@@ -160,27 +170,29 @@ export function SideBarOwner() {
   return (
     <Sidebar
       collapsible='icon'
-      className='border-r border-slate-200/60 bg-gradient-to-b from-white to-slate-50/30'
+      className='border-r font-montserrat border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900'
     >
-      <SidebarHeader className='border-b border-slate-200/60 bg-white/80 backdrop-blur-sm'>
+      <SidebarHeader className='border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900'>
         <div className='flex items-center gap-3 px-4 py-4'>
           {/* Enhanced ChainPOS Logo */}
-          <div className='flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 shadow-lg shadow-blue-500/25'>
-            <Crown className='h-6 w-6 text-white' />
+
+          <div className='flex items-center justify-center'>
+          <Image src='/pos_final.png' alt='ChainPOS Logo' width={108} height={108} />
           </div>
-          <div className='flex flex-col group-data-[collapsible=icon]:hidden'>
+      
+          {/* <div className='flex flex-col group-data-[collapsible=icon]:hidden'>
             <span className='text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
               ChainPOS
             </span>
-            <span className='text-xs text-slate-500 font-medium'>
+            <span className='text-xs text-gray-500 dark:text-gray-400 font-medium'>
               Enterprise Platform
             </span>
-          </div>
+          </div> */}
         </div>
 
         {/* Enhanced Company Info Card */}
         {hasCompanies && (
-          <div className='mx-4 mb-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border border-blue-100/50 shadow-sm group-data-[collapsible=icon]:hidden'>
+          <div className='mx-4 mb-4 font-montserrat border-gray-200 dark:border-gray-700 shadow-sm group-data-[collapsible=icon]:hidden'>
             <div className='flex items-center gap-3'>
               <div className='relative'>
                 <Image
@@ -188,34 +200,29 @@ export function SideBarOwner() {
                   alt='Company Logo'
                   width={48}
                   height={48}
-                  className='rounded-xl object-cover border-2 border-white shadow-sm'
+                  className=' object-cover '
                 />
-                <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white'></div>
+               
               </div>
               <div className='flex flex-col flex-1 min-w-0'>
-                <span className='text-sm font-semibold text-slate-900 truncate'>
+                <span className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
                   {company?.name || 'Restaurant Chain'}
                 </span>
-                <span className='text-xs text-slate-600 font-medium'>
+                <span className='text-xs text-gray-600 dark:text-gray-400 font-medium'>
                   Owner Dashboard
                 </span>
-                <div className='flex items-center gap-1 mt-1'>
-                  <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                  <span className='text-xs text-green-600 font-medium'>
-                    Active
-                  </span>
-                </div>
+                
               </div>
             </div>
           </div>
         )}
       </SidebarHeader>
 
-      <SidebarContent className='bg-transparent'>
+      <SidebarContent className='bg-white dark:bg-gray-900'>
         {/* Main navigation */}
         <div className='px-3 py-2'>
           <SidebarGroup>
-            <SidebarGroupLabel className='px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+            <SidebarGroupLabel className='px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
               Overview
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -226,11 +233,10 @@ export function SideBarOwner() {
                       asChild
                       isActive={isActive(item.href)}
                       tooltip={item.text}
-                      className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                                 data-[active=true]:bg-gradient-to-r data-[active=true]:from-blue-500/10 data-[active=true]:to-purple-500/10 
-                                 data-[active=true]:text-blue-700 data-[active=true]:border data-[active=true]:border-blue-200/50
-                                 data-[active=true]:shadow-sm data-[active=true]:shadow-blue-500/20
-                                 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50/30 hover:scale-[1.02]
+                      className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                                 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                                 dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                                 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                  active:scale-[0.98]'
                     >
                       <Link
@@ -255,54 +261,87 @@ export function SideBarOwner() {
           </SidebarGroup>
         </div>
 
-        <SidebarSeparator className='mx-3 bg-gradient-to-r from-transparent via-slate-200 to-transparent' />
+        <SidebarSeparator className='mx-3 bg-gray-200 dark:bg-gray-700' />
 
         {/* Business management navigation */}
         {hasCompanies && (
           <div className='px-3 py-2'>
             <SidebarGroup>
-              <SidebarGroupLabel className='px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
-                Business Management
-              </SidebarGroupLabel>
+                          <SidebarGroupLabel className='px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+              Business Management
+            </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {businessNavItems.map(item => (
-                    <SidebarMenuItem key={item.text}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive(item.href)}
-                        tooltip={item.text}
-                        className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                                   data-[active=true]:bg-gradient-to-r data-[active=true]:from-emerald-500/10 data-[active=true]:to-teal-500/10 
-                                   data-[active=true]:text-emerald-700 data-[active=true]:border data-[active=true]:border-emerald-200/50
-                                   data-[active=true]:shadow-sm data-[active=true]:shadow-emerald-500/20
-                                   hover:bg-gradient-to-r hover:from-slate-50 hover:to-emerald-50/30 hover:scale-[1.02]
-                                   active:scale-[0.98]'
-                      >
-                        <Link
-                          href={item.href}
-                          className='flex items-center gap-3 w-full'
+                    <div key={item.text}>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive(item.href)}
+                          tooltip={item.text}
+                          className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                                     data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                                     dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                                     hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
+                                     active:scale-[0.98]'
                         >
-                          <div className='relative'>
-                            <item.icon className='h-5 w-5 transition-transform duration-200 group-hover:scale-110' />
-                            {isActive(item.href) && (
-                              <div className='absolute inset-0 bg-emerald-500/20 rounded-full animate-ping'></div>
-                            )}
-                          </div>
-                          <div className='flex items-center gap-2 flex-1 group-data-[collapsible=icon]:hidden'>
-                            <span className='font-medium'>{item.text}</span>
-                            {item.badge && (
-                              <Badge
-                                variant='secondary'
-                                className='text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 border-blue-200'
+                          <Link
+                            href={item.href}
+                            className='flex items-center gap-3 w-full'
+                          >
+                            <div className='relative'>
+                              <item.icon className='h-5 w-5 transition-transform duration-200 group-hover:scale-110' />
+                              {isActive(item.href) && (
+                                <div className='absolute inset-0 bg-emerald-500/20 rounded-full animate-ping'></div>
+                              )}
+                            </div>
+                            <div className='flex items-center gap-2 flex-1 group-data-[collapsible=icon]:hidden'>
+                              <span className='font-medium'>{item.text}</span>
+                              {item.badge && (
+                                <Badge
+                                  variant='secondary'
+                                  className='text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 border-blue-200'
+                                >
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </div>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      
+                      {/* Render children if they exist */}
+                      {item.children && (
+                        <div className='ml-4 space-y-1'>
+                          {item.children.map(child => (
+                            <SidebarMenuItem key={child.text}>
+                              <SidebarMenuButton
+                                asChild
+                                isActive={isActive(child.href)}
+                                tooltip={child.text}
+                                className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                                           data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                                           dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                                           hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
+                                           active:scale-[0.98] text-sm'
                               >
-                                {item.badge}
-                              </Badge>
-                            )}
-                          </div>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                                <Link
+                                  href={child.href}
+                                  className='flex items-center gap-3 w-full'
+                                >
+                                  <div className='relative'>
+                                    <div className='w-2 h-2 bg-gray-400 rounded-full'></div>
+                                  </div>
+                                  <span className='font-medium group-data-[collapsible=icon]:hidden'>
+                                    {child.text}
+                                  </span>
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ))}
+                        </div>
+                                             )}
+                     </div>
                   ))}
                 </SidebarMenu>
               </SidebarGroupContent>
@@ -310,12 +349,12 @@ export function SideBarOwner() {
           </div>
         )}
 
-        <SidebarSeparator className='mx-3 bg-gradient-to-r from-transparent via-slate-200 to-transparent' />
+        <SidebarSeparator className='mx-3 bg-gray-200 dark:bg-gray-700' />
 
         {/* System navigation */}
         <div className='px-3 py-2'>
           <SidebarGroup>
-            <SidebarGroupLabel className='px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+            <SidebarGroupLabel className='px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
               System
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -326,11 +365,10 @@ export function SideBarOwner() {
                       asChild
                       isActive={isActive(item.href)}
                       tooltip={item.text}
-                      className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                                 data-[active=true]:bg-gradient-to-r data-[active=true]:from-slate-500/10 data-[active=true]:to-gray-500/10 
-                                 data-[active=true]:text-slate-700 data-[active=true]:border data-[active=true]:border-slate-200/50
-                                 data-[active=true]:shadow-sm
-                                 hover:bg-gradient-to-r hover:from-slate-50 hover:to-gray-50/30 hover:scale-[1.02]
+                      className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                                 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                                 dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                                 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                  active:scale-[0.98]'
                     >
                       <Link
@@ -356,11 +394,11 @@ export function SideBarOwner() {
         </div>
       </SidebarContent>
 
-      <SidebarFooter className='border-t border-slate-200/60 bg-white/80 backdrop-blur-sm'>
+      <SidebarFooter className='border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900'>
         {/* User Profile Section */}
         <div className='px-3 py-3 group-data-[collapsible=icon]:px-2'>
           <div className='flex items-center gap-3 group-data-[collapsible=icon]:justify-center'>
-            <Avatar className='h-10 w-10 ring-2 ring-blue-100 shadow-sm'>
+            <Avatar className='h-10 w-10 ring-2 ring-gray-200 dark:ring-gray-700 shadow-sm'>
               <AvatarImage
                 src={user?.profileImage || '/placeholder.svg'}
                 alt='User Avatar'
@@ -370,10 +408,10 @@ export function SideBarOwner() {
               </AvatarFallback>
             </Avatar>
             <div className='flex flex-col flex-1 min-w-0 group-data-[collapsible=icon]:hidden'>
-              <p className='text-sm font-semibold text-slate-900 truncate'>
+              <p className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className='text-xs text-slate-500 font-medium'>Owner</p>
+              <p className='text-xs text-gray-500 dark:text-gray-400 font-medium'>Owner</p>
             </div>
           </div>
         </div>
@@ -386,7 +424,8 @@ export function SideBarOwner() {
                 variant='ghost'
                 size='sm'
                 className='w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700 
-                           transition-all duration-200 rounded-xl group-data-[collapsible=icon]:justify-center 
+                           dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300
+                           transition-all duration-200 rounded-lg group-data-[collapsible=icon]:justify-center 
                            group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 
                            group-data-[collapsible=icon]:p-0 hover:scale-[1.02] active:scale-[0.98]'
               >
@@ -396,12 +435,12 @@ export function SideBarOwner() {
                 </span>
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className='bg-white rounded-2xl border border-slate-200 shadow-xl'>
+            <AlertDialogContent className='bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xl'>
               <AlertDialogHeader>
-                <AlertDialogTitle className='text-lg font-semibold text-slate-900'>
+                <AlertDialogTitle className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
                   Sign Out
                 </AlertDialogTitle>
-                <AlertDialogDescription className='text-slate-600'>
+                <AlertDialogDescription className='text-gray-600 dark:text-gray-400'>
                   Are you sure you want to sign out? Any unsaved changes will be
                   lost.
                 </AlertDialogDescription>

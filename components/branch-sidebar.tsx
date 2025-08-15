@@ -172,9 +172,9 @@ export function BranchSidebar() {
   return (
     <Sidebar
       collapsible='offcanvas'
-      className='border-r border-slate-200/60 bg-gradient-to-b from-white to-emerald-50/30'
+      className='border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900'
     >
-      <SidebarHeader className='border-b border-slate-200/60 bg-gradient-to-r from-emerald-50 to-green-50 p-4'>
+      <SidebarHeader className='border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-4'>
         <div className='flex items-center gap-3'>
           <div className='flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 shadow-lg shadow-emerald-500/25'>
             <Store className='h-6 w-6 text-white' />
@@ -183,17 +183,17 @@ export function BranchSidebar() {
             <span className='text-lg font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent'>
               {isLoading ? 'Loading...' : branch?.name || 'Branch Portal'}
             </span>
-            <span className='text-xs text-slate-600 font-medium'>
+            <span className='text-xs text-gray-600 dark:text-gray-400 font-medium'>
               Management Dashboard
             </span>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className='px-2 py-4'>
+      <SidebarContent className='px-2 py-4 bg-white dark:bg-gray-900'>
         {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className='px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+          <SidebarGroupLabel className='px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
             Overview
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -204,11 +204,10 @@ export function BranchSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     tooltip={item.text}
-                    className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                               data-[active=true]:bg-gradient-to-r data-[active=true]:from-emerald-500/10 data-[active=true]:to-green-500/10 
-                               data-[active=true]:text-emerald-700 data-[active=true]:border data-[active=true]:border-emerald-200/50
-                               data-[active=true]:shadow-sm data-[active=true]:shadow-emerald-500/20
-                               hover:bg-gradient-to-r hover:from-slate-50 hover:to-emerald-50/30 hover:scale-[1.02]
+                    className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                               data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                               dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                               hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                active:scale-[0.98]'
                   >
                     <Link
@@ -232,11 +231,11 @@ export function BranchSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className='bg-gradient-to-r from-transparent via-slate-200 to-transparent' />
+        <SidebarSeparator className='bg-gray-200 dark:bg-gray-700' />
 
         {/* Management */}
         <SidebarGroup>
-          <SidebarGroupLabel className='px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+          <SidebarGroupLabel className='px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
             Management
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -247,11 +246,10 @@ export function BranchSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     tooltip={item.text}
-                    className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                               data-[active=true]:bg-gradient-to-r data-[active=true]:from-blue-500/10 data-[active=true]:to-indigo-500/10 
-                               data-[active=true]:text-blue-700 data-[active=true]:border data-[active=true]:border-blue-200/50
-                               data-[active=true]:shadow-sm data-[active=true]:shadow-blue-500/20
-                               hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50/30 hover:scale-[1.02]
+                    className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                               data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                               dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                               hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                active:scale-[0.98]'
                   >
                     <Link
@@ -283,11 +281,11 @@ export function BranchSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className='bg-gradient-to-r from-transparent via-slate-200 to-transparent' />
+        <SidebarSeparator className='bg-gray-200 dark:bg-gray-700' />
 
         {/* Reports */}
         <SidebarGroup>
-          <SidebarGroupLabel className='px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+          <SidebarGroupLabel className='px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
             Reports
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -298,11 +296,10 @@ export function BranchSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     tooltip={item.text}
-                    className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                               data-[active=true]:bg-gradient-to-r data-[active=true]:from-purple-500/10 data-[active=true]:to-pink-500/10 
-                               data-[active=true]:text-purple-700 data-[active=true]:border data-[active=true]:border-purple-200/50
-                               data-[active=true]:shadow-sm data-[active=true]:shadow-purple-500/20
-                               hover:bg-gradient-to-r hover:from-slate-50 hover:to-purple-50/30 hover:scale-[1.02]
+                    className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                               data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                               dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                               hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                active:scale-[0.98]'
                   >
                     <Link
@@ -326,11 +323,11 @@ export function BranchSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className='bg-gradient-to-r from-transparent via-slate-200 to-transparent' />
+        <SidebarSeparator className='bg-gray-200 dark:bg-gray-700' />
 
         {/* Account */}
         <SidebarGroup>
-          <SidebarGroupLabel className='px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+          <SidebarGroupLabel className='px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
             Account
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -341,11 +338,10 @@ export function BranchSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     tooltip={item.text}
-                    className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                               data-[active=true]:bg-gradient-to-r data-[active=true]:from-slate-500/10 data-[active=true]:to-gray-500/10 
-                               data-[active=true]:text-slate-700 data-[active=true]:border data-[active=true]:border-slate-200/50
-                               data-[active=true]:shadow-sm
-                               hover:bg-gradient-to-r hover:from-slate-50 hover:to-gray-50/30 hover:scale-[1.02]
+                    className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                               data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                               dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                               hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                active:scale-[0.98]'
                   >
                     <Link
@@ -370,25 +366,25 @@ export function BranchSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className='border-t border-slate-200/60 bg-white/80 backdrop-blur-sm p-4'>
+      <SidebarFooter className='border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-4'>
         {/* Branch Status */}
         <div className='flex items-center gap-3 mb-4'>
-          <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-green-100 border border-emerald-200'>
-            <MapPin className='h-5 w-5 text-emerald-600' />
+          <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-green-100 border border-emerald-200 dark:border-emerald-700 dark:from-emerald-900 dark:to-green-900'>
+            <MapPin className='h-5 w-5 text-emerald-600 dark:text-emerald-400' />
           </div>
           <div className='flex flex-col flex-1 min-w-0'>
-            <p className='text-sm font-semibold text-slate-900 truncate'>
+            <p className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
               {branch?.name || 'Branch Name'}
             </p>
             <div className='flex items-center gap-2 mt-1'>
               <div
                 className={`w-2 h-2 rounded-full ${branch?.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}
               />
-              <p className='text-xs text-slate-600 font-medium capitalize'>
+              <p className='text-xs text-gray-600 dark:text-gray-400 font-medium capitalize'>
                 {branch?.status || 'Unknown'}
               </p>
             </div>
-            <p className='text-xs text-slate-500 truncate mt-1'>
+            <p className='text-xs text-gray-500 dark:text-gray-400 truncate mt-1'>
               {branch?.address}, {branch?.city}
             </p>
           </div>
@@ -401,18 +397,19 @@ export function BranchSidebar() {
               variant='ghost'
               size='sm'
               className='w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700 
-                         transition-all duration-200 rounded-xl hover:scale-[1.02] active:scale-[0.98]'
+                         dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300
+                         transition-all duration-200 rounded-lg hover:scale-[1.02] active:scale-[0.98]'
             >
               <LogOut className='h-4 w-4 mr-2 transition-transform group-hover:translate-x-0.5' />
               <span className='font-medium'>Sign Out</span>
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className='bg-white rounded-2xl border border-slate-200 shadow-xl'>
+          <AlertDialogContent className='bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xl'>
             <AlertDialogHeader>
-              <AlertDialogTitle className='text-lg font-semibold text-slate-900'>
+              <AlertDialogTitle className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
                 Sign Out
               </AlertDialogTitle>
-              <AlertDialogDescription className='text-slate-600'>
+              <AlertDialogDescription className='text-gray-600 dark:text-gray-400'>
                 Are you sure you want to sign out? Any unsaved changes will be
                 lost.
               </AlertDialogDescription>

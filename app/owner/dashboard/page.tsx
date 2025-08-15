@@ -65,6 +65,7 @@ import Image from 'next/image';
 import BranchStats from '@/components/branchpie';
 import ProfitSummaries from '@/components/profitsummaries';
 import TopMenusChart from '@/components/top_menus';
+import FinancialAnalyticsChart from '@/components/FinancialAnalyticsChart';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AutomaticNotificationService } from '@/lib/automatic-notifications';
 
@@ -962,6 +963,15 @@ export default function ImprovedDashboard() {
               />
             </div>
 
+            {/* Financial Analytics Overview */}
+            {selectedCompany && (
+              <FinancialAnalyticsChart
+                companyId={selectedCompany.id}
+                currency={selectedCompany.currency}
+                className="mb-6"
+              />
+            )}
+
             {/* Performance Trends Chart */}
             <Card>
               <CardHeader className='pb-4'>
@@ -1232,6 +1242,15 @@ export default function ImprovedDashboard() {
                 </Button>
               </div>
             </div>
+
+            {/* Financial Analytics Chart */}
+            {selectedCompany && (
+              <FinancialAnalyticsChart
+                companyId={selectedCompany.id}
+                currency={selectedCompany.currency}
+                className="mb-6"
+              />
+            )}
 
             {/* Financial Charts */}
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6'>

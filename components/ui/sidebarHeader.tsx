@@ -102,7 +102,7 @@ export function SidebarHeaderComponent() {
           <Menu className='h-4 w-4' />
         </SidebarTrigger>
         <div>
-          <h1 className='text-lg lg:text-2xl  font-bold text-slate-900'>
+          <h1 className='text-md lg:text-lg  font-normal text-slate-900'>
             {'Company ' + currentPageName}
           </h1>
           <p className='text-sm text-slate-500'>

@@ -166,10 +166,10 @@ export function WaiterSidebar() {
   return (
     <Sidebar
       collapsible='offcanvas'
-      className='border-r border-slate-200/60 bg-gradient-to-b from-white to-blue-50/30 flex flex-col h-full'
+      className='border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 flex flex-col h-full'
     >
       {/* Sidebar Header: Logo and Company Info */}
-      <SidebarHeader className='border-b border-slate-200/60 bg-gradient-to-br from-blue-50 to-indigo-100 p-4 shrink-0'>
+      <SidebarHeader className='border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-4 shrink-0'>
         {/* ChainPOS Branding */}
         <div className='flex items-center gap-3 py-2 px-2'>
           <div className='flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 shadow-lg shadow-blue-500/25'>
@@ -179,14 +179,14 @@ export function WaiterSidebar() {
             <span className='text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-none'>
               ChainPOS
             </span>
-            <span className='text-xs text-slate-600 font-medium mt-1'>
+            <span className='text-xs text-gray-600 dark:text-gray-400 font-medium mt-1'>
               Waiter POS System
             </span>
           </div>
         </div>
 
         {/* Restaurant/Company Info Card */}
-        <div className='mx-2 my-4 rounded-xl bg-gradient-to-r from-white to-blue-50/50 p-4 shadow-sm border border-blue-100/50 group-data-[collapsible=icon]:hidden'>
+        <div className='mx-2 my-4 rounded-xl bg-gray-50 dark:bg-gray-800 p-4 shadow-sm border border-gray-200 dark:border-gray-700 group-data-[collapsible=icon]:hidden'>
           <div className='flex items-center gap-3'>
             <div className='relative'>
               <Image
@@ -194,20 +194,20 @@ export function WaiterSidebar() {
                 alt='Company Logo'
                 width={48}
                 height={48}
-                className='rounded-xl object-cover border-2 border-white shadow-sm'
+                className='rounded-xl object-cover border-2 border-white dark:border-gray-600 shadow-sm'
               />
-              <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white'></div>
+              <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-600'></div>
             </div>
             <div className='flex flex-col flex-1 min-w-0'>
-              <span className='text-sm font-semibold text-slate-900 truncate'>
+              <span className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
                 {company?.name || 'Your Restaurant'}
               </span>
-              <span className='text-xs text-slate-600 font-medium truncate'>
+              <span className='text-xs text-gray-600 dark:text-gray-400 font-medium truncate'>
                 Waiter Dashboard
               </span>
               <div className='flex items-center gap-1 mt-1'>
                 <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                <span className='text-xs text-green-600 font-medium'>
+                <span className='text-xs text-green-600 dark:text-green-400 font-medium'>
                   Active
                 </span>
               </div>
@@ -216,10 +216,10 @@ export function WaiterSidebar() {
         </div>
       </SidebarHeader>
       {/* Sidebar Content: Navigation Menus */}
-      <SidebarContent className='px-2 py-4'>
+      <SidebarContent className='px-2 py-4 bg-white dark:bg-gray-900'>
         {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className='px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+          <SidebarGroupLabel className='px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
             Main
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -230,11 +230,10 @@ export function WaiterSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     tooltip={item.text}
-                    className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                               data-[active=true]:bg-gradient-to-r data-[active=true]:from-blue-500/10 data-[active=true]:to-purple-500/10 
-                               data-[active=true]:text-blue-700 data-[active=true]:border data-[active=true]:border-blue-200/50
-                               data-[active=true]:shadow-sm data-[active=true]:shadow-blue-500/20
-                               hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50/30 hover:scale-[1.02]
+                    className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                               data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                               dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                               hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                active:scale-[0.98]'
                   >
                     <Link
@@ -258,11 +257,11 @@ export function WaiterSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className='my-4 bg-gradient-to-r from-transparent via-slate-200 to-transparent' />
+        <SidebarSeparator className='my-4 bg-gray-200 dark:bg-gray-700' />
 
         {/* Order Management */}
         <SidebarGroup>
-          <SidebarGroupLabel className='px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+          <SidebarGroupLabel className='px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
             Order Management
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -273,11 +272,10 @@ export function WaiterSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     tooltip={item.text}
-                    className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                               data-[active=true]:bg-gradient-to-r data-[active=true]:from-emerald-500/10 data-[active=true]:to-teal-500/10 
-                               data-[active=true]:text-emerald-700 data-[active=true]:border data-[active=true]:border-emerald-200/50
-                               data-[active=true]:shadow-sm data-[active=true]:shadow-emerald-500/20
-                               hover:bg-gradient-to-r hover:from-slate-50 hover:to-emerald-50/30 hover:scale-[1.02]
+                    className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                               data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                               dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                               hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                active:scale-[0.98]'
                   >
                     <Link
@@ -313,11 +311,11 @@ export function WaiterSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className='my-4 bg-gradient-to-r from-transparent via-slate-200 to-transparent' />
+        <SidebarSeparator className='my-4 bg-gray-200 dark:bg-gray-700' />
 
         {/* Quick Actions */}
         <SidebarGroup>
-          <SidebarGroupLabel className='px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+          <SidebarGroupLabel className='px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
             Quick Actions
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -328,11 +326,10 @@ export function WaiterSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     tooltip={item.text}
-                    className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                               data-[active=true]:bg-gradient-to-r data-[active=true]:from-orange-500/10 data-[active=true]:to-amber-500/10 
-                               data-[active=true]:text-orange-700 data-[active=true]:border data-[active=true]:border-orange-200/50
-                               data-[active=true]:shadow-sm data-[active=true]:shadow-orange-500/20
-                               hover:bg-gradient-to-r hover:from-slate-50 hover:to-orange-50/30 hover:scale-[1.02]
+                    className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                               data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                               dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                               hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                active:scale-[0.98]'
                   >
                     <Link
@@ -356,11 +353,11 @@ export function WaiterSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className='my-4 bg-gradient-to-r from-transparent via-slate-200 to-transparent' />
+        <SidebarSeparator className='my-4 bg-gray-200 dark:bg-gray-700' />
 
         {/* Account Settings */}
         <SidebarGroup>
-          <SidebarGroupLabel className='px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
+          <SidebarGroupLabel className='px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
             Account
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -371,11 +368,10 @@ export function WaiterSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     tooltip={item.text}
-                    className='group relative overflow-hidden rounded-xl transition-all duration-300 ease-out
-                               data-[active=true]:bg-gradient-to-r data-[active=true]:from-slate-500/10 data-[active=true]:to-gray-500/10 
-                               data-[active=true]:text-slate-700 data-[active=true]:border data-[active=true]:border-slate-200/50
-                               data-[active=true]:shadow-sm
-                               hover:bg-gradient-to-r hover:from-slate-50 hover:to-gray-50/30 hover:scale-[1.02]
+                    className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
+                               data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
+                               dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
+                               hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
                                active:scale-[0.98]'
                   >
                     <Link
@@ -400,10 +396,10 @@ export function WaiterSidebar() {
         </SidebarGroup>
       </SidebarContent>
       {/* Sidebar Footer: User Profile and Logout */}
-      <SidebarFooter className='border-t border-slate-200/60 bg-white/80 backdrop-blur-sm p-4 shrink-0'>
+      <SidebarFooter className='border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-4 shrink-0'>
         {/* User Profile */}
         <div className='flex items-center gap-3 mb-4 group-data-[collapsible=icon]:justify-center'>
-          <Avatar className='h-10 w-10 ring-2 ring-blue-100 shadow-sm'>
+          <Avatar className='h-10 w-10 ring-2 ring-gray-200 dark:ring-gray-700 shadow-sm'>
             <AvatarImage
               src={user?.profileImage || '/placeholder.svg'}
               alt='User Avatar'
@@ -413,15 +409,15 @@ export function WaiterSidebar() {
             </AvatarFallback>
           </Avatar>
           <div className='flex flex-col flex-1 min-w-0 group-data-[collapsible=icon]:hidden'>
-            <p className='text-sm font-semibold text-slate-900 truncate leading-tight'>
+            <p className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate leading-tight'>
               {user?.firstName} {user?.lastName || user?.email}
             </p>
-            <p className='text-xs text-slate-600 font-medium truncate leading-tight'>
+            <p className='text-xs text-gray-600 dark:text-gray-400 font-medium truncate leading-tight'>
               Waiter
             </p>
             <div className='flex items-center gap-1 mt-1'>
               <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-              <span className='text-xs text-green-600 font-medium'>Online</span>
+              <span className='text-xs text-green-600 dark:text-green-400 font-medium'>Online</span>
             </div>
           </div>
         </div>
@@ -433,7 +429,8 @@ export function WaiterSidebar() {
               variant='ghost'
               size='sm'
               className='w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700 
-                         transition-all duration-200 rounded-xl group-data-[collapsible=icon]:justify-center 
+                         dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300
+                         transition-all duration-200 rounded-lg group-data-[collapsible=icon]:justify-center 
                          group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 
                          group-data-[collapsible=icon]:p-0 hover:scale-[1.02] active:scale-[0.98]'
             >
@@ -443,12 +440,12 @@ export function WaiterSidebar() {
               </span>
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className='bg-white rounded-2xl border border-slate-200 shadow-xl'>
+          <AlertDialogContent className='bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xl'>
             <AlertDialogHeader>
-              <AlertDialogTitle className='text-lg font-semibold text-slate-900'>
+              <AlertDialogTitle className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
                 Sign Out
               </AlertDialogTitle>
-              <AlertDialogDescription className='text-slate-600'>
+              <AlertDialogDescription className='text-gray-600 dark:text-gray-400'>
                 Are you sure you want to sign out? Any unsaved changes will be
                 lost.
               </AlertDialogDescription>
