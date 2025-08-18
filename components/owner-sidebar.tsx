@@ -16,6 +16,7 @@ import {
   BarChart3,
   Bell,
   Shield,
+  Receipt,
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserFromToken, logoutUser, selectUser } from '@/redux/authSlice';
@@ -65,7 +66,6 @@ const businessNavItems = [
     icon: MenuIcon,
     text: 'Menu',
     href: '/owner/menu',
-    badge: 'New',
   },
   {
     icon: ChefHat,
@@ -88,14 +88,15 @@ const businessNavItems = [
     href: '/owner/inventory',
   },
   {
+    icon: Receipt,
+    text: 'Expenses',
+    href: '/owner/expenses',
+  },
+  {
     icon: Users,
     text: 'Staff',
     href: '/owner/staffs',
     children: [
-      {
-        text: 'Staff Management',
-        href: '/owner/staffs',
-      },
       {
         text: 'Shift Scheduler',
         href: '/owner/staffs/shifts-grid',
@@ -119,11 +120,6 @@ const systemNavItems = [
     icon: Settings,
     text: 'Settings',
     href: '/owner/settings',
-  },
-  {
-    icon: Shield,
-    text: 'Security',
-    href: '/owner/security',
   },
 ];
 
@@ -296,14 +292,6 @@ export function SideBarOwner() {
                             </div>
                             <div className='flex items-center gap-2 flex-1 group-data-[collapsible=icon]:hidden'>
                               <span className='font-medium'>{item.text}</span>
-                              {item.badge && (
-                                <Badge
-                                  variant='secondary'
-                                  className='text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 border-blue-200'
-                                >
-                                  {item.badge}
-                                </Badge>
-                              )}
                             </div>
                           </Link>
                         </SidebarMenuButton>

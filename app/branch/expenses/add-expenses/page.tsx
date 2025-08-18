@@ -47,7 +47,7 @@ export default function AddExpensePage() {
   const dispatch = useDispatch<AppDispatch>();
   const [users, setUsers] = useState<DecodedToken>();
   const { status, error, Frequent, categories } = useSelector(
-    (state: RootState) => state.expenses
+    (state: RootState) => state.expenses,
   );
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function AddExpensePage() {
     itemId: string,
     itemName: string,
     categoryId: string,
-    quantity: number
+    quantity: number,
   ) => {
     setSelectedFrequentItem(itemId);
     setFormData({

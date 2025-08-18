@@ -893,13 +893,44 @@ export default function ShiftSchedulerGrid() {
                   <SelectValue placeholder='Select employee' />
                 </SelectTrigger>
                 <SelectContent>
-                  {users.map(user => (
-                    <SelectItem key={user.id} value={user.id}>
-                      {user.fullname} ({user.role})
-                    </SelectItem>
-                  ))}
+                  {users
+                    .filter(user => {
+                      // If "all" branches is selected, show all users
+                      if (selectedBranch === 'all') return true;
+                      // Otherwise, filter by the selected branch
+                      return user.branchId === selectedBranch;
+                    })
+                    .map(user => {
+                      const userBranch = branches.find(
+                        b => b.id === user.branchId
+                      );
+                      return (
+                        <SelectItem key={user.id} value={user.id}>
+                          <div className='flex flex-col'>
+                            <span>
+                              {user.fullname} ({user.role})
+                            </span>
+                            {selectedBranch === 'all' && userBranch && (
+                              <span className='text-xs text-gray-500'>
+                                {userBranch.name}
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                 </SelectContent>
               </Select>
+              {selectedBranch === 'all' && (
+                <p className='text-xs text-gray-500 mt-1'>
+                  Showing employees from all branches
+                </p>
+              )}
+              {selectedBranch !== 'all' && (
+                <p className='text-xs text-gray-500 mt-1'>
+                  Showing employees from selected branch only
+                </p>
+              )}
             </div>
 
             <div>

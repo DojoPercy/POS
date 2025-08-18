@@ -282,11 +282,25 @@ model Order {
   finalPrice      Float       @default(0.0) // totalPrice - discount + 
   payment         Payment[]   
   orderStatus     OrderStatus      @default(PENDING)
+  orderType       String      @default("pickup") // "pickup" or "delivery"
   orderedDate     DateTime    @default(now())
   requiredDate    DateTime?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   orderNumber     String     
+  
+  // Customer information
+  customerName    String?
+  customerPhone   String?
+  customerEmail   String?
+  customerAddress String?
+  
+  // Delivery information
+  deliveryAddress String?
+  deliveryInstructions String?
+  deliveryLatitude Float?
+  deliveryLongitude Float?
+  
   branch          Branch      @relation(fields: [branchId], references: [id])
   company         Company     @relation(fields: [companyId], references: [id])
 

@@ -23,6 +23,8 @@ import {
   CreditCard,
   Banknote,
   Receipt,
+  User,
+  Truck,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import type {
@@ -33,7 +35,7 @@ import type {
   CreatePaymentRequest,
 } from '../lib/types/types';
 import { useDispatch, useSelector } from 'react-redux';
-import { placeOrder, updateOrder } from '../redux/orderSlice';
+import { addOrderLocally, placeOrder, updateOrder } from '../redux/orderSlice';
 import { selectUser, fetchUserFromToken } from '../redux/authSlice';
 import { getOrderCounter } from '../lib/order';
 import type { OrderLine } from '../lib/types/types';
@@ -93,6 +95,18 @@ export default function OrderSummary({
   const [noteText, setNoteText] = useState<string>('');
   const receiptRef = useRef<HTMLDivElement | null>(null);
   const [paymentTypeSelected, setPaymentTypeSelected] = useState<string[]>([]);
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+  });
+  const [orderType, setOrderType] = useState<'delivery' | 'pickup'>('pickup');
+  const [deliveryInfo, setDeliveryInfo] = useState({
+    address: '',
+    instructions: '',
+  });
 
   const { toast } = useToast();
   const dispatch = useDispatch();
@@ -114,22 +128,22 @@ export default function OrderSummary({
   const subtotal = useMemo(() => {
     return cart.reduce(
       (total, item) => total + item.selectedPrice.price * item.quantity,
-      0
+      0,
     );
   }, [cart]);
 
   const tax = useMemo(
     () => (company ? subtotal * company.taxRate : 0),
-    [subtotal, company]
+    [subtotal, company],
   );
   const totalWithTax = useMemo(() => subtotal + tax, [subtotal, tax]);
   const finalPrice = useMemo(
     () => totalWithTax - discount + rounding,
-    [totalWithTax, discount, rounding]
+    [totalWithTax, discount, rounding],
   );
   const balance = useMemo(
     () => receivedAmount - finalPrice,
-    [receivedAmount, finalPrice]
+    [receivedAmount, finalPrice],
   );
 
   const handlePlaceOrder = async () => {
@@ -156,7 +170,7 @@ export default function OrderSummary({
               price: line.selectedPrice.price,
               totalPrice: line.selectedPrice.price * line.quantity,
               notes: line.notes || '',
-            }) as OrderLine
+            }) as OrderLine,
         ),
         totalPrice: totalWithTax,
         orderStatus: OrderStatus.PENDING,
@@ -171,44 +185,125 @@ export default function OrderSummary({
         description: `Order #${orderNumber} has been updated`,
       });
     } else {
-      setIsProcessing(true);
-      const orderNum = await getOrderCounter(user?.branchId || '');
+      // For new orders, show customer form first
+      setShowCustomerForm(true);
+    }
+  };
 
+  const handleSubmitCustomerInfo = async () => {
+    // Validate customer info
+    if (!customerInfo.name.trim() || !customerInfo.phone.trim()) {
       toast({
-        title: `Order #${orderNum}`,
-        description: 'Order Creating...',
-        variant: 'default',
+        title: 'Missing Information',
+        description: 'Customer name and phone are required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate delivery info for delivery orders
+    if (orderType === 'delivery' && !deliveryInfo.address.trim()) {
+      toast({
+        title: 'Missing Information',
+        description: 'Delivery address is required for delivery orders',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    const orderNum = await getOrderCounter(user?.branchId || '');
+
+    toast({
+      title: `Order #${orderNum}`,
+      description: 'Order Creating...',
+      variant: 'default',
+    });
+
+    // Create order with customer information using the new API format
+    const orderData = {
+      companyId: user?.companyId,
+      branchId: user?.branchId,
+      waiterId: user?.id, // Add the actual waiter ID
+      orderType,
+      orderLines: cart.map(line => ({
+        menuItemId: line.menuItem.id,
+        quantity: line.quantity,
+        price: line.selectedPrice.price,
+        totalPrice: line.selectedPrice.price * line.quantity,
+        notes: line.notes || '',
+      })),
+      totalPrice: totalWithTax,
+      customerInfo: {
+        name: customerInfo.name,
+        phone: customerInfo.phone,
+        email: customerInfo.email || undefined,
+        address: customerInfo.address || undefined,
+      },
+      deliveryInfo:
+        orderType === 'delivery'
+          ? {
+            address: deliveryInfo.address,
+            instructions: deliveryInfo.instructions || undefined,
+          }
+          : undefined,
+    };
+
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
       });
 
-      const newOrder: OrderType = {
-        waiterId: user?.userId,
-        branchId: user?.branchId,
-        companyId: user?.companyId,
-        orderLines: cart.map(
-          line =>
-            ({
-              menuItemId: line.menuItem.id,
-              quantity: line.quantity,
-              price: line.selectedPrice.price,
-              totalPrice: line.selectedPrice.price * line.quantity,
-              notes: line.notes || '',
-            }) as OrderLine
-        ),
-        totalPrice: totalWithTax,
-        orderStatus: OrderStatus.PENDING,
-        requiredDate: new Date().toISOString(),
-        orderNumber: orderNum,
-      };
+      if (!response.ok) {
+        throw new Error('Failed to create order');
+      }
 
-      dispatch(placeOrder(newOrder));
+      const newOrder = await response.json();
 
-      setTimeout(() => {
-        toast({
-          title: 'Order Placed!',
-          description: `Your order total is ${company?.currency || '$'}${totalWithTax.toFixed(2)}`,
-        });
-        setIsProcessing(false);
-      }, 1500);
+      // Add to Redux store for consistency
+      dispatch(
+        addOrderLocally({
+          id: newOrder.id,
+          waiterId: user?.userId,
+          branchId: user?.branchId,
+          companyId: user?.companyId,
+          orderLines: cart.map(line => ({
+            menuItemId: line.menuItem.id,
+            quantity: line.quantity,
+            price: line.selectedPrice.price,
+            totalPrice: line.selectedPrice.price * line.quantity,
+            notes: line.notes || '',
+          })),
+          totalPrice: totalWithTax,
+          orderStatus: OrderStatus.PENDING,
+          requiredDate: new Date().toISOString(),
+          orderNumber: orderNum,
+          customerName: customerInfo.name,
+          customerPhone: customerInfo.phone,
+          customerEmail: customerInfo.email,
+          orderType,
+        }),
+      );
+
+      setShowCustomerForm(false);
+      setCustomerInfo({ name: '', phone: '', email: '', address: '' });
+      setDeliveryInfo({ address: '', instructions: '' });
+
+      toast({
+        title: 'Order Placed!',
+        description: `Your order total is ${company?.currency || '$'}${totalWithTax.toFixed(2)}`,
+      });
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create order. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -248,7 +343,7 @@ export default function OrderSummary({
               price: line.selectedPrice.price,
               totalPrice: line.selectedPrice.price * line.quantity,
               notes: line.notes || '',
-            }) as OrderLine
+            }) as OrderLine,
         ),
         totalPrice: subtotal,
         discount: discount,
@@ -342,13 +437,13 @@ export default function OrderSummary({
 
   const getPaymentMethodIcon = (method: string) => {
     switch (method.toLowerCase()) {
-      case 'cash':
-        return <Banknote className='h-4 w-4 mr-2' />;
-      case 'credit card':
-      case 'card':
-        return <CreditCard className='h-4 w-4 mr-2' />;
-      default:
-        return <Receipt className='h-4 w-4 mr-2' />;
+    case 'cash':
+      return <Banknote className='h-4 w-4 mr-2' />;
+    case 'credit card':
+    case 'card':
+      return <CreditCard className='h-4 w-4 mr-2' />;
+    default:
+      return <Receipt className='h-4 w-4 mr-2' />;
     }
   };
 
@@ -414,7 +509,7 @@ export default function OrderSummary({
                         <p className='font-medium text-gray-800'>
                           {company?.currency || '$'}
                           {(item.selectedPrice.price * item.quantity).toFixed(
-                            2
+                            2,
                           )}
                         </p>
                       </div>
@@ -747,6 +842,162 @@ export default function OrderSummary({
                 <div className='flex items-center'>
                   <Check className='mr-2 h-4 w-4' /> Complete Order
                 </div>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Customer Information Modal */}
+      <Dialog open={showCustomerForm} onOpenChange={setShowCustomerForm}>
+        <DialogContent className='sm:max-w-md'>
+          <DialogHeader>
+            <DialogTitle className='text-xl'>Customer Information</DialogTitle>
+            <DialogDescription>
+              Please provide customer details for this order
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className='space-y-4 py-4'>
+            {/* Order Type Selection */}
+            <div className='space-y-2'>
+              <Label className='text-gray-700'>Order Type</Label>
+              <div className='flex gap-2'>
+                <Button
+                  type='button'
+                  variant={orderType === 'pickup' ? 'default' : 'outline'}
+                  onClick={() => setOrderType('pickup')}
+                  className='flex-1'
+                >
+                  <User className='h-4 w-4 mr-2' />
+                  Pickup
+                </Button>
+                <Button
+                  type='button'
+                  variant={orderType === 'delivery' ? 'default' : 'outline'}
+                  onClick={() => setOrderType('delivery')}
+                  className='flex-1'
+                >
+                  <Truck className='h-4 w-4 mr-2' />
+                  Delivery
+                </Button>
+              </div>
+            </div>
+
+            {/* Customer Information */}
+            <div className='space-y-2'>
+              <Label htmlFor='customer-name' className='text-gray-700'>
+                Customer Name *
+              </Label>
+              <Input
+                id='customer-name'
+                value={customerInfo.name}
+                onChange={e =>
+                  setCustomerInfo(prev => ({ ...prev, name: e.target.value }))
+                }
+                placeholder='Enter customer name'
+                className='border-gray-200'
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='customer-phone' className='text-gray-700'>
+                Phone Number *
+              </Label>
+              <Input
+                id='customer-phone'
+                value={customerInfo.phone}
+                onChange={e =>
+                  setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))
+                }
+                placeholder='Enter phone number'
+                className='border-gray-200'
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='customer-email' className='text-gray-700'>
+                Email Address
+              </Label>
+              <Input
+                id='customer-email'
+                type='email'
+                value={customerInfo.email}
+                onChange={e =>
+                  setCustomerInfo(prev => ({ ...prev, email: e.target.value }))
+                }
+                placeholder='Enter email address'
+                className='border-gray-200'
+              />
+            </div>
+
+            {/* Delivery Information */}
+            {orderType === 'delivery' && (
+              <>
+                <div className='space-y-2'>
+                  <Label htmlFor='delivery-address' className='text-gray-700'>
+                    Delivery Address *
+                  </Label>
+                  <Textarea
+                    id='delivery-address'
+                    value={deliveryInfo.address}
+                    onChange={e =>
+                      setDeliveryInfo(prev => ({
+                        ...prev,
+                        address: e.target.value,
+                      }))
+                    }
+                    placeholder='Enter delivery address'
+                    className='border-gray-200'
+                    rows={2}
+                  />
+                </div>
+
+                <div className='space-y-2'>
+                  <Label
+                    htmlFor='delivery-instructions'
+                    className='text-gray-700'
+                  >
+                    Delivery Instructions
+                  </Label>
+                  <Textarea
+                    id='delivery-instructions'
+                    value={deliveryInfo.instructions}
+                    onChange={e =>
+                      setDeliveryInfo(prev => ({
+                        ...prev,
+                        instructions: e.target.value,
+                      }))
+                    }
+                    placeholder='Any special instructions for delivery'
+                    className='border-gray-200'
+                    rows={2}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={() => setShowCustomerForm(false)}
+              disabled={isProcessing}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmitCustomerInfo}
+              disabled={isProcessing}
+              className='bg-primary hover:bg-primary/90'
+            >
+              {isProcessing ? (
+                <div className='flex items-center'>
+                  <div className='animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full'></div>
+                  Creating Order...
+                </div>
+              ) : (
+                'Create Order'
               )}
             </Button>
           </DialogFooter>

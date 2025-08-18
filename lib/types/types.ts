@@ -8,13 +8,16 @@ export interface DecodedToken {
 }
 
 export interface OrderLine {
+  id?: string;
   menuItemId?: string;
   menuItem?: any;
-  name: string;
   quantity: number;
   notes?: string;
   price: number;
   totalPrice: number;
+  orderType?: 'MENU_ITEM' | 'INGREDIENT';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Company {
@@ -49,11 +52,24 @@ export type OrderType = {
   finalPrice?: number;
   payment?: CreatePaymentRequest;
   orderStatus?: OrderStatus;
+  orderType?: 'pickup' | 'delivery'; // New field for order type
   orderedDate?: string;
   requiredDate?: string;
   createdAt?: string;
   updatedAt?: string;
   orderNumber?: string;
+
+  // Customer information fields
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  customerAddress?: string;
+
+  // Delivery information fields
+  deliveryAddress?: string;
+  deliveryInstructions?: string;
+  deliveryLatitude?: number;
+  deliveryLongitude?: number;
 };
 
 export type Category = {
@@ -92,12 +108,13 @@ export type PriceType = {
 export type MenuItem = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   imageUrl?: string;
-  price: PriceType[];
+  price: PriceType[] | PriceType; // Can be array or single object
   category: string;
-  imageBase64: string;
+  imageBase64?: string;
   categoryId?: string;
+  isAvailable?: boolean;
 };
 
 export interface Payment {
@@ -120,6 +137,40 @@ export interface CreatePaymentRequest {
   companyId: string;
   branchId: string;
   paymentMethod: string;
+}
+
+// New types for the order system
+export interface CustomerInfo {
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+}
+
+export interface DeliveryInfo {
+  address: string;
+  instructions?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  } | null;
+}
+
+export interface OrderRequest {
+  companyId: string;
+  branchId: string;
+  waiterId?: string;
+  orderType: 'pickup' | 'delivery';
+  orderLines: {
+    menuItemId: string;
+    quantity: number;
+    price: number;
+    totalPrice: number;
+    notes?: string;
+  }[];
+  totalPrice: number;
+  customerInfo: CustomerInfo;
+  deliveryInfo?: DeliveryInfo;
 }
 
 export interface UpdatePaymentStatusRequest {

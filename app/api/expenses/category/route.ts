@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
     const categories = await prisma.category.findMany({
       where: {
-        branchId: decodedToken.branchId || undefined,
+        branchId: branchId || decodedToken.branchId || undefined,
       },
       orderBy: {
         name: 'asc',

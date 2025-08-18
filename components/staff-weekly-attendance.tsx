@@ -7,14 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  
   Clock,
   CheckCircle,
   XCircle,
   AlertCircle,
   User,
   MapPin,
-  
 } from 'lucide-react';
 import { format, startOfWeek, addDays, parseISO } from 'date-fns';
 
@@ -79,7 +77,7 @@ export function StaffWeeklyAttendance({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentWeekStart, setCurrentWeekStart] = useState(
-    startOfWeek(new Date()),
+    startOfWeek(new Date())
   );
 
   const fetchWeeklyData = async (weekStart: Date) => {
@@ -88,7 +86,7 @@ export function StaffWeeklyAttendance({
       setError(null);
 
       const response = await fetch(
-        `/api/attendance/staff-weekly?userId=${userId}&branchId=${branchId}&companyId=${companyId}&weekStart=${weekStart.toISOString()}`,
+        `/api/attendance/staff-weekly?userId=${userId}&branchId=${branchId}&companyId=${companyId}&weekStart=${weekStart.toISOString()}`
       );
 
       if (!response.ok) {
@@ -279,7 +277,7 @@ export function StaffWeeklyAttendance({
 
         {/* Weekly Schedule Grid */}
         <div className='grid grid-cols-7 gap-2'>
-          {weeklyData.weeklySchedule.map((day, ) => (
+          {weeklyData.weeklySchedule.map(day => (
             <div
               key={day.date}
               className={`p-3 rounded-lg border ${
@@ -341,10 +339,10 @@ export function StaffWeeklyAttendance({
             <p className='text-lg font-bold text-blue-600'>
               {weeklyData.summary.totalShifts > 0
                 ? Math.round(
-                  (weeklyData.summary.completedShifts /
+                    (weeklyData.summary.completedShifts /
                       weeklyData.summary.totalShifts) *
-                      100,
-                )
+                      100
+                  )
                 : 0}
               %
             </p>
@@ -354,9 +352,9 @@ export function StaffWeeklyAttendance({
             <p className='text-lg font-bold text-green-600'>
               {weeklyData.summary.completedShifts > 0
                 ? formatDuration(
-                  weeklyData.summary.totalHours /
-                      weeklyData.summary.completedShifts,
-                )
+                    weeklyData.summary.totalHours /
+                      weeklyData.summary.completedShifts
+                  )
                 : '0h 0m'}
             </p>
           </div>

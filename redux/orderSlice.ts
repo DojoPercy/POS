@@ -28,7 +28,7 @@ export const fetchOrders = createAsyncThunk<OrderType[], string>(
   async waiterId => {
     const data = await getOrders(undefined, undefined, waiterId);
     console.log('Fetched orders:', data);
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data.orders) ? data.orders : [];
   }
 );
 

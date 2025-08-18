@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useSidebar } from '@/context/siderbar';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -211,9 +210,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           className={`${
             isApplicationMenuOpen ? 'flex' : 'hidden'
           } items-center justify-between w-full gap-4 px-5 py-4 xl:flex shadow-theme-md xl:justify-end xl:px-0 xl:shadow-none`}
-        >
-        
-        </div>
+        ></div>
       </div>
     </header>
   );

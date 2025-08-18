@@ -63,37 +63,21 @@ const orderNavItems = [
     icon: FilePlus,
     text: 'New Order',
     href: '/waiter/order/new',
-    badge: 'Hot',
   },
   {
     icon: Package,
     text: 'Ingredient Order',
     href: '/waiter#ingredient-order-form',
-    badge: 'New',
   },
   {
     icon: ClipboardList,
     text: 'View Orders',
     href: '/waiter/order/view',
-    badge: '5',
   },
   {
     icon: Clock,
     text: 'Order History',
     href: '/waiter/order/history',
-  },
-];
-
-const quickActions = [
-  {
-    icon: Utensils,
-    text: 'Menu Items',
-    href: '/waiter/menu',
-  },
-  {
-    icon: Star,
-    text: 'Favorites',
-    href: '/waiter/favorites',
   },
 ];
 
@@ -168,18 +152,13 @@ export function WaiterSidebar() {
       {/* Sidebar Header: Logo and Company Info */}
       <SidebarHeader className='border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-4 shrink-0'>
         {/* ChainPOS Branding */}
-        <div className='flex items-center gap-3 py-2 px-2'>
-          <div className='flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 shadow-lg shadow-blue-500/25'>
-            <Utensils className='h-6 w-6 text-white' />
-          </div>
-          <div className='flex flex-col group-data-[collapsible=icon]:hidden'>
-            <span className='text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-none'>
-              ChainPOS
-            </span>
-            <span className='text-xs text-gray-600 dark:text-gray-400 font-medium mt-1'>
-              Waiter POS System
-            </span>
-          </div>
+        <div className='flex items-center justify-center'>
+          <Image
+            src='/pos_final.png'
+            alt='ChainPOS Logo'
+            width={108}
+            height={108}
+          />
         </div>
 
         {/* Restaurant/Company Info Card */}
@@ -193,7 +172,6 @@ export function WaiterSidebar() {
                 height={48}
                 className='rounded-xl object-cover border-2 border-white dark:border-gray-600 shadow-sm'
               />
-              <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-600'></div>
             </div>
             <div className='flex flex-col flex-1 min-w-0'>
               <span className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
@@ -202,12 +180,6 @@ export function WaiterSidebar() {
               <span className='text-xs text-gray-600 dark:text-gray-400 font-medium truncate'>
                 Waiter Dashboard
               </span>
-              <div className='flex items-center gap-1 mt-1'>
-                <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                <span className='text-xs text-green-600 dark:text-green-400 font-medium'>
-                  Active
-                </span>
-              </div>
             </div>
           </div>
         </div>
@@ -287,18 +259,6 @@ export function WaiterSidebar() {
                       </div>
                       <div className='flex items-center gap-2 flex-1 group-data-[collapsible=icon]:hidden'>
                         <span className='font-medium'>{item.text}</span>
-                        {item.badge && (
-                          <Badge
-                            variant='secondary'
-                            className={`text-xs px-1.5 py-0.5 ${
-                              item.badge === 'Hot'
-                                ? 'bg-red-100 text-red-700 border-red-200'
-                                : 'bg-blue-100 text-blue-700 border-blue-200'
-                            }`}
-                          >
-                            {item.badge}
-                          </Badge>
-                        )}
                       </div>
                     </Link>
                   </SidebarMenuButton>
@@ -311,44 +271,6 @@ export function WaiterSidebar() {
         <SidebarSeparator className='my-4 bg-gray-200 dark:bg-gray-700' />
 
         {/* Quick Actions */}
-        <SidebarGroup>
-          <SidebarGroupLabel className='px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden'>
-            Quick Actions
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {quickActions.map(item => (
-                <SidebarMenuItem key={item.text}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={item.text}
-                    className='group relative overflow-hidden rounded-lg transition-all duration-200 ease-out
-                               data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 data-[active=true]:border data-[active=true]:border-gray-200
-                               dark:data-[active=true]:bg-gray-800 dark:data-[active=true]:text-gray-100 dark:data-[active=true]:border-gray-700
-                               hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
-                               active:scale-[0.98]'
-                  >
-                    <Link
-                      href={item.href}
-                      className='flex items-center gap-3 w-full'
-                    >
-                      <div className='relative'>
-                        <item.icon className='h-5 w-5 transition-transform duration-200 group-hover:scale-110' />
-                        {isActive(item.href) && (
-                          <div className='absolute inset-0 bg-orange-500/20 rounded-full animate-ping'></div>
-                        )}
-                      </div>
-                      <span className='font-medium group-data-[collapsible=icon]:hidden'>
-                        {item.text}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
 
         <SidebarSeparator className='my-4 bg-gray-200 dark:bg-gray-700' />
 

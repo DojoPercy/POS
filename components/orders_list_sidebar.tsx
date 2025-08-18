@@ -172,6 +172,7 @@ export default function LiveOrdersMain() {
       if (decodedToken) {
         dispatch(fetchOrders(decodedToken.userId ?? ''));
       }
+      console.log('orders', orders);
     } catch (error) {
       console.error('Error decoding token:', error);
     }
@@ -201,9 +202,11 @@ export default function LiveOrdersMain() {
       // Only show notification if it's for this waiter
       if (data.waiterId === user?.userId && user?.userId) {
         dispatch(fetchOrders(user.userId));
+        const customerName = data.customerName || 'Walk-in Customer';
+        const orderType = data.orderType || 'pickup';
         toast({
           title: 'New Order!',
-          description: `Order #${data.orderNumber} has been created`,
+          description: `Order #${data.orderNumber} from ${customerName} (${orderType})`,
         });
 
         // Play notification sound
@@ -450,22 +453,37 @@ export default function LiveOrdersMain() {
               </div>
               <div>
                 <CardTitle className='text-sm font-medium'>
-                  {'Walk-in Customer'}
+                  {order.customerName || 'Walk-in Customer'}
                 </CardTitle>
                 <p className='text-xs text-gray-500'>
-                  Order #{order.orderNumber}
+                  Order #{order.orderNumber} • {order.orderType || 'pickup'}
                 </p>
+                {order.customerPhone && (
+                  <p className='text-xs text-gray-400'>
+                    📞 {order.customerPhone}
+                  </p>
+                )}
               </div>
             </div>
-            <Badge
-              variant='outline'
-              className={`text-xs ${getStatusColor(order.orderStatus || OrderStatus.PENDING)}`}
-            >
-              {getStatusIcon(order.orderStatus || OrderStatus.PENDING)}
-              <span className='ml-1'>
-                {getStatusText(order.orderStatus || OrderStatus.PENDING)}
-              </span>
-            </Badge>
+            <div className='flex flex-col gap-1'>
+              <Badge
+                variant='outline'
+                className={`text-xs ${getStatusColor(order.orderStatus || OrderStatus.PENDING)}`}
+              >
+                {getStatusIcon(order.orderStatus || OrderStatus.PENDING)}
+                <span className='ml-1'>
+                  {getStatusText(order.orderStatus || OrderStatus.PENDING)}
+                </span>
+              </Badge>
+              {order.orderType === 'delivery' && (
+                <Badge
+                  variant='outline'
+                  className='text-xs bg-blue-50 text-blue-700 border-blue-200'
+                >
+                  🚚 Delivery
+                </Badge>
+              )}
+            </div>
           </div>
         </CardHeader>
 
@@ -566,9 +584,34 @@ export default function LiveOrdersMain() {
 
         <div className='space-y-2 text-sm'>
           <div className='flex justify-between'>
-            <span className='text-gray-500'>Recipient:</span>
-            <span className='font-medium'>{'Walk-in Customer'}</span>
+            <span className='text-gray-500'>Customer:</span>
+            <span className='font-medium'>
+              {selectedOrder?.customerName || 'Walk-in Customer'}
+            </span>
           </div>
+          {selectedOrder?.customerPhone && (
+            <div className='flex justify-between'>
+              <span className='text-gray-500'>Phone:</span>
+              <span className='font-medium'>
+                {selectedOrder?.customerPhone}
+              </span>
+            </div>
+          )}
+          <div className='flex justify-between'>
+            <span className='text-gray-500'>Type:</span>
+            <span className='font-medium capitalize'>
+              {selectedOrder?.orderType || 'pickup'}
+            </span>
+          </div>
+          {selectedOrder?.orderType === 'delivery' &&
+            selectedOrder?.deliveryAddress && (
+              <div className='flex justify-between'>
+                <span className='text-gray-500'>Delivery:</span>
+                <span className='font-medium text-xs truncate max-w-[200px]'>
+                  {selectedOrder?.deliveryAddress}
+                </span>
+              </div>
+            )}
           <div className='flex justify-between'>
             <span className='text-gray-500'>Date:</span>
             <span className='font-medium'>
@@ -830,15 +873,46 @@ export default function LiveOrdersMain() {
                   {/* Customer Info */}
                   <div className='bg-gray-50 p-4 rounded-lg'>
                     <h3 className='font-semibold mb-3'>Customer Info</h3>
+                    {selectedOrder.orderType === 'delivery' &&
+                      selectedOrder.deliveryAddress && (
+                        <div className='mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg'>
+                          <div className='flex items-start gap-2'>
+                            <span className='text-blue-600'>📍</span>
+                            <div className='text-sm'>
+                              <p className='font-medium text-blue-800'>
+                                Delivery Address
+                              </p>
+                              <p className='text-blue-700'>
+                                {selectedOrder.deliveryAddress}
+                              </p>
+                              {selectedOrder.deliveryInstructions && (
+                                <p className='text-blue-600 text-xs mt-1'>
+                                  Note: {selectedOrder.deliveryInstructions}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     <div className='flex items-center gap-3 mb-3'>
                       <div className='w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-semibold'>
-                        {'W'}
+                        {selectedOrder.customerName
+                          ? selectedOrder.customerName.charAt(0).toUpperCase()
+                          : 'W'}
                       </div>
                       <div>
-                        <p className='font-semibold'>{'Walk-in Customer'}</p>
-                        <p className='text-sm text-gray-500'>
-                          Order #{selectedOrder.orderNumber} / Dine
+                        <p className='font-semibold'>
+                          {selectedOrder.customerName || 'Walk-in Customer'}
                         </p>
+                        <p className='text-sm text-gray-500'>
+                          Order #{selectedOrder.orderNumber} /{' '}
+                          {selectedOrder.orderType || 'pickup'}
+                        </p>
+                        {selectedOrder.customerPhone && (
+                          <p className='text-sm text-gray-500'>
+                            📞 {selectedOrder.customerPhone}
+                          </p>
+                        )}
                         <p className='text-sm text-gray-500'>
                           {formatDate(selectedOrder.createdAt || '')}{' '}
                           {formatTime(selectedOrder.createdAt || '')}

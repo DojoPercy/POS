@@ -24,6 +24,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogOverlay,
   DialogTitle,
 } from '@/components/ui/dialog';
 import {

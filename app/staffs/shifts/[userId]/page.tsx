@@ -11,6 +11,14 @@ import {
   CheckCircle,
   Coffee,
   Circle,
+  AlertCircle,
+  TrendingUp,
+  CalendarDays,
+  User,
+  Building,
+  ArrowLeft,
+  RefreshCw,
+  Filter,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +30,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { getBranchById } from '@/lib/branch';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 interface Shift {
   id: string;
@@ -58,30 +71,35 @@ const shiftStateConfig = {
     badge: 'bg-gray-100 text-gray-600',
     icon: <Circle className='h-4 w-4 text-gray-500' />,
     label: 'Inactive',
+    description: 'Shift is scheduled but not started',
   },
   ACTIVE: {
     color: 'bg-blue-50 border-blue-200 text-blue-800',
     badge: 'bg-blue-100 text-blue-700',
     icon: <Play className='h-4 w-4 text-blue-600' />,
     label: 'Active',
+    description: 'Currently working this shift',
   },
   ASSIST: {
     color: 'bg-yellow-50 border-yellow-200 text-yellow-800',
     badge: 'bg-yellow-100 text-yellow-700',
     icon: <Star className='h-4 w-4 text-yellow-600' />,
     label: 'Assist',
+    description: 'Assisting with other tasks',
   },
   BREAK: {
     color: 'bg-orange-50 border-orange-200 text-orange-800',
     badge: 'bg-orange-100 text-orange-700',
     icon: <Coffee className='h-4 w-4 text-orange-600' />,
     label: 'Break',
+    description: 'Currently on break',
   },
   COMPLETED: {
     color: 'bg-green-50 border-green-200 text-green-800',
     badge: 'bg-green-100 text-green-700',
     icon: <CheckCircle className='h-4 w-4 text-green-600' />,
     label: 'Completed',
+    description: 'Shift has been completed',
   },
 };
 
@@ -102,6 +120,8 @@ export default function StaffSchedulePage() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState('current');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [updatingShift, setUpdatingShift] = useState<string | null>(null);
 
   useEffect(() => {
     if (userId) {
@@ -138,6 +158,7 @@ export default function StaffSchedulePage() {
     newState: Shift['shiftState']
   ) => {
     try {
+      setUpdatingShift(shiftId);
       const response = await fetch(`/api/shift/${shiftId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -152,6 +173,8 @@ export default function StaffSchedulePage() {
       }
     } catch (error) {
       console.error('Error updating shift state:', error);
+    } finally {
+      setUpdatingShift(null);
     }
   };
 
@@ -179,7 +202,26 @@ export default function StaffSchedulePage() {
         }
         return a.dayOfWeek - b.dayOfWeek;
       })
-      .slice(0, 3);
+      .slice(0, 5);
+  };
+
+  const getFilteredShifts = () => {
+    if (filterStatus === 'all') return shifts;
+    return shifts.filter(shift => shift.shiftState === filterStatus);
+  };
+
+  const getShiftStats = () => {
+    const total = shifts.length;
+    const completed = shifts.filter(s => s.shiftState === 'COMPLETED').length;
+    const active = shifts.filter(s => s.shiftState === 'ACTIVE').length;
+    const upcoming = shifts.filter(s => s.shiftState === 'INACTIVE').length;
+
+    return { total, completed, active, upcoming };
+  };
+
+  const getCompletionRate = () => {
+    const stats = getShiftStats();
+    return stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
   };
 
   if (loading) {
@@ -210,11 +252,23 @@ export default function StaffSchedulePage() {
     );
   }
 
+  const stats = getShiftStats();
+
   return (
     <div className='p-6 space-y-6 bg-gray-50 min-h-screen'>
       {/* Header */}
-      <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4'>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4'
+      >
         <div className='flex items-center gap-4'>
+          <Link href='/waiter'>
+            <Button variant='outline' size='sm'>
+              <ArrowLeft className='h-4 w-4 mr-2' />
+              Back
+            </Button>
+          </Link>
           <Avatar className='h-16 w-16'>
             <AvatarFallback className='bg-blue-600 text-white text-lg font-semibold'>
               {getInitials(user.fullname)}
@@ -229,16 +283,29 @@ export default function StaffSchedulePage() {
                 {user.role}
               </Badge>
               <div className='flex items-center gap-1 text-gray-600'>
-                <MapPin className='h-4 w-4' />
-                <span className='text-sm'>{branch.name}</span>
+                <Building className='h-4 w-4' />
+                <span className='text-sm'>{branch?.name}</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className='flex items-center gap-3'>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className='w-48 bg-white'>
+              <Filter className='h-4 w-4 mr-2' />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className='bg-white'>
+              <SelectItem value='all'>All Shifts</SelectItem>
+              <SelectItem value='INACTIVE'>Scheduled</SelectItem>
+              <SelectItem value='ACTIVE'>Active</SelectItem>
+              <SelectItem value='COMPLETED'>Completed</SelectItem>
+            </SelectContent>
+          </Select>
           <Select value={selectedWeek} onValueChange={setSelectedWeek}>
             <SelectTrigger className='w-48 bg-white'>
+              <CalendarDays className='h-4 w-4 mr-2' />
               <SelectValue />
             </SelectTrigger>
             <SelectContent className='bg-white'>
@@ -247,12 +314,20 @@ export default function StaffSchedulePage() {
               <SelectItem value='previous'>Previous Week</SelectItem>
             </SelectContent>
           </Select>
+          <Button variant='outline' onClick={fetchUserData} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Quick Stats */}
-      <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-        <Card className='bg-white'>
+      {/* Stats Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'
+      >
+        <Card className='bg-white hover:shadow-md transition-shadow'>
           <CardContent className='p-4'>
             <div className='flex items-center gap-3'>
               <div className='p-2 bg-blue-100 rounded-lg'>
@@ -260,7 +335,7 @@ export default function StaffSchedulePage() {
               </div>
               <div>
                 <p className='text-2xl font-bold text-gray-900'>
-                  {shifts.length}
+                  {stats.total}
                 </p>
                 <p className='text-sm text-gray-600'>Total Shifts</p>
               </div>
@@ -268,195 +343,357 @@ export default function StaffSchedulePage() {
           </CardContent>
         </Card>
 
-        <Card className='bg-white'>
+        <Card className='bg-white hover:shadow-md transition-shadow'>
           <CardContent className='p-4'>
             <div className='flex items-center gap-3'>
               <div className='p-2 bg-green-100 rounded-lg'>
-                <Clock className='h-5 w-5 text-green-600' />
+                <CheckCircle className='h-5 w-5 text-green-600' />
               </div>
               <div>
                 <p className='text-2xl font-bold text-gray-900'>
-                  {getTotalHours()}
-                </p>
-                <p className='text-sm text-gray-600'>Total Hours</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className='bg-white'>
-          <CardContent className='p-4'>
-            <div className='flex items-center gap-3'>
-              <div className='p-2 bg-yellow-100 rounded-lg'>
-                <Star className='h-5 w-5 text-yellow-600' />
-              </div>
-              <div>
-                <p className='text-2xl font-bold text-gray-900'>
-                  {shifts.filter(s => s.shiftState === 'ACTIVE').length}
-                </p>
-                <p className='text-sm text-gray-600'>Active Shifts</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className='bg-white'>
-          <CardContent className='p-4'>
-            <div className='flex items-center gap-3'>
-              <div className='p-2 bg-purple-100 rounded-lg'>
-                <CheckCircle className='h-5 w-5 text-purple-600' />
-              </div>
-              <div>
-                <p className='text-2xl font-bold text-gray-900'>
-                  {shifts.filter(s => s.shiftState === 'COMPLETED').length}
+                  {stats.completed}
                 </p>
                 <p className='text-sm text-gray-600'>Completed</p>
               </div>
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Upcoming Shifts */}
-      <Card className='bg-white'>
-        <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <Clock className='h-5 w-5' />
-            Upcoming Shifts
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='space-y-3'>
-            {getUpcomingShifts().map(shift => {
-              const stateConfig = shiftStateConfig[shift.shiftState];
-              const day = DAYS_OF_WEEK.find(d => d.value === shift.dayOfWeek);
-              return (
-                <div
-                  key={shift.id}
-                  className={`p-4 rounded-lg border ${stateConfig.color}`}
-                >
-                  <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-3'>
-                      <div className='text-center'>
-                        <div className='text-sm font-semibold text-gray-900'>
-                          {day?.short}
-                        </div>
-                        <div className='text-xs text-gray-600'>
-                          {day?.label}
-                        </div>
-                      </div>
-                      <div>
-                        <p className='font-medium text-gray-900'>
-                          {shift.title}
-                        </p>
-                        <div className='flex items-center gap-2 text-sm text-gray-600'>
-                          <Clock className='h-3 w-3' />
-                          <span>
-                            {shift.startTime} - {shift.endTime}
-                          </span>
-                          <MapPin className='h-3 w-3 ml-2' />
-                          <span>{shift.branch.name}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='flex items-center gap-2'>
-                      <Badge className={stateConfig.badge}>
-                        <div className='flex items-center gap-1'>
-                          {stateConfig.icon}
-                          {stateConfig.label}
-                        </div>
-                      </Badge>
-                      <Select
-                        value={shift.shiftState}
-                        onValueChange={value =>
-                          handleShiftStateChange(
-                            shift.id,
-                            value as Shift['shiftState']
-                          )
-                        }
-                      >
-                        <SelectTrigger className='w-32'>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className='bg-white'>
-                          <SelectItem value='INACTIVE'>Inactive</SelectItem>
-                          <SelectItem value='ACTIVE'>Active</SelectItem>
-                          <SelectItem value='ASSIST'>Assist</SelectItem>
-                          <SelectItem value='BREAK'>Break</SelectItem>
-                          <SelectItem value='COMPLETED'>Completed</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {getUpcomingShifts().length === 0 && (
-              <div className='text-center py-8 text-gray-500'>
-                <Calendar className='h-12 w-12 mx-auto mb-3 opacity-50' />
-                <p>No upcoming shifts scheduled</p>
+        <Card className='bg-white hover:shadow-md transition-shadow'>
+          <CardContent className='p-4'>
+            <div className='flex items-center gap-3'>
+              <div className='p-2 bg-blue-100 rounded-lg'>
+                <Play className='h-5 w-5 text-blue-600' />
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              <div>
+                <p className='text-2xl font-bold text-gray-900'>
+                  {stats.active}
+                </p>
+                <p className='text-sm text-gray-600'>Active</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Weekly Schedule */}
-      <Card className='bg-white'>
-        <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <Calendar className='h-5 w-5' />
-            Weekly Schedule
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4'>
-            {DAYS_OF_WEEK.map(day => {
-              const dayShifts = getShiftsForDay(day.value);
-              return (
-                <div key={day.value} className='space-y-2'>
-                  <div className='text-center p-2 bg-gray-100 rounded-lg'>
-                    <div className='font-semibold text-sm text-gray-900'>
-                      {day.short}
+        <Card className='bg-white hover:shadow-md transition-shadow'>
+          <CardContent className='p-4'>
+            <div className='flex items-center gap-3'>
+              <div className='p-2 bg-yellow-100 rounded-lg'>
+                <Clock className='h-5 w-5 text-yellow-600' />
+              </div>
+              <div>
+                <p className='text-2xl font-bold text-gray-900'>
+                  {stats.upcoming}
+                </p>
+                <p className='text-sm text-gray-600'>Upcoming</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Completion Progress */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card className='bg-white'>
+          <CardContent className='p-4'>
+            <div className='flex items-center justify-between mb-2'>
+              <div className='flex items-center gap-2'>
+                <TrendingUp className='h-4 w-4 text-green-600' />
+                <span className='text-sm font-medium text-gray-700'>
+                  Shift Completion Rate
+                </span>
+              </div>
+              <span className='text-sm font-bold text-gray-900'>
+                {getCompletionRate().toFixed(1)}%
+              </span>
+            </div>
+            <Progress value={getCompletionRate()} className='h-2' />
+            <p className='text-xs text-gray-500 mt-1'>
+              {stats.completed} of {stats.total} shifts completed
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Main Content Tabs */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Tabs defaultValue='upcoming' className='space-y-4'>
+          <TabsList className='grid w-full grid-cols-3'>
+            <TabsTrigger value='upcoming'>Upcoming Shifts</TabsTrigger>
+            <TabsTrigger value='schedule'>Weekly Schedule</TabsTrigger>
+            <TabsTrigger value='history'>Shift History</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value='upcoming' className='space-y-4'>
+            <Card className='bg-white'>
+              <CardHeader>
+                <CardTitle className='flex items-center gap-2'>
+                  <Clock className='h-5 w-5' />
+                  Upcoming Shifts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='space-y-3'>
+                  {getUpcomingShifts().map(shift => {
+                    const stateConfig = shiftStateConfig[shift.shiftState];
+                    const day = DAYS_OF_WEEK.find(
+                      d => d.value === shift.dayOfWeek
+                    );
+                    const isToday = new Date().getDay() === shift.dayOfWeek;
+
+                    return (
+                      <motion.div
+                        key={shift.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className={`p-4 rounded-lg border ${stateConfig.color} ${
+                          isToday ? 'ring-2 ring-blue-200' : ''
+                        }`}
+                      >
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-3'>
+                            <div className='text-center'>
+                              <div className='text-sm font-semibold text-gray-900'>
+                                {day?.short}
+                              </div>
+                              <div className='text-xs text-gray-600'>
+                                {day?.label}
+                              </div>
+                              {isToday && (
+                                <Badge
+                                  variant='outline'
+                                  className='text-xs mt-1'
+                                >
+                                  Today
+                                </Badge>
+                              )}
+                            </div>
+                            <div>
+                              <p className='font-medium text-gray-900'>
+                                {shift.title}
+                              </p>
+                              <div className='flex items-center gap-2 text-sm text-gray-600'>
+                                <Clock className='h-3 w-3' />
+                                <span>
+                                  {shift.startTime} - {shift.endTime}
+                                </span>
+                                <MapPin className='h-3 w-3 ml-2' />
+                                <span>{shift.branch.name}</span>
+                              </div>
+                              <p className='text-xs text-gray-500 mt-1'>
+                                {stateConfig.description}
+                              </p>
+                            </div>
+                          </div>
+                          <div className='flex items-center gap-2'>
+                            <Badge className={stateConfig.badge}>
+                              <div className='flex items-center gap-1'>
+                                {stateConfig.icon}
+                                {stateConfig.label}
+                              </div>
+                            </Badge>
+                            <Select
+                              value={shift.shiftState}
+                              onValueChange={value =>
+                                handleShiftStateChange(
+                                  shift.id,
+                                  value as Shift['shiftState']
+                                )
+                              }
+                              disabled={updatingShift === shift.id}
+                            >
+                              <SelectTrigger className='w-32'>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className='bg-white'>
+                                <SelectItem value='INACTIVE'>
+                                  Inactive
+                                </SelectItem>
+                                <SelectItem value='ACTIVE'>Active</SelectItem>
+                                <SelectItem value='ASSIST'>Assist</SelectItem>
+                                <SelectItem value='BREAK'>Break</SelectItem>
+                                <SelectItem value='COMPLETED'>
+                                  Completed
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                  {getUpcomingShifts().length === 0 && (
+                    <div className='text-center py-8 text-gray-500'>
+                      <Calendar className='h-12 w-12 mx-auto mb-3 opacity-50' />
+                      <p>No upcoming shifts scheduled</p>
                     </div>
-                    <div className='text-xs text-gray-600'>{day.label}</div>
-                  </div>
-                  <div className='space-y-2 min-h-[100px]'>
-                    {dayShifts.map(shift => {
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='schedule' className='space-y-4'>
+            <Card className='bg-white'>
+              <CardHeader>
+                <CardTitle className='flex items-center gap-2'>
+                  <Calendar className='h-5 w-5' />
+                  Weekly Schedule
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4'>
+                  {DAYS_OF_WEEK.map(day => {
+                    const dayShifts = getShiftsForDay(day.value);
+                    const isToday = new Date().getDay() === day.value;
+
+                    return (
+                      <div key={day.value} className='space-y-2'>
+                        <div
+                          className={`text-center p-2 rounded-lg ${
+                            isToday
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100'
+                          }`}
+                        >
+                          <div className='font-semibold text-sm'>
+                            {day.short}
+                          </div>
+                          <div className='text-xs'>{day.label}</div>
+                          {isToday && (
+                            <Badge variant='outline' className='text-xs mt-1'>
+                              Today
+                            </Badge>
+                          )}
+                        </div>
+                        <div className='space-y-2 min-h-[100px]'>
+                          {dayShifts.map(shift => {
+                            const stateConfig =
+                              shiftStateConfig[shift.shiftState];
+                            return (
+                              <div
+                                key={shift.id}
+                                className={`p-2 rounded border text-xs ${stateConfig.color} cursor-pointer hover:shadow-sm transition-shadow`}
+                                onClick={() =>
+                                  handleShiftStateChange(
+                                    shift.id,
+                                    shift.shiftState === 'INACTIVE'
+                                      ? 'ACTIVE'
+                                      : shift.shiftState === 'ACTIVE'
+                                        ? 'COMPLETED'
+                                        : shift.shiftState === 'COMPLETED'
+                                          ? 'INACTIVE'
+                                          : 'INACTIVE'
+                                  )
+                                }
+                              >
+                                <div className='font-medium truncate'>
+                                  {shift.title}
+                                </div>
+                                <div className='flex items-center gap-1 mt-1'>
+                                  <Clock className='h-3 w-3' />
+                                  <span>
+                                    {shift.startTime} - {shift.endTime}
+                                  </span>
+                                </div>
+                                <div className='flex items-center gap-1 mt-1'>
+                                  {stateConfig.icon}
+                                  <span>{stateConfig.label}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {dayShifts.length === 0 && (
+                            <div className='text-center py-4 text-gray-400 text-xs'>
+                              No shifts
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='history' className='space-y-4'>
+            <Card className='bg-white'>
+              <CardHeader>
+                <CardTitle className='flex items-center gap-2'>
+                  <CheckCircle className='h-5 w-5' />
+                  Shift History
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='space-y-3'>
+                  {getFilteredShifts()
+                    .filter(shift => shift.shiftState === 'COMPLETED')
+                    .map(shift => {
                       const stateConfig = shiftStateConfig[shift.shiftState];
+                      const day = DAYS_OF_WEEK.find(
+                        d => d.value === shift.dayOfWeek
+                      );
+
                       return (
                         <div
                           key={shift.id}
-                          className={`p-2 rounded border text-xs ${stateConfig.color}`}
+                          className={`p-3 rounded-lg border ${stateConfig.color}`}
                         >
-                          <div className='font-medium truncate'>
-                            {shift.title}
-                          </div>
-                          <div className='flex items-center gap-1 mt-1'>
-                            <Clock className='h-3 w-3' />
-                            <span>
-                              {shift.startTime} - {shift.endTime}
-                            </span>
-                          </div>
-                          <div className='flex items-center gap-1 mt-1'>
-                            {stateConfig.icon}
-                            <span>{stateConfig.label}</span>
+                          <div className='flex items-center justify-between'>
+                            <div className='flex items-center gap-3'>
+                              <div className='text-center'>
+                                <div className='text-sm font-semibold text-gray-900'>
+                                  {day?.short}
+                                </div>
+                                <div className='text-xs text-gray-600'>
+                                  {day?.label}
+                                </div>
+                              </div>
+                              <div>
+                                <p className='font-medium text-gray-900'>
+                                  {shift.title}
+                                </p>
+                                <div className='flex items-center gap-2 text-sm text-gray-600'>
+                                  <Clock className='h-3 w-3' />
+                                  <span>
+                                    {shift.startTime} - {shift.endTime}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <Badge className={stateConfig.badge}>
+                              <div className='flex items-center gap-1'>
+                                {stateConfig.icon}
+                                {stateConfig.label}
+                              </div>
+                            </Badge>
                           </div>
                         </div>
                       );
                     })}
-                    {dayShifts.length === 0 && (
-                      <div className='text-center py-4 text-gray-400 text-xs'>
-                        No shifts
-                      </div>
-                    )}
-                  </div>
+                  {getFilteredShifts().filter(
+                    shift => shift.shiftState === 'COMPLETED'
+                  ).length === 0 && (
+                    <div className='text-center py-8 text-gray-500'>
+                      <CheckCircle className='h-12 w-12 mx-auto mb-3 opacity-50' />
+                      <p>No completed shifts found</p>
+                    </div>
+                  )}
                 </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </motion.div>
     </div>
   );
 }

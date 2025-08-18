@@ -111,7 +111,6 @@ export function OrderForm() {
   const [showReceipt, setShowReceipt] = useState<boolean>(false);
   const receiptRef = useRef<HTMLDivElement | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     setLoadingMenu(true);
