@@ -56,7 +56,9 @@ export default function KitchenDashboard({
       order.orderStatus?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.orderLines!.some(
         line =>
-          line.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          line.menuItem.name
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
           (line.notes &&
             line.notes.toLowerCase().includes(searchQuery.toLowerCase()))
       )

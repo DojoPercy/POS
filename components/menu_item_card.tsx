@@ -34,7 +34,7 @@ export default function MenuItemCard({
   const itemPrices = item.price || [];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPrice, setSelectedPrice] = useState<PriceType | null>(
-    itemPrices.length > 0 ? itemPrices[0] : null
+    Array.isArray(itemPrices) && itemPrices.length > 0 ? itemPrices[0] : null
   );
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
@@ -57,7 +57,12 @@ export default function MenuItemCard({
 
   const rating = 4.5;
   const isAvailable = true;
-  const basePrice = itemPrices.length > 0 ? itemPrices[0].price : 0;
+  const basePrice =
+    Array.isArray(itemPrices) && itemPrices.length > 0
+      ? itemPrices[0].price
+      : typeof itemPrices === 'object' && 'price' in itemPrices
+        ? itemPrices.price
+        : 0;
 
   return (
     <>
@@ -172,10 +177,11 @@ export default function MenuItemCard({
             <div className='space-y-3'>
               <h4 className='font-medium text-gray-900'>Select Size</h4>
               <div className='space-y-2'>
-                {itemPrices.map((price: PriceType) => (
-                  <div
-                    key={price.id}
-                    className={`
+                {(Array.isArray(itemPrices) ? itemPrices : [itemPrices]).map(
+                  (price: PriceType) => (
+                    <div
+                      key={price.id}
+                      className={`
                       flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-all
                       ${
                         selectedPrice?.id === price.id
@@ -183,27 +189,28 @@ export default function MenuItemCard({
                           : 'border-gray-200 hover:border-gray-300'
                       }
                     `}
-                    onClick={() => setSelectedPrice(price)}
-                  >
-                    <div className='flex items-center gap-3'>
-                      <div
-                        className={`
+                      onClick={() => setSelectedPrice(price)}
+                    >
+                      <div className='flex items-center gap-3'>
+                        <div
+                          className={`
                         w-4 h-4 rounded-full border-2 flex items-center justify-center
                         ${selectedPrice?.id === price.id ? 'border-primary' : 'border-gray-300'}
                       `}
-                      >
-                        {selectedPrice?.id === price.id && (
-                          <div className='w-2 h-2 rounded-full bg-primary' />
-                        )}
+                        >
+                          {selectedPrice?.id === price.id && (
+                            <div className='w-2 h-2 rounded-full bg-primary' />
+                          )}
+                        </div>
+                        <span className='font-medium'>{price.name}</span>
                       </div>
-                      <span className='font-medium'>{price.name}</span>
+                      <span className='font-semibold text-primary'>
+                        {currency}
+                        {price.price.toFixed(2)}
+                      </span>
                     </div>
-                    <span className='font-semibold text-primary'>
-                      {currency}
-                      {price.price.toFixed(2)}
-                    </span>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </div>
 

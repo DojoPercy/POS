@@ -18,11 +18,11 @@ export function InventoryStats({ inventoryData }: InventoryStatsProps) {
   // Calculate statistics
   const totalItems = inventoryData.length;
   const lowStockItems = inventoryData.filter(
-    item => item.stock > 0 && item.stock < 10,
+    item => item.stock > 0 && item.stock < 10
   ).length;
   const outOfStockItems = inventoryData.filter(item => item.stock <= 0).length;
   const healthyStockItems = inventoryData.filter(
-    item => item.stock >= 10,
+    item => item.stock >= 10
   ).length;
 
   return (

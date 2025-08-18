@@ -128,22 +128,22 @@ export default function OrderSummary({
   const subtotal = useMemo(() => {
     return cart.reduce(
       (total, item) => total + item.selectedPrice.price * item.quantity,
-      0,
+      0
     );
   }, [cart]);
 
   const tax = useMemo(
     () => (company ? subtotal * company.taxRate : 0),
-    [subtotal, company],
+    [subtotal, company]
   );
   const totalWithTax = useMemo(() => subtotal + tax, [subtotal, tax]);
   const finalPrice = useMemo(
     () => totalWithTax - discount + rounding,
-    [totalWithTax, discount, rounding],
+    [totalWithTax, discount, rounding]
   );
   const balance = useMemo(
     () => receivedAmount - finalPrice,
-    [receivedAmount, finalPrice],
+    [receivedAmount, finalPrice]
   );
 
   const handlePlaceOrder = async () => {
@@ -170,7 +170,7 @@ export default function OrderSummary({
               price: line.selectedPrice.price,
               totalPrice: line.selectedPrice.price * line.quantity,
               notes: line.notes || '',
-            }) as OrderLine,
+            }) as OrderLine
         ),
         totalPrice: totalWithTax,
         orderStatus: OrderStatus.PENDING,
@@ -243,9 +243,9 @@ export default function OrderSummary({
       deliveryInfo:
         orderType === 'delivery'
           ? {
-            address: deliveryInfo.address,
-            instructions: deliveryInfo.instructions || undefined,
-          }
+              address: deliveryInfo.address,
+              instructions: deliveryInfo.instructions || undefined,
+            }
           : undefined,
     };
 
@@ -284,7 +284,7 @@ export default function OrderSummary({
           customerPhone: customerInfo.phone,
           customerEmail: customerInfo.email,
           orderType,
-        }),
+        })
       );
 
       setShowCustomerForm(false);
@@ -343,7 +343,7 @@ export default function OrderSummary({
               price: line.selectedPrice.price,
               totalPrice: line.selectedPrice.price * line.quantity,
               notes: line.notes || '',
-            }) as OrderLine,
+            }) as OrderLine
         ),
         totalPrice: subtotal,
         discount: discount,
@@ -437,13 +437,13 @@ export default function OrderSummary({
 
   const getPaymentMethodIcon = (method: string) => {
     switch (method.toLowerCase()) {
-    case 'cash':
-      return <Banknote className='h-4 w-4 mr-2' />;
-    case 'credit card':
-    case 'card':
-      return <CreditCard className='h-4 w-4 mr-2' />;
-    default:
-      return <Receipt className='h-4 w-4 mr-2' />;
+      case 'cash':
+        return <Banknote className='h-4 w-4 mr-2' />;
+      case 'credit card':
+      case 'card':
+        return <CreditCard className='h-4 w-4 mr-2' />;
+      default:
+        return <Receipt className='h-4 w-4 mr-2' />;
     }
   };
 
@@ -509,7 +509,7 @@ export default function OrderSummary({
                         <p className='font-medium text-gray-800'>
                           {company?.currency || '$'}
                           {(item.selectedPrice.price * item.quantity).toFixed(
-                            2,
+                            2
                           )}
                         </p>
                       </div>

@@ -47,7 +47,7 @@ export default function FrequentItemsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const [user, setUsers] = useState<DecodedToken>();
   const { status, error, frequentItems, categories } = useSelector(
-    (state: RootState) => state.expenses,
+    (state: RootState) => state.expenses
   );
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function FrequentItemsPage() {
   const filteredItems = frequentItems.filter(
     (item: Frequent) =>
       item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.itemName.toLowerCase().includes(searchQuery.toLowerCase()),
+      item.itemName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (

@@ -53,7 +53,8 @@ export const RestaurantReceipt: React.FC<ReceiptProps> = ({
     receiptText += '--------------------------------\n';
 
     order.orderLines.forEach(line => {
-      const item = line.name.padEnd(10, ' ').substring(0, 10);
+      // Use 'productName' instead of 'name' as 'name' does not exist on OrderLine
+      const item = (line?.menuItem.name || '').padEnd(10, ' ').substring(0, 10);
       const qty = line.quantity.toString().padStart(3, ' ');
       const price = formatCurrency(line.price).padStart(6, ' ');
       const total = formatCurrency(line.totalPrice).padStart(7, ' ');

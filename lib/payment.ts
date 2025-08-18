@@ -43,7 +43,7 @@ export const paymentService = {
 
   async updatePayment(
     id: string,
-    updateData: Partial<UpdatePaymentStatusRequest>,
+    updateData: Partial<UpdatePaymentStatusRequest>
   ) {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'PUT',
@@ -70,7 +70,7 @@ export const paymentService = {
     from: Date,
     to: Date,
     branchId?: string,
-    companyId?: string,
+    companyId?: string
   ) {
     const queryParams = new URLSearchParams();
 
@@ -97,7 +97,7 @@ export const paymentService = {
 
     const totalPayment = res.reduce(
       (acc: number, order: any) => acc + (order.amount || 0),
-      0,
+      0
     );
 
     return totalPayment.toFixed(2);
@@ -106,7 +106,7 @@ export const paymentService = {
   async getPaymentSummaryByDateRangeOwner(
     from: Date,
     to: Date,
-    companyId: string,
+    companyId: string
   ): Promise<any[]> {
     // Fetch payments for the specified company
     const queryParams = new URLSearchParams();
@@ -153,7 +153,7 @@ export const paymentService = {
   async getPaymentTypeSummaryByDateRange(
     from: Date,
     to: Date,
-    companyId: string,
+    companyId: string
   ) {
     try {
       console.log(from, to, companyId);

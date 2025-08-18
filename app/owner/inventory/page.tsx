@@ -62,7 +62,7 @@ export default function InventoryPage() {
   const [activeTab, setActiveTab] = useState('table');
 
   const companyId = useSelector(
-    (state: any) => state.company?.currentCompanyId,
+    (state: any) => state.company?.currentCompanyId
   );
   const { company } = useSelector((state: RootState) => state.company);
   const { toast } = useToast();
@@ -117,7 +117,7 @@ export default function InventoryPage() {
     setIsLoadingStock(true);
     try {
       const response = await fetch(
-        `/api/inventory_stock?branchId=${selectedBranch}`,
+        `/api/inventory_stock?branchId=${selectedBranch}`
       );
       if (!response.ok) throw new Error('Failed to fetch inventory stock');
       const data = await response.json();
@@ -203,7 +203,7 @@ export default function InventoryPage() {
   const prepareInventoryData = (): InventoryItem[] => {
     return ingredients.map((ingredient: any) => {
       const stockItem = inventoryStock.find(
-        (stock: any) => stock.ingredientId === ingredient.id,
+        (stock: any) => stock.ingredientId === ingredient.id
       );
       return {
         ...ingredient,
@@ -220,8 +220,8 @@ export default function InventoryPage() {
     // Filter
     const filtered = filterValue
       ? data.filter((item: any) =>
-        item.name.toLowerCase().includes(filterValue.toLowerCase()),
-      )
+          item.name.toLowerCase().includes(filterValue.toLowerCase())
+        )
       : data;
 
     // Sort
@@ -257,7 +257,7 @@ export default function InventoryPage() {
     link.setAttribute('href', url);
     link.setAttribute(
       'download',
-      `inventory-${new Date().toISOString().split('T')[0]}.csv`,
+      `inventory-${new Date().toISOString().split('T')[0]}.csv`
     );
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
